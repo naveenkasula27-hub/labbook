@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "LabBook — booking platform for diagnostic labs",
-  "main": "src/index.js",
+  "main": "api/index.js",
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
