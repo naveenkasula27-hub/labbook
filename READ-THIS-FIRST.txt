@@ -1,0 +1,86 @@
+STAGE 2 — PUTTING LABBOOK ONLINE
+================================
+
+This adds what Vercel needs. Nothing about how the app works has changed.
+
+
+INSTALL
+-------
+
+1. Unzip this file.
+
+2. Open "labbook-deploy". You will see "server", "client" and some files.
+
+3. Select ALL of it: server, client, DEPLOY.md, README.md, .gitignore
+   (Ctrl + A works)
+
+4. Copy it.
+
+5. Paste into C:\Users\Naveen kasula\labBook
+
+6. Choose "Replace the files in the destination".
+
+   Your .env is not in here. Your database password stays as it is.
+
+7. Check nothing broke:
+
+     cd server
+     npm test
+
+   You should get 62 passing, 0 failing.
+   (13 of those are new, about hosting.)
+
+8. Then follow DEPLOY.md, which is now in your labBook folder.
+   Open it in VS Code to read it.
+
+
+WHAT CHANGED AND WHY
+--------------------
+
+server/api/index.js      New. Vercel does not run a server that stays on.
+                         Instead it calls a function per request. This file
+                         is that function. It makes sure the database is
+                         connected, then hands over to the same app you
+                         already have.
+
+server/src/db.js         Added connection caching. Without it, every single
+                         request would open a new database connection and
+                         Atlas would run out within minutes.
+
+server/src/config.js     Production now refuses to start on unsafe settings:
+                         no password secret, or a database address pointing
+                         at your own computer. Better to fail loudly than to
+                         run a live site that can never reach its data.
+
+server/src/index.js      The API now checks which website is calling it.
+                         Your site and Vercel's preview addresses are
+                         allowed; anything else is refused.
+
+server/vercel.json       Tells Vercel to send all addresses to the function.
+
+client/vercel.json       Tells Vercel that /dashboard and /nandu are pages
+                         inside the app, not missing files. Without this,
+                         pressing refresh on the dashboard gives 404.
+
+client/.env.example      Documents the one setting the website needs when
+                         hosted: where to find the API.
+
+DEPLOY.md                The step by step guide. Read this one.
+
+
+ONE THING I COULD NOT TEST
+--------------------------
+
+Deploying needs your GitHub and Vercel accounts, so I could not try the real
+thing. Everything that can be checked without deploying, I checked, and the
+13 new tests pass.
+
+The one risk is how Vercel passes addresses through to the function. If the
+health check in DEPLOY.md step 3 returns "404 Not Found" instead of
+{"ok":true}, that is the problem. Tell me and it is a ten minute fix.
+
+
+COST
+----
+
+Nothing. Vercel's free plan and your existing free Atlas cluster.
