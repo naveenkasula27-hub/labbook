@@ -21,6 +21,15 @@ const labSchema = new mongoose.Schema(
     tagline: { type: String, default: "" },
     about: { type: String, default: "" },
 
+    /**
+     * A sample lab rather than a real business.
+     *
+     * The booking page puts a notice at the top when this is on, so visitors
+     * know not to enter real personal details and nobody mistakes the page for
+     * a business that exists.
+     */
+    isDemo: { type: Boolean, default: false },
+
     phone: { type: String, required: true },          // local format, shown on the page
     whatsapp: { type: String, default: "" },          // full international, digits only: 919949070916
     email: { type: String, default: "" },

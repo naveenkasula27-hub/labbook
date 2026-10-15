@@ -31,6 +31,16 @@
 .login-card { width: 100%; max-width: 380px; display: grid; gap: 14px; }
 .login-card h1 { font-size: 1.35rem; margin: 0; }
 
+/* Separated from the real sign-in above it by a rule, so nobody types their
+   own password into the demo by mistake. */
+.demo-login {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line, #e5e7eb);
+}
+.demo-login p { margin: 0; }
+
 /* ---------- Summary tiles ---------- */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .tile {

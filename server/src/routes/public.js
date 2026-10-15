@@ -33,6 +33,7 @@ const publicLab = (lab) => ({
   slug: lab.slug,
   tagline: lab.tagline,
   about: lab.about,
+  isDemo: Boolean(lab.isDemo),
   phone: lab.phone,
   whatsapp: lab.whatsapp,
   address: lab.address,

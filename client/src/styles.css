@@ -43,6 +43,27 @@ p { margin: 0 0 10px; }
 .small { font-size: 0.875rem; }
 .tiny { font-size: 0.8125rem; }
 
+/* ---------- Demo notice ---------- */
+/* Sits above the header on sample labs. Amber rather than red: this is a
+   notice, not a problem, and a red bar at the top of a lab's page reads as
+   something being broken. */
+.demo-strip {
+  background: #fef3c7;
+  color: #4a3609;
+  border-bottom: 1px solid #f0d089;
+  padding: 9px 0;
+  font-size: 0.875rem;
+}
+.demo-strip .wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.demo-strip p { margin: 0; }
+.demo-strip .demo-by { white-space: nowrap; opacity: 0.75; font-size: 0.8125rem; }
+
 /* ---------- Header ---------- */
 .site-head {
   background: var(--primary);

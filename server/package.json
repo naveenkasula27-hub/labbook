@@ -11,6 +11,8 @@
     "seed": "node src/seed/seed.js",
     "backfill:seats": "node src/scripts/backfill-seats.js",
     "set-password": "node src/scripts/set-password.js",
+    "demo-lab": "node src/scripts/demo-lab.js",
+    "demo-lab:reset": "node src/scripts/demo-lab.js --reset",
     "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs test/seats.mjs",
     "test:api": "node --test test/api.mjs test/dashboard.mjs test/ratelimit.mjs test/slots.mjs"
   },

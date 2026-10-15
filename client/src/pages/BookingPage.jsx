@@ -205,6 +205,18 @@ export default function BookingPage() {
 
   return (
     <>
+      {lab.isDemo && (
+        <div className="demo-strip">
+          <div className="wrap">
+            <p>
+              <strong>Demo site.</strong> {lab.name} is a sample lab, not a real business.
+              Please do not enter real personal details.
+            </p>
+            <p className="demo-by">Built by UnityWebWorks</p>
+          </div>
+        </div>
+      )}
+
       <header className="site-head">
         <div className="wrap">
           <div className="head-row">
