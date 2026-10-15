@@ -294,7 +294,19 @@ p { margin: 0 0 10px; }
   border: 1px solid var(--line); border-radius: 9px; padding: 9px 13px;
 }
 .slot[aria-pressed="true"] { border-color: var(--primary); background: var(--primary); color: #fff; }
-.slot:disabled { opacity: 0.45; cursor: not-allowed; text-decoration: line-through; }
+/* Not struck through: the slot still needs reading, it just cannot be chosen.
+   The Full tag carries that now. */
+.slot:disabled { cursor: not-allowed; background: #F4F6F8; color: var(--ink-faint); }
+
+.slot-tag {
+  display: inline-block; margin-left: 7px;
+  font-family: var(--font-head); font-weight: 700; font-size: 0.6875rem;
+  padding: 2px 7px; border-radius: 999px;
+  background: var(--warn-bg); color: #92400e;
+  vertical-align: middle;
+}
+.slot-tag-full { background: var(--bad-bg); color: var(--bad); }
+.slot[aria-pressed="true"] .slot-tag { background: rgba(255, 255, 255, 0.22); color: #fff; }
 
 /* ---------- Buttons ---------- */
 .btn {

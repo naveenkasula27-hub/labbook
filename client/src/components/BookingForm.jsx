@@ -305,6 +305,14 @@ const BookingForm = forwardRef(function BookingForm(
                   >
                     {s.label}
                     <span className="muted tiny"> {s.start}–{s.end}</span>
+                    {/* A struck-through greyed button told nobody why they
+                        could not pick it. Say so, and warn when a slot is
+                        nearly gone, which is also a reason to book now. */}
+                    {s.full ? (
+                      <span className="slot-tag slot-tag-full">Full</span>
+                    ) : s.left <= 2 ? (
+                      <span className="slot-tag">{s.left} left</span>
+                    ) : null}
                   </button>
                 ))}
               </div>
