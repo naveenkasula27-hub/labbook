@@ -82,6 +82,26 @@ export async function notifyLabOfBooking(lab, booking) {
 
 export async function confirmToPatient(lab, booking) {
   const when = [booking.date, booking.slot].filter(Boolean).join(", ");
+
+  // On a sample lab the message must not read like a real appointment. Someone
+  // who gets "please come to Main Road" and acts on it has wasted a trip, and
+  // the notice on the page is easy to scroll past.
+  if (lab.isDemo) {
+    const body = [
+      `This is a demo of a lab booking page. Nothing has been booked.`,
+      `${lab.name} is a sample lab, not a real business, so no appointment`,
+      `exists and nobody is expecting you.`,
+      ``,
+      `Reference: ${booking.reference}`,
+      when ? `Slot you picked: ${when}` : "",
+      ``,
+      `Built by UnityWebWorks. Questions? Call ${lab.phone}.`,
+    ]
+      .filter((line) => line !== undefined)
+      .join("\n");
+    return sendText(booking.patient.phone, body);
+  }
+
   const body = [
     `${lab.name}: your booking is confirmed.`,
     `Reference: ${booking.reference}`,
@@ -101,6 +121,11 @@ export async function confirmToPatient(lab, booking) {
 
 /** fastingNote is worked out by the caller, which has the Test rows to hand. */
 export async function remindPatient(lab, booking, fastingNote = "") {
+  // A sample lab never sends reminders. A message saying "reminder for
+  // tomorrow" the morning after somebody poked at a demo is the worst version
+  // of this problem.
+  if (lab.isDemo) return { skipped: true };
+
   const body = [
     `${lab.name}: reminder for tomorrow.`,
     `Reference: ${booking.reference}`,
