@@ -13,6 +13,7 @@ import Packages from "../components/Packages.jsx";
 import SelectedPanel from "../components/SelectedPanel.jsx";
 import BookingForm from "../components/BookingForm.jsx";
 import Confirmation from "../components/Confirmation.jsx";
+import DemoStrip from "../components/DemoStrip.jsx";
 
 export default function BookingPage() {
   const { slug } = useParams();
@@ -145,7 +146,22 @@ export default function BookingPage() {
     return [...names];
   }, [picked, byCode, pkgByCode]);
 
+  /**
+   * Picking anything after a booking means the patient has started a new one,
+   * so the old confirmation goes away.
+   *
+   * Without this they were stuck: the confirmation stayed on screen, and the
+   * bar at the bottom of the screen hides itself while a confirmation is up,
+   * so there was no visible way to continue. The only route forward was the
+   * Confirm button far down the page, which is exactly the button people
+   * cannot find.
+   */
+  function startNewIfConfirmed() {
+    setConfirmed((c) => (c ? null : c));
+  }
+
   function toggleTest(code) {
+    startNewIfConfirmed();
     setPicked((p) => {
       const tests = new Set(p.tests);
       tests.has(code) ? tests.delete(code) : tests.add(code);
@@ -154,6 +170,7 @@ export default function BookingPage() {
   }
 
   function togglePackage(code) {
+    startNewIfConfirmed();
     setPicked((p) => {
       const packages = new Set(p.packages);
       packages.has(code) ? packages.delete(code) : packages.add(code);
@@ -208,17 +225,7 @@ export default function BookingPage() {
 
   return (
     <>
-      {lab.isDemo && (
-        <div className="demo-strip">
-          <div className="wrap">
-            <p>
-              <strong>Demo site.</strong> {lab.name} is a sample lab, not a real business.
-              Please do not enter real personal details.
-            </p>
-            <p className="demo-by">Built by UnityWebWorks</p>
-          </div>
-        </div>
-      )}
+      {lab.isDemo && <DemoStrip labName={lab.name} />}
 
       <header className="site-head">
         <div className="wrap">

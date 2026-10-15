@@ -1,0 +1,223 @@
+/**
+ * The front page: what a lab owner sees after clicking an ad.
+ *
+ * Everything is scoped under .lp so it cannot collide with the booking page's
+ * styles, which share the same stylesheet bundle.
+ *
+ * Colours come from the UnityWebWorks palette, in the proportion the brand
+ * guidelines set: mostly white, navy for the bands that carry weight, and
+ * orange kept for the things people press.
+ */
+
+.lp {
+  --navy: #14213D;
+  --orange: #FF6A1F;
+  --amber: #FFA55C;
+  --pale: #FFE4D1;
+  --slate: #6B7280;
+  --line: #E6E8EC;
+
+  color: var(--navy);
+  font-family: "Lato", system-ui, sans-serif;
+  background: #fff;
+}
+
+.lp-wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+.lp h1, .lp h2, .lp h3 {
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+/* ---------- top bar ---------- */
+
+.lp-top {
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+}
+.lp-top .lp-wrap {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.lp-top-links { display: flex; gap: 10px; align-items: center; }
+.lp-top-links a {
+  color: var(--navy); text-decoration: none; font-weight: 700;
+  font-size: 0.9375rem; padding: 8px 14px; border-radius: 8px;
+}
+.lp-top-links a:hover { background: var(--pale); }
+.lp-top-links a.lp-wa { background: var(--orange); color: #fff; }
+.lp-top-links a.lp-wa:hover { background: #E85D13; }
+
+/* ---------- hero ---------- */
+
+.lp-hero { background: var(--navy); color: #fff; padding: 52px 0 0; }
+
+/* Text and screens side by side on a wide screen. Stacked, this left the
+   whole right half of the hero as empty navy. */
+.lp-hero-grid { display: grid; gap: 34px; align-items: end; }
+@media (min-width: 1000px) {
+  .lp-hero-grid { grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr); gap: 40px; }
+  .lp-hero-text { padding-bottom: 52px; }
+}
+
+.lp-hero h1 {
+  color: #fff;
+  font-size: clamp(2rem, 4.4vw, 3rem);
+  line-height: 1.08;
+  max-width: 19ch;
+}
+.lp-hero p.lp-sub {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.0625rem;
+  max-width: 48ch;
+  margin: 18px 0 26px;
+}
+
+.lp-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.lp-btn {
+  display: inline-block; text-decoration: none; font-weight: 700;
+  font-family: "Poppins", system-ui, sans-serif;
+  padding: 14px 22px; border-radius: 10px; font-size: 1rem;
+}
+.lp-btn-main { background: var(--orange); color: #fff; }
+.lp-btn-main:hover { background: #E85D13; }
+.lp-btn-quiet {
+  background: transparent; color: #fff;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.45);
+}
+.lp-btn-quiet:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* The two screens: the patient's phone, and the lab's.
+   Stacked on a phone. On a wide screen the patient's phone overlaps the lab's
+   screen, which says "these are the same booking" without needing an arrow. */
+.lp-screens { display: grid; gap: 18px; align-items: end; }
+
+@media (min-width: 1000px) {
+  .lp-screens {
+    position: relative;
+    display: block;
+    /* Side by side, both sitting on the bottom edge of the hero. They were
+       overlapping, which hid the patient names on the lab's screen, and those
+       names are the whole point of the picture. */
+    padding-left: 206px;
+  }
+  .lp-screens .lp-phone {
+    position: absolute; left: 0; bottom: 0; width: 186px;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+.lp-phone {
+  background: #fff; color: var(--navy);
+  border-radius: 20px 20px 0 0;
+  padding: 16px 14px 20px;
+  box-shadow: 0 -2px 40px rgba(0, 0, 0, 0.3);
+}
+.lp-phone-head {
+  background: var(--navy); color: #fff; margin: -16px -14px 14px;
+  border-radius: 20px 20px 0 0; padding: 14px;
+  font-family: "Poppins", sans-serif; font-weight: 700; font-size: 0.9375rem;
+}
+.lp-field {
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 11px; margin-bottom: 8px; font-size: 0.8125rem; color: var(--slate);
+}
+.lp-field strong { display: block; color: var(--navy); font-size: 0.875rem; }
+.lp-phone .lp-mini-btn {
+  background: var(--orange); color: #fff; text-align: center;
+  font-family: "Poppins", sans-serif; font-weight: 700; font-size: 0.875rem;
+  padding: 11px; border-radius: 8px; margin-top: 12px;
+}
+
+/* The overlap carries the meaning, so the arrow is not needed at any width. */
+.lp-arrow { display: none; }
+
+.lp-hide-sm { display: none; }
+@media (min-width: 560px) { .lp-hide-sm { display: inline; } }
+
+.lp-screen {
+  background: #fff; color: var(--navy);
+  border-radius: 14px 14px 0 0; overflow: hidden;
+  box-shadow: 0 -2px 40px rgba(0, 0, 0, 0.3);
+}
+.lp-screen-head {
+  background: #F4F6F8; border-bottom: 1px solid var(--line);
+  padding: 10px 14px; font-size: 0.8125rem; color: var(--slate);
+  display: flex; align-items: center; gap: 8px;
+}
+.lp-dot { width: 9px; height: 9px; border-radius: 50%; background: #CBD2DA; flex: none; }
+.lp-screen-body { padding: 14px; }
+.lp-screen-body h3 { font-size: 1rem; margin-bottom: 10px; }
+
+.lp-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px;
+  align-items: center; padding: 11px 0; border-top: 1px solid var(--line);
+}
+.lp-row:first-of-type { border-top: 0; }
+.lp-row-name { font-weight: 700; font-size: 0.9375rem; }
+.lp-row-meta { font-size: 0.8125rem; color: var(--slate); }
+.lp-tag {
+  font-family: "Poppins", sans-serif; font-weight: 700; font-size: 0.6875rem;
+  padding: 4px 9px; border-radius: 999px; background: #EEF1F4; color: var(--slate);
+  white-space: nowrap;
+}
+.lp-tag-new { background: var(--pale); color: #9A3E05; }
+
+/* The one moment of motion on the page: the new booking arrives. */
+.lp-row-arriving { animation: lp-arrive 0.5s ease-out 0.9s both; }
+@keyframes lp-arrive {
+  from { opacity: 0; transform: translateY(-6px); background: var(--pale); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-row-arriving { animation: none; }
+}
+
+/* ---------- plain sections ---------- */
+
+.lp-band { padding: 60px 0; }
+.lp-band-pale { background: var(--pale); }
+.lp-band-navy { background: var(--navy); color: #fff; }
+.lp-band-navy h2 { color: #fff; }
+
+.lp-band h2 { font-size: clamp(1.5rem, 3.4vw, 2.125rem); max-width: 26ch; }
+.lp-band p { max-width: 62ch; font-size: 1.0625rem; line-height: 1.6; }
+.lp-band-navy p { color: rgba(255, 255, 255, 0.84); }
+
+/* The three steps are a real sequence, so they are drawn as one, joined by a
+   rule rather than numbered badges. */
+.lp-steps { display: grid; gap: 0; margin-top: 30px; }
+@media (min-width: 760px) { .lp-steps { grid-template-columns: repeat(3, 1fr); } }
+.lp-step { padding: 20px 0; border-top: 3px solid var(--navy); }
+@media (min-width: 760px) {
+  .lp-step { padding: 20px 26px 0 0; }
+  .lp-step + .lp-step { padding-left: 26px; }
+}
+.lp-step h3 { font-size: 1.125rem; margin-bottom: 7px; }
+.lp-step p { font-size: 0.9375rem; color: var(--slate); margin: 0; }
+
+.lp-list { margin: 26px 0 0; padding: 0; list-style: none; max-width: 62ch; }
+.lp-list li {
+  padding: 13px 0 13px 26px; border-top: 1px solid var(--line);
+  font-size: 1.0625rem; position: relative;
+}
+.lp-list li::before {
+  content: ""; position: absolute; left: 0; top: 21px;
+  width: 11px; height: 3px; background: var(--orange);
+}
+
+.lp-creds {
+  background: #fff; border-radius: 10px; padding: 14px 16px;
+  margin-top: 22px; display: inline-block;
+  font-family: "Lato", monospace; font-size: 0.9375rem;
+}
+.lp-creds span { color: var(--slate); }
+
+.lp-foot {
+  border-top: 1px solid var(--line); padding: 28px 0 40px;
+  color: var(--slate); font-size: 0.875rem;
+}
+.lp-foot a { color: var(--navy); }
+
+.lp :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }

@@ -29,7 +29,23 @@
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* The scrollbar in the lab's own colour rather than system grey. Firefox and
+     any browser that supports the standard property. */
+  scrollbar-color: var(--primary) var(--bg);
+  scrollbar-width: thin;
+}
+
+/* Chrome, Edge and Safari use their own properties for the same thing. */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 999px;
+  border: 3px solid var(--bg);   /* inset, so the bar reads as a slim pill */
+}
+::-webkit-scrollbar-thumb:hover { background: var(--cta, var(--primary)); }
 
 body {
   margin: 0;
@@ -44,7 +60,9 @@ h2 { font-size: 1.2rem; }
 h3 { font-size: 1rem; }
 p { margin: 0 0 10px; }
 
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 var(--gutter); }
+/* 1200px to match the bar at the bottom, which was already using that. On a
+   wide screen 1040 left a band of empty page down both sides. */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--gutter); }
 
 .muted { color: var(--ink-soft); }
 .small { font-size: 0.875rem; }
@@ -58,19 +76,54 @@ p { margin: 0 0 10px; }
   background: #FFE4D1;            /* Pale Orange, a tint rather than the full orange */
   color: #14213D;                 /* Deep Navy, so it reads cleanly */
   border-bottom: 2px solid #FF6A1F;
-  padding: 9px 0;
+  padding: 10px 0;
   font-size: 0.875rem;
 }
-.demo-strip strong { font-family: var(--font-head); }
-.demo-strip .wrap {
+.demo-strip-inner {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
 }
-.demo-strip p { margin: 0; }
-.demo-strip .demo-by { white-space: nowrap; opacity: 0.75; font-size: 0.8125rem; }
+.demo-strip .demo-note { margin: 0; max-width: 62ch; }
+.demo-strip .demo-note strong { font-family: var(--font-head); }
+
+/* The logo lockup: mark, then the wordmark with its tagline underneath. */
+.uww-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+  flex: none;
+}
+.uww-mark { display: block; flex: none; }
+.uww-words { display: flex; flex-direction: column; line-height: 1.1; }
+.uww-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: #14213D;
+}
+.uww-name em { font-style: normal; color: #FF6A1F; }   /* "Web" in orange */
+.uww-tagline {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6B7280;                 /* Slate Gray, from the palette */
+  margin-top: 2px;
+}
+.uww-lockup:hover .uww-name { text-decoration: underline; }
+
+/* On a phone the notice goes under the logo rather than squeezing beside it. */
+@media (max-width: 640px) {
+  .demo-strip-inner { gap: 8px; }
+  .demo-strip .demo-note { font-size: 0.8125rem; }
+}
 
 /* ---------- Header ---------- */
 .site-head {
@@ -102,9 +155,14 @@ p { margin: 0 0 10px; }
 .cols > * { min-width: 0; }
 
 @media (min-width: 900px) {
-  .cols { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
-  .side { position: sticky; top: 18px; }
+  .cols { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
 }
+
+/* The side column is NOT sticky. It holds the booking form, which is taller
+   than the screen, and a sticky element taller than the viewport pins its top
+   and never scrolls its bottom into view — so the Confirm button sat below the
+   fold with no way to reach it. The bar at the bottom of the screen is what
+   keeps the next step in front of people instead. */
 
 .card {
   background: var(--card);
@@ -257,16 +315,25 @@ p { margin: 0 0 10px; }
 @keyframes shine { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
 
-/* ---------- Sticky bottom bar on phones ---------- */
+/* ---------- Bar pinned to the bottom of the screen ---------- */
+/* Shown at every width, not just on phones. On a laptop the form is long
+   enough that the Confirm button starts below the fold, and somebody who has
+   picked three tests should never have to hunt for the next step. */
+/* In the lab's own colour rather than white. A white bar on a white page was
+   easy to read past, and somebody who has picked a test and cannot see what to
+   do next decides the site is broken. */
 .bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  background: #fff; border-top: 1px solid var(--line);
-  padding: 10px var(--gutter); padding-bottom: calc(10px + env(safe-area-inset-bottom));
-  display: flex; gap: 10px; align-items: center;
-  box-shadow: 0 -2px 14px rgba(15, 23, 42, 0.07);
+  background: var(--primary); color: #fff;
+  padding: 12px 0; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.22);
+}
+.bar-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 var(--gutter);
+  display: flex; gap: 12px; align-items: center;
 }
 .bar .bar-text { flex: 1; font-size: 0.875rem; line-height: 1.3; }
-.bar .bar-count { font-weight: 600; }
-@media (min-width: 900px) { .bar { display: none; } }
+.bar .bar-count { font-weight: 700; font-family: var(--font-head); }
+.bar .muted { color: rgba(255, 255, 255, 0.78); }
 
 .site-foot { padding: 22px 0 36px; color: var(--ink-faint); font-size: 0.8125rem; text-align: center; }
