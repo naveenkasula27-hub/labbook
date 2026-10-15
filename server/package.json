@@ -13,6 +13,8 @@
     "set-password": "node src/scripts/set-password.js",
     "demo-lab": "node src/scripts/demo-lab.js",
     "demo-lab:reset": "node src/scripts/demo-lab.js --reset",
+    "remind": "node src/jobs/send-reminders.js",
+    "remind:dry": "node src/jobs/send-reminders.js --dry-run",
     "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs test/seats.mjs",
     "test:api": "node --test test/api.mjs test/dashboard.mjs test/ratelimit.mjs test/slots.mjs"
   },
