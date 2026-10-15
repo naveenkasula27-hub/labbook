@@ -353,6 +353,9 @@ test("a full slot is marked full and refuses new bookings", async () => {
   const slot = "Afternoon";
   const capacity = lab.slots.find((s) => s.label === slot).capacity;
 
+  // seat and holdsSlot are what mark a place as taken. Written here by hand
+  // because these go straight into the database rather than through the
+  // booking route, which sets them itself.
   await Booking.insertMany(
     Array.from({ length: capacity }, (_, i) => ({
       lab: lab._id,
@@ -362,6 +365,8 @@ test("a full slot is marked full and refuses new bookings", async () => {
       date: tomorrow,
       slot,
       status: "new",
+      seat: i,
+      holdsSlot: true,
     }))
   );
 
@@ -377,7 +382,12 @@ test("a full slot is marked full and refuses new bookings", async () => {
 
 test("cancelled bookings free the slot again", async () => {
   const slot = "Afternoon";
-  await Booking.updateMany({ lab: lab._id, slot, reference: /^FIL-/ }, { $set: { status: "cancelled" } });
+  // Cancelling through the dashboard clears holdsSlot as well as the status.
+  // Writing straight to the database, both have to be set here.
+  await Booking.updateMany(
+    { lab: lab._id, slot, reference: /^FIL-/ },
+    { $set: { status: "cancelled", holdsSlot: false } }
+  );
 
   const [, avail] = await api.get(`/public/nandu/availability?date=${tomorrow}`);
   const row = avail.slots.find((s) => s.label === slot);

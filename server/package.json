@@ -9,8 +9,9 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "seed": "node src/seed/seed.js",
-    "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs",
-    "test:api": "node --test test/api.mjs test/dashboard.mjs test/ratelimit.mjs"
+    "backfill:seats": "node src/scripts/backfill-seats.js",
+    "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs test/seats.mjs",
+    "test:api": "node --test test/api.mjs test/dashboard.mjs test/ratelimit.mjs test/slots.mjs"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",

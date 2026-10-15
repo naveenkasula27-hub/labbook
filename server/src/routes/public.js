@@ -11,6 +11,7 @@ import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
 import { Booking } from "../models/Booking.js";
 import { makeReference } from "../lib/reference.js";
+import { createBookingHoldingSlot } from "../lib/seats.js";
 import { normalisePhone, looksLikeMobile } from "../lib/phone.js";
 import { CATEGORY_ORDER } from "../seed/catalog.js";
 import { config } from "../config.js";
@@ -88,8 +89,11 @@ publicRouter.get("/:slug/availability", loadLab, async (req, res) => {
     return res.json({ date, open: false, reason: "The lab is closed on this day.", slots: [] });
   }
 
+  // holdsSlot is the one definition of "this booking occupies a place", kept
+  // in step with the unique index that enforces it. Cancelled bookings and
+  // bookings with no slot have it false.
   const taken = await Booking.aggregate([
-    { $match: { lab: req.lab._id, date, status: { $nin: ["cancelled", "no_show"] } } },
+    { $match: { lab: req.lab._id, date, holdsSlot: true } },
     { $group: { _id: "$slot", count: { $sum: 1 } } },
   ]);
   const used = Object.fromEntries(taken.map((t) => [t._id, t.count]));
@@ -203,22 +207,16 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
       return res.status(400).json({ error: "The lab is closed on that day.", field: "date" });
     }
   }
+  // Capacity itself is checked on the write, further down, so that two people
+  // booking the last place at the same moment cannot both succeed. Here we
+  // only confirm the slot is one the lab actually offers.
+  let slotCapacity = 0;
   if (slot) {
     const known = lab.slots.find((s) => s.label === slot);
     if (!known) {
       return res.status(400).json({ error: "That time is not one of the lab's slots.", field: "slot" });
     }
-    if (date) {
-      const used = await Booking.countDocuments({
-        lab: lab._id,
-        date,
-        slot,
-        status: { $nin: ["cancelled", "no_show"] },
-      });
-      if (used >= known.capacity) {
-        return res.status(409).json({ error: "That slot is full. Please pick another.", field: "slot" });
-      }
-    }
+    slotCapacity = known.capacity;
   }
 
   const priced = items.filter((i) => typeof i.price === "number");
@@ -228,23 +226,30 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
         (b.visitType === "home" ? lab.homeCollectionFee || 0 : 0)
       : null;
 
-  const booking = await Booking.create({
-    lab: lab._id,
-    reference: makeReference(lab.slug),
-    patient: { name: b.name, age: b.age, gender: b.gender, phone, email: b.email || "" },
-    visitType: b.visitType,
-    address: b.visitType === "home" ? b.address : "",
-    items,
-    notes: b.notes || "",
-    estimatedTotal,
-    currency: lab.currency,
-    date: date || "",
-    slot: slot || "",
-    status: "new",
-    statusLog: [{ status: "new", by: "patient" }],
-    source: "web",
-    consent: true,
-  });
+  const { booking, full } = await createBookingHoldingSlot(
+    {
+      lab: lab._id,
+      reference: makeReference(lab.slug),
+      patient: { name: b.name, age: b.age, gender: b.gender, phone, email: b.email || "" },
+      visitType: b.visitType,
+      address: b.visitType === "home" ? b.address : "",
+      items,
+      notes: b.notes || "",
+      estimatedTotal,
+      currency: lab.currency,
+      date: date || "",
+      slot: slot || "",
+      status: "new",
+      statusLog: [{ status: "new", by: "patient" }],
+      source: "web",
+      consent: true,
+    },
+    slotCapacity
+  );
+
+  if (full) {
+    return res.status(409).json({ error: "That slot is full. Please pick another.", field: "slot" });
+  }
 
   // Messages go out after the booking is safely saved. A WhatsApp failure
   // must never lose the booking.

@@ -13,6 +13,7 @@ import { Booking } from "../models/Booking.js";
 import { User } from "../models/User.js";
 import { CATALOG, PACKAGE_TEMPLATES } from "./catalog.js";
 import { makeReference } from "../lib/reference.js";
+import { createBookingHoldingSlot } from "../lib/seats.js";
 
 const DEMO = {
   name: "Nandu Diagnostics",
@@ -179,15 +180,21 @@ async function run() {
       },
     ];
     for (const s of samples) {
-      await Booking.create({
-        lab: lab._id,
-        reference: makeReference(lab.slug),
-        currency: lab.currency,
-        consent: true,
-        estimatedTotal: s.items.reduce((sum, i) => sum + (i.price || 0), 0),
-        statusLog: [{ status: s.status, by: "seed" }],
-        ...s,
-      });
+      // Through the same path as a real booking, so the demo bookings hold a
+      // place in their slot and the booking page counts them as taken.
+      const capacity = lab.slots.find((x) => x.label === s.slot)?.capacity ?? 0;
+      await createBookingHoldingSlot(
+        {
+          lab: lab._id,
+          reference: makeReference(lab.slug),
+          currency: lab.currency,
+          consent: true,
+          estimatedTotal: s.items.reduce((sum, i) => sum + (i.price || 0), 0),
+          statusLog: [{ status: s.status, by: "seed" }],
+          ...s,
+        },
+        capacity
+      );
     }
     console.log(`Bookings: ${samples.length}`);
   } else {

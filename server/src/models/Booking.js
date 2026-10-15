@@ -45,6 +45,29 @@ const bookingSchema = new mongoose.Schema(
     date: { type: String, default: "" },          // "2026-10-15", the lab's local date
     slot: { type: String, default: "" },          // slot label
 
+    /**
+     * Which place in the slot this booking holds, counting from 0.
+     *
+     * Two people pressing Book at the same moment used to be able to take the
+     * same last place, because the old code counted the bookings and then wrote
+     * a new one, with a gap in between. Now each booking claims a numbered
+     * place, and the unique index below makes the database refuse the second
+     * claim on the same number. Capacity is enforced by never handing out a
+     * number at or above it.
+     *
+     * Null for bookings with no date or no slot, which hold nothing.
+     */
+    seat: { type: Number, default: null },
+
+    /**
+     * Whether this booking currently occupies its place.
+     *
+     * False once cancelled or marked no-show, which frees the place for
+     * somebody else. Also false for bookings with no date or slot, so those
+     * stay out of the unique index entirely.
+     */
+    holdsSlot: { type: Boolean, default: false },
+
     status: { type: String, enum: BOOKING_STATUSES, default: "new", index: true },
     statusLog: {
       type: [
@@ -74,5 +97,19 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.index({ lab: 1, date: 1 });
 bookingSchema.index({ lab: 1, createdAt: -1 });
 bookingSchema.index({ lab: 1, "patient.phone": 1 });
+
+/**
+ * One booking per place, per slot, per date, per lab.
+ *
+ * This is what actually stops double booking: the check happens inside the
+ * database, on the write itself, so two requests arriving in the same
+ * millisecond cannot both succeed. The partial filter keeps cancelled
+ * bookings and bookings with no slot out of it, so they neither hold a place
+ * nor collide with each other.
+ */
+bookingSchema.index(
+  { lab: 1, date: 1, slot: 1, seat: 1 },
+  { unique: true, partialFilterExpression: { holdsSlot: true } }
+);
 
 export const Booking = mongoose.model("Booking", bookingSchema);

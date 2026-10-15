@@ -47,6 +47,10 @@ export function createApp() {
   app.use(express.json({ limit: "100kb" }));
   app.use(cors({ origin: allowedOrigin, credentials: true }));
 
+  // The API has no pages. Someone who opens the address in a browser should
+  // get a plain answer rather than a crash.
+  app.get("/", (req, res) => res.json({ service: "LabBook API" }));
+
   app.get("/api/health", (req, res) => {
     res.json({ ok: true, env: config.env, whatsapp: config.whatsapp.enabled });
   });

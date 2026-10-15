@@ -11,6 +11,7 @@ import { Lab } from "../models/Lab.js";
 import { requireAuth, requireLab } from "../middleware/auth.js";
 import { todayInZone, isValidDateStr, addDays } from "../lib/dates.js";
 import { reportReady } from "../services/whatsapp.js";
+import { reclaimSlot } from "../lib/seats.js";
 
 export const dashboardBookingsRouter = express.Router();
 dashboardBookingsRouter.use(requireAuth, requireLab);
@@ -145,15 +146,39 @@ dashboardBookingsRouter.patch("/:reference/status", async (req, res) => {
     return res.json({ booking: shapeForLab(booking.toObject()), changed: false });
   }
 
+  const lab = await Lab.findById(req.labId).lean();
+
   booking.status = status;
   booking.statusLog.push({ status, at: new Date(), by: req.user.email });
-  await booking.save();
+
+  /**
+   * Cancelling frees the patient's place for somebody else, and moving a
+   * booking back out of cancelled has to take a place again, which can fail if
+   * the slot filled up in the meantime. Both cases are saved in one write
+   * together with the status, so the record never sits half changed.
+   */
+  const FREES_THE_SLOT = ["cancelled", "no_show"];
+  const shouldHold = Boolean(booking.date && booking.slot) && !FREES_THE_SLOT.includes(status);
+
+  if (!shouldHold) {
+    booking.holdsSlot = false;
+    await booking.save();
+  } else if (!booking.holdsSlot) {
+    const capacity = lab.slots.find((s) => s.label === booking.slot)?.capacity ?? 0;
+    const retaken = await reclaimSlot(booking, capacity);
+    if (!retaken.ok) {
+      return res.status(409).json({
+        error: "That slot filled up while this booking was cancelled. Move it to another time first.",
+      });
+    }
+  } else {
+    await booking.save();
+  }
 
   // "Report ready" is the one status worth telling the patient about.
   let messaged = false;
   if (status === "report_ready" && notifyPatient !== false) {
     try {
-      const lab = await Lab.findById(req.labId).lean();
       const r = await reportReady(lab, booking);
       messaged = !r?.skipped;
       if (messaged) {
