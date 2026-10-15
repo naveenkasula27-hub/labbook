@@ -17,11 +17,56 @@ const WHATSAPP = "917729069137";
 const PHONE = "+917729069137";
 const PHONE_SHOWN = "77290 69137";
 
+/**
+ * The UnityWebWorks Meta pixel, loaded on this page and nowhere else.
+ *
+ * Deliberately not in index.html, which would put it on every lab's booking
+ * page too. A booking page is where somebody chooses a blood test, and sending
+ * that to Meta means telling them which medical tests a named person looked at.
+ * This page is a sales page for lab owners, which is a different thing.
+ */
+const PIXEL_ID = "1801056284665498";
+
 const waLink = (text) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
+
+/** Fire an event, quietly doing nothing if the pixel never loaded. */
+const track = (name) => {
+  try {
+    window.fbq?.("trackCustom", name);
+  } catch {
+    /* an ad blocker, or the script failed. Not worth breaking a click over. */
+  }
+};
 
 export default function LandingPage() {
   useEffect(() => {
     document.title = "LabBook — online test booking for diagnostic labs";
+  }, []);
+
+  useEffect(() => {
+    if (window.fbq) return; // already loaded, e.g. after a client-side nav back
+
+    /* eslint-disable */
+    (function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = true;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = true;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    /* eslint-enable */
+
+    window.fbq("init", PIXEL_ID);
+    window.fbq("track", "PageView");
   }, []);
 
   return (
@@ -51,6 +96,7 @@ export default function LandingPage() {
             <a
               className="lp-wa"
               href={waLink("Hello Naveen, I run a diagnostic lab and I saw your booking page.")}
+              onClick={() => track("ClickedWhatsApp")}
               target="_blank"
               rel="noopener"
             >
@@ -73,12 +119,13 @@ export default function LandingPage() {
               </p>
 
               <div className="lp-actions">
-                <Link className="lp-btn lp-btn-main" to="/maheera">
+                <Link className="lp-btn lp-btn-main" to="/maheera" onClick={() => track("OpenedDemo")}>
                   Open the live demo
                 </Link>
                 <a
                   className="lp-btn lp-btn-quiet"
                   href={waLink("Hello Naveen, I run a diagnostic lab and I want a booking page like the demo.")}
+                  onClick={() => track("ClickedWhatsApp")}
                   target="_blank"
                   rel="noopener"
                 >
@@ -191,12 +238,13 @@ export default function LandingPage() {
           </p>
 
           <div className="lp-actions" style={{ marginTop: 22 }}>
-            <Link className="lp-btn lp-btn-main" to="/maheera">
+            <Link className="lp-btn lp-btn-main" to="/maheera" onClick={() => track("OpenedDemo")}>
               Open the booking page
             </Link>
             <Link
               className="lp-btn"
               to="/dashboard"
+              onClick={() => track("OpenedDemoDashboard")}
               style={{ background: "#fff", color: "#14213D", boxShadow: "inset 0 0 0 1.5px #D9BCA6" }}
             >
               Open the lab dashboard
@@ -240,6 +288,7 @@ export default function LandingPage() {
             <a
               className="lp-btn lp-btn-main"
               href={waLink("Hello Naveen, I run a diagnostic lab and I want a booking page for it.")}
+              onClick={() => track("ClickedWhatsApp")}
               target="_blank"
               rel="noopener"
             >
