@@ -62,6 +62,9 @@ export default function BookingPage() {
     const root = document.documentElement;
     if (data.lab.theme?.primary) root.style.setProperty("--primary", data.lab.theme.primary);
     if (data.lab.theme?.accent) root.style.setProperty("--accent", data.lab.theme.accent);
+    // Falls back to the header colour, which is what labs without a cta set
+    // have always used.
+    root.style.setProperty("--cta", data.lab.theme?.cta || data.lab.theme?.primary || "");
   }, [data]);
 
   /* ---------- Load slots when the date changes ---------- */

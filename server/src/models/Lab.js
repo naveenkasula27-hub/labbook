@@ -55,8 +55,16 @@ const labSchema = new mongoose.Schema(
     ] },
 
     theme: {
-      primary: { type: String, default: "#0f766e" },
-      accent: { type: String, default: "#0ea5e9" },
+      primary: { type: String, default: "#0f766e" },  // header, headings
+      accent: { type: String, default: "#0ea5e9" },   // links and small highlights
+
+      /**
+       * The colour of the buttons people press, when it should differ from the
+       * header. Empty means use the header colour, which is how every lab
+       * behaved before this existed. A brand that keeps one colour for actions,
+       * like an orange on a navy header, sets it here.
+       */
+      cta: { type: String, default: "" },
     },
     logoUrl: { type: String, default: "" },
     photos: { type: [String], default: [] },

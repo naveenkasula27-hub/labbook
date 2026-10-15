@@ -50,6 +50,18 @@ const DEMO_LAB = {
   homeCollectionFee: 100,
   homeCollectionNote: "Free within 5 km. A small charge applies beyond that.",
   isDemo: true,
+
+  /**
+   * UnityWebWorks colours, from the brand guidelines: navy carries the page,
+   * orange is kept for the things people click. Set per lab rather than in the
+   * stylesheet, so a real client's site can be their own colours. That is part
+   * of what the demo is showing.
+   */
+  theme: {
+    primary: "#14213D", // Deep Navy, the header and headings
+    accent: "#FF6A1F",  // Cursor Orange, links and highlights
+    cta: "#FF6A1F",     // Cursor Orange, the buttons people press
+  },
 };
 
 /** Published on the portfolio, so anyone can sign in and look around. */

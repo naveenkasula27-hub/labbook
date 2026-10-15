@@ -2,6 +2,7 @@
 :root {
   --primary: #0f766e;
   --accent: #0ea5e9;
+  --cta: #0f766e;   /* buttons; labs that want one action colour override it */
 
   --ink: #0f172a;
   --ink-soft: #475569;
@@ -14,6 +15,12 @@
   --bad: #b91c1c;
   --bad-bg: #fef2f2;
   --warn-bg: #fffbeb;
+
+  /* Poppins for headings, Lato for reading. The fallbacks matter: if Google
+     Fonts is slow or blocked the page still sets in something sensible rather
+     than Times. */
+  --font-head: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Lato", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --radius: 12px;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
@@ -28,10 +35,10 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font: 16px/1.55 var(--font-body);
 }
 
-h1, h2, h3 { line-height: 1.25; margin: 0 0 8px; }
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; line-height: 1.25; margin: 0 0 8px; }
 h1 { font-size: 1.6rem; letter-spacing: -0.01em; }
 h2 { font-size: 1.2rem; }
 h3 { font-size: 1rem; }
@@ -48,12 +55,13 @@ p { margin: 0 0 10px; }
    notice, not a problem, and a red bar at the top of a lab's page reads as
    something being broken. */
 .demo-strip {
-  background: #fef3c7;
-  color: #4a3609;
-  border-bottom: 1px solid #f0d089;
+  background: #FFE4D1;            /* Pale Orange, a tint rather than the full orange */
+  color: #14213D;                 /* Deep Navy, so it reads cleanly */
+  border-bottom: 2px solid #FF6A1F;
   padding: 9px 0;
   font-size: 0.875rem;
 }
+.demo-strip strong { font-family: var(--font-head); }
 .demo-strip .wrap {
   display: flex;
   align-items: baseline;
@@ -217,7 +225,9 @@ p { margin: 0 0 10px; }
   padding: 12px 18px; border-radius: 10px; border: 1px solid transparent;
   text-decoration: none;
 }
-.btn-primary { background: var(--primary); color: #fff; }
+/* Bold, because white on a mid-tone brand colour is around 3:1 contrast, which
+   only passes at larger or bolder text. */
+.btn-primary { background: var(--cta, var(--primary)); color: #fff; font-weight: 700; }
 .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
 .btn-ghost { background: #fff; color: var(--primary); border-color: var(--line); }
 .btn-block { width: 100%; justify-content: center; }
