@@ -352,14 +352,29 @@ export default function BookingPage() {
 
       {pickedCount > 0 && !confirmed && (
         <div className="bar">
-          <div className="bar-text">
-            <span className="bar-count">
-              {pickedCount} {pickedCount === 1 ? "item" : "items"}
+          {/* The wrapper the layout rules target. Without it the contents sat
+              hard against the left edge of the window with the button below
+              them, instead of text left and button right. */}
+          <div className="bar-inner">
+            <span className="bar-cart" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 7H6" />
+                <circle cx="10" cy="20" r="1.4" fill="currentColor" stroke="none" />
+                <circle cx="18" cy="20" r="1.4" fill="currentColor" stroke="none" />
+              </svg>
+              <span className="bar-badge">{pickedCount}</span>
             </span>
-            {basket.subtotal !== null && <> · {money(basket.subtotal, lab)}</>}
-            {date && <div className="tiny muted">{prettyDate(date, lab)}{slot ? `, ${slot}` : ""}</div>}
+
+            <div className="bar-text">
+              <span className="bar-count">
+                {pickedCount} {pickedCount === 1 ? "test" : "tests"} chosen
+              </span>
+              {basket.subtotal !== null && <> · {money(basket.subtotal, lab)}</>}
+              {date && <div className="tiny muted">{prettyDate(date, lab)}{slot ? `, ${slot}` : ""}</div>}
+            </div>
+
+            <a className="btn btn-primary bar-go" href="#book">Continue</a>
           </div>
-          <a className="btn btn-primary" href="#book">Continue</a>
         </div>
       )}
 

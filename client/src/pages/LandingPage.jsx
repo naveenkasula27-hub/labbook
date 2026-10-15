@@ -96,7 +96,7 @@ export default function LandingPage() {
                 ₹300 · report same day
               </div>
               <div className="lp-field">
-                <strong>Ramesh Goud</strong>
+                <strong>Ramesh Kumar</strong>
                 54, Male · 99490 70916
               </div>
               <div className="lp-field">
@@ -123,7 +123,7 @@ export default function LandingPage() {
                 <h3>Bookings</h3>
                 <div className="lp-row lp-row-arriving">
                   <div>
-                    <div className="lp-row-name">Ramesh Goud</div>
+                    <div className="lp-row-name">Ramesh Kumar</div>
                     <div className="lp-row-meta">9:00 AM · Complete Blood Count · ₹300</div>
                   </div>
                   <span className="lp-tag lp-tag-new">New</span>

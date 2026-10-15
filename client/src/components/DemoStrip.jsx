@@ -58,6 +58,10 @@ export default function DemoStrip({ labName }) {
         </a>
 
         <p className="demo-note">
+          {/* A slow pulse, so the eye lands here first. Nothing slides or
+              scrolls: moving text on a lab's page looks like an advert and is
+              hard to read. */}
+          <span className="demo-pip" aria-hidden="true" />
           <strong>Demo site.</strong> {labName} is a sample lab, not a real business.
           Please do not enter real personal details.
         </p>

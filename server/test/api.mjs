@@ -112,7 +112,7 @@ test.after(async () => {
 });
 
 const booking = () => ({
-  name: "Ramesh Goud",
+  name: "Ramesh Kumar",
   age: 54,
   gender: "Male",
   phone: "9949070916",

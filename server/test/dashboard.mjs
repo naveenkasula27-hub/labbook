@@ -65,7 +65,7 @@ async function makeBooking(lab, over = {}) {
   return Booking.create({
     lab: lab._id,
     reference: makeReference(lab.slug),
-    patient: { name: "Ramesh Goud", age: 54, gender: "Male", phone: "919949070916" },
+    patient: { name: "Ramesh Kumar", age: 54, gender: "Male", phone: "919949070916" },
     visitType: "lab",
     items: [{ kind: "test", code: "cbc", name: "Complete Blood Count (CBC)", price: 300 }],
     estimatedTotal: 300,

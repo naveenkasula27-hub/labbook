@@ -82,7 +82,7 @@ function sampleBookings() {
 
   return [
     {
-      patient: { name: "Ramesh Goud", age: 54, gender: "Male", phone: "919000000001" },
+      patient: { name: "Ramesh Kumar", age: 54, gender: "Male", phone: "919000000001" },
       visitType: "home",
       address: "H.No 4-21, Ambedkar Nagar, Ramayampet",
       items: [{ kind: "package", code: "diabetes_panel", name: "Diabetes Panel", price: 1400 }],
