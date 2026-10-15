@@ -42,7 +42,9 @@ export default function Confirmation({ booking, lab, onDone }) {
         )}
       </dl>
 
-      {booking.whatsappNotified === false && (
+      {/* Only on a real lab. On a demo it contradicted the notice above it,
+          telling people to wait for a call that was never coming. */}
+      {booking.whatsappNotified === false && !lab.isDemo && (
         <p className="small muted">
           Your booking is saved. If you do not hear from the lab, call {lab.phone}.
         </p>
@@ -53,12 +55,16 @@ export default function Confirmation({ booking, lab, onDone }) {
           <a
             className="btn btn-primary"
             href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
-              `Hello ${lab.name}, about my booking ${booking.reference}.`
+              lab.isDemo
+                ? "Hello, I just tried your demo booking page. I run a lab and I want one."
+                : `Hello ${lab.name}, about my booking ${booking.reference}.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            Message the lab
+            {/* On a demo this is the point where somebody has just seen it work
+                and is most likely to get in touch. */}
+            {lab.isDemo ? "I want one for my lab" : "Message the lab"}
           </a>
         )}
         <button type="button" className="btn btn-ghost" onClick={onDone}>

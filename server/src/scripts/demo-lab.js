@@ -52,6 +52,18 @@ const DEMO_LAB = {
   isDemo: true,
 
   /**
+   * Four per slot rather than the default twenty. A small lab doing its own
+   * collection realistically takes a handful per session, and it means a
+   * visitor can fill a slot and see it refuse the next booking, which is the
+   * part of this that no template can do.
+   */
+  slots: [
+    { label: "Morning", start: "07:00", end: "11:00", capacity: 4 },
+    { label: "Afternoon", start: "11:00", end: "16:00", capacity: 4 },
+    { label: "Evening", start: "16:00", end: "20:00", capacity: 4 },
+  ],
+
+  /**
    * UnityWebWorks colours, from the brand guidelines: navy carries the page,
    * orange is kept for the things people click. Set per lab rather than in the
    * stylesheet, so a real client's site can be their own colours. That is part
