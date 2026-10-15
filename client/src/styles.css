@@ -5,8 +5,12 @@
   --cta: #0f766e;   /* buttons; labs that want one action colour override it */
 
   --ink: #0f172a;
-  --ink-soft: #475569;
-  --ink-faint: #64748b;
+  /* Three steps of grey, all comfortably readable on white. The faintest used
+     to be #64748b, which measures 4.8:1 against white. That passes the
+     accessibility minimum by a hair, and at 13px it was hard work for anyone
+     over forty or anyone reading on a phone outdoors. It is 6.5:1 now. */
+  --ink-soft: #3C4758;    /* 9.4:1 */
+  --ink-faint: #525F72;   /* 6.5:1 */
   --line: #e2e8f0;
   --bg: #f7f9fb;
   --card: #ffffff;
@@ -222,7 +226,9 @@ p { margin: 0 0 10px; }
 }
 .test:first-child { border-top: 0; }
 .test h3 { margin: 0 0 2px; font-size: 0.975rem; }
-.test-alias, .test-meta { margin: 0; font-size: 0.8125rem; color: var(--ink-faint); }
+/* 14px rather than 13px. The test lists are the part a patient reads most
+   closely, to check their doctor's test is in the package. */
+.test-alias, .test-meta { margin: 0; font-size: 0.875rem; color: var(--ink-faint); }
 .test-fast { margin: 3px 0 0; font-size: 0.8125rem; color: #92400e; background: var(--warn-bg); display: inline-block; padding: 2px 7px; border-radius: 6px; }
 
 .add {
@@ -241,7 +247,7 @@ p { margin: 0 0 10px; }
 .pkg { border: 1px solid var(--line); border-radius: 10px; padding: 13px; }
 .pkg h3 { font-size: 0.95rem; }
 .pkg .price { font-weight: 600; color: var(--ink); }
-.pkg p { font-size: 0.8125rem; color: var(--ink-faint); }
+.pkg p { font-size: 0.875rem; color: var(--ink-faint); }
 
 /* ---------- Selected panel ---------- */
 .sel { list-style: none; margin: 0 0 12px; padding: 0; }
