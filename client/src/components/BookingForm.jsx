@@ -350,7 +350,15 @@ const BookingForm = forwardRef(function BookingForm(
             onChange={set("consent")}
             {...aria("consent")}
           />
-          <span>The lab may call or send me a WhatsApp message about this booking.</span>
+          <span>
+            The lab may call or send me a WhatsApp message about this booking.{" "}
+            {/* Opens in a new tab on purpose: tapping this should not throw away
+                a half filled form. */}
+            <a href="/privacy" target="_blank" rel="noopener">
+              How my details are handled
+            </a>
+            .
+          </span>
         </label>
         <Err field="consent" />
       </div>

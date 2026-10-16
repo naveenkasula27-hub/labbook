@@ -1,0 +1,87 @@
+/* The privacy policy and terms pages. Long-form reading, so the measure is
+   narrow and the line height is generous. */
+
+.legal { padding: 44px 0 60px; }
+
+.legal-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+  font-family: var(--body, "Lato", system-ui, sans-serif);
+  color: #1F2937;
+  line-height: 1.68;
+}
+
+.legal-wrap h1 {
+  font-family: var(--head, "Poppins", system-ui, sans-serif);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.18;
+  color: var(--navy);
+  margin: 0 0 6px;
+}
+
+.legal-date {
+  color: var(--slate);
+  font-size: 0.875rem;
+  margin: 0 0 30px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-wrap h2 {
+  font-family: var(--head, "Poppins", system-ui, sans-serif);
+  font-size: 1.1875rem;
+  color: var(--navy);
+  margin: 34px 0 10px;
+}
+
+.legal-wrap h3 {
+  font-family: var(--head, "Poppins", system-ui, sans-serif);
+  font-size: 1rem;
+  color: var(--navy);
+  margin: 22px 0 6px;
+}
+
+.legal-wrap p { margin: 0 0 14px; }
+
+.legal-wrap ul { margin: 0 0 16px; padding-left: 22px; }
+.legal-wrap li { margin-bottom: 7px; }
+
+.legal-wrap a { color: #B8430F; }
+
+.legal-wrap strong { color: var(--navy); }
+
+/* A short box for the things people most want to know at a glance. */
+.legal-note {
+  background: #FFF6EF;
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 16px;
+  margin: 0 0 26px;
+}
+.legal-note p:last-child { margin-bottom: 0; }
+
+.legal-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px;
+  font-size: 0.9375rem;
+}
+.legal-wrap th,
+.legal-wrap td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.legal-wrap th {
+  font-family: var(--head, "Poppins", system-ui, sans-serif);
+  color: var(--navy);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 520px) {
+  .legal { padding: 30px 0 44px; }
+  .legal-wrap table { font-size: 0.875rem; }
+  .legal-wrap th, .legal-wrap td { padding: 8px 6px; }
+}

@@ -305,6 +305,8 @@ export default function LandingPage() {
         <div className="lp-wrap">
           Built by <a href="https://unitywebworks.com" target="_blank" rel="noopener">UnityWebWorks</a>,
           Medak and Hyderabad, Telangana. Maheera Diagnostics is a sample lab, not a real business.
+          <br />
+          <Link to="/privacy">Privacy policy</Link> · <Link to="/terms">Terms of service</Link>
         </div>
       </footer>
     </div>

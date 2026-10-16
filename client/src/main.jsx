@@ -5,6 +5,8 @@ import LandingPage from "./pages/LandingPage.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 import CheckBookingPage from "./pages/CheckBookingPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import Terms from "./pages/Terms.jsx";
 import "./styles.css";
 import "./dashboard.css";
 
@@ -19,6 +21,11 @@ createRoot(document.getElementById("root")).render(
         {/* The lab's own screens. Listed before /:slug so "dashboard" is
             not mistaken for a lab's address. */}
         <Route path="/dashboard" element={<DashboardPage />} />
+
+        {/* Same reason these sit above /:slug — no lab gets the slug
+            "privacy" or "terms". */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<Terms />} />
 
         {/* Each lab gets its own address: /nandu */}
         <Route path="/:slug" element={<BookingPage />} />
