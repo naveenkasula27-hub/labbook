@@ -119,25 +119,73 @@ export async function confirmToPatient(lab, booking) {
   return sendText(booking.patient.phone, body);
 }
 
+/* ---------- Day-before reminder (approved template) ---------- */
+
+// The reminder is a message we start, so it has to use a Meta-approved
+// template. "appointment_reminder" was approved on 25 Oct 2026. Its body has
+// five slots: {{1}} lab name, {{2}} booking reference, {{3}} date and slot,
+// {{4}} where to come / fasting, {{5}} lab phone.
+// Both can be overridden from the environment without a code change.
+export const REMINDER_TEMPLATE = process.env.WHATSAPP_REMINDER_TEMPLATE || "appointment_reminder";
+export const TEMPLATE_LANG = process.env.WHATSAPP_TEMPLATE_LANG || "en";
+
+/**
+ * Meta rejects a template parameter that is empty or contains new lines, tabs
+ * or more than four spaces in a row, so every value is cleaned first.
+ */
+function param(text, fallback = "-") {
+  const clean = String(text ?? "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/ {2,}/g, " ")
+    .trim();
+  return (clean || fallback).slice(0, 900);
+}
+
+/** "2026-10-27" -> "27 Oct 2026". Anything else is passed through. */
+function prettyDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+  if (!m) return iso || "";
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(d);
+}
+
+/** The five values for the appointment_reminder template, in order. */
+export function reminderParams(lab, booking, fastingNote = "") {
+  const when = [prettyDate(booking.date), booking.slot].filter(Boolean).join(", ");
+  const where =
+    booking.visitType === "home"
+      ? "Our person will come to your address."
+      : `Please come to ${lab.address || lab.name}.`;
+  const note = [where, fastingNote ? `${fastingNote}.` : ""].filter(Boolean).join(" ");
+  return [
+    param(lab.name),
+    param(booking.reference),
+    param(when, "tomorrow"),
+    param(note, "No special preparation needed."),
+    param(lab.phone || lab.whatsapp, lab.name),
+  ];
+}
+
+/** Sends the approved reminder template with ready-made parameters. */
+export function sendReminder(to, params) {
+  return sendTemplate(to, REMINDER_TEMPLATE, TEMPLATE_LANG, params);
+}
+
 /** fastingNote is worked out by the caller, which has the Test rows to hand. */
 export async function remindPatient(lab, booking, fastingNote = "") {
   // A sample lab never sends reminders. A message saying "reminder for
   // tomorrow" the morning after somebody poked at a demo is the worst version
   // of this problem.
   if (lab.isDemo) return { skipped: true };
+  // The lab can switch day-before reminders off in Settings.
+  if (lab.notify?.reminderDayBefore === false) return { skipped: true };
 
-  const body = [
-    `${lab.name}: reminder for tomorrow.`,
-    `Reference: ${booking.reference}`,
-    [booking.date, booking.slot].filter(Boolean).join(", "),
-    booking.visitType === "home"
-      ? "Our person will come to your address."
-      : `Please come to: ${lab.address || lab.name}`,
-    fastingNote,
-  ]
-    .filter(Boolean)
-    .join("\n");
-  return sendText(booking.patient.phone, body);
+  return sendReminder(booking.patient.phone, reminderParams(lab, booking, fastingNote));
 }
 
 export async function reportReady(lab, booking) {

@@ -1,0 +1,47 @@
+# Sends WhatsApp reminders to patients who have a booking tomorrow.
+#
+# Runs every day at about 6:00 PM India time (GitHub can start scheduled runs
+# a few minutes late). You can also run it by hand from the Actions tab:
+#   - leave "test_to" empty  -> the normal daily run
+#   - put your number in it  -> sends ONE sample reminder to that number only
+#
+# Needs three repository secrets (Settings > Secrets and variables > Actions):
+#   MONGODB_URI, WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID
+name: Patient reminders
+
+on:
+  schedule:
+    - cron: "30 12 * * *"   # 12:30 UTC = 6:00 PM IST
+  workflow_dispatch:
+    inputs:
+      test_to:
+        description: "Send one test reminder to this number (country code, no +). Leave empty for the real daily run."
+        required: false
+        default: ""
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      WHATSAPP_ACCESS_TOKEN: ${{ secrets.WHATSAPP_ACCESS_TOKEN }}
+      WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.WHATSAPP_PHONE_NUMBER_ID }}
+      TEST_TO: ${{ github.event.inputs.test_to }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci --omit=dev
+      - name: Send one test reminder
+        if: env.TEST_TO != ''
+        run: node src/jobs/send-test-reminder.js "$TEST_TO"
+      - name: Send tomorrow's reminders
+        if: env.TEST_TO == ''
+        run: node src/jobs/send-reminders.js

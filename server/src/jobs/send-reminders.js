@@ -53,7 +53,8 @@ async function run() {
 
   await connectDb();
 
-  const labs = await Lab.find({ isDemo: { $ne: true } });
+  // Demo labs never send reminders, and a lab can turn reminders off in Settings.
+  const labs = await Lab.find({ isDemo: { $ne: true }, "notify.reminderDayBefore": { $ne: false } });
   let sent = 0;
   let failed = 0;
 
@@ -82,9 +83,9 @@ async function run() {
         console.log(`Reminded ${booking.patient.name} — ${booking.reference} (${lab.name})`);
       } catch (err) {
         failed++;
-        // A send failing here most often means the message needs an approved
-        // template — see the note in whatsapp.js. Logged and moved past, so
-        // one bad number doesn't stop the rest of the day's reminders.
+        // Logged and moved past, so one bad number doesn't stop the rest of
+        // the day's reminders. A failure on every booking usually means the
+        // access token has expired or the template name/language is wrong.
         console.error(`Failed for ${booking.reference} (${lab.name}): ${err.message}`);
       }
     }
