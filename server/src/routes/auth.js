@@ -11,6 +11,7 @@ import { User } from "../models/User.js";
 import { Lab } from "../models/Lab.js";
 import { signToken } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";
+import { billingStatus } from "../lib/billing.js";
 
 export const authRouter = express.Router();
 
@@ -64,6 +65,8 @@ authRouter.get("/me", requireAuth, async (req, res) => {
   const lab = req.labId ? await Lab.findById(req.labId).lean() : null;
   res.json({
     user: { name: req.user.name, email: req.user.email, role: req.user.role },
-    lab: lab ? { name: lab.name, slug: lab.slug, currency: lab.currency, locale: lab.locale, timezone: lab.timezone } : null,
+        lab: lab
+      ? { name: lab.name, slug: lab.slug, currency: lab.currency, locale: lab.locale, timezone: lab.timezone, billing: billingStatus(lab) }
+      : null,
   });
 });

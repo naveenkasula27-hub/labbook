@@ -102,7 +102,14 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="wrap dash-main">
+           <main className="wrap dash-main">
+        {lab?.billing?.status === "overdue" && (
+          <div className="notice notice-warn" role="status">
+            Payment is due for this account. Message UnityWebWorks on WhatsApp
+            (77290 69137) to settle it and keep the dashboard and booking page
+            running without interruption.
+          </div>
+        )}
         {tab === "bookings" && <BookingsPage lab={lab} />}
         {tab === "prices" && <PricesPage lab={lab} />}
         {tab === "settings" && <SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} />}

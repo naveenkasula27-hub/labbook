@@ -12,7 +12,7 @@
     "backfill:seats": "node src/scripts/backfill-seats.js",
     "set-password": "node src/scripts/set-password.js",
     "demo-lab": "node src/scripts/demo-lab.js",
-    "demo-lab:reset": "node src/scripts/demo-lab.js --reset",
+    "demo-lab:reset": "node src/scripts/demo-lab.js --reset",   "lab:bill": "node src/scripts/mark-paid.js",
     "remind": "node src/jobs/send-reminders.js",
     "remind:dry": "node src/jobs/send-reminders.js --dry-run",
     "remind:test": "node src/jobs/send-test-reminder.js",

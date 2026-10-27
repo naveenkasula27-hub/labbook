@@ -72,6 +72,12 @@ const labSchema = new mongoose.Schema(
     plan: { type: String, enum: ["trial", "basic", "pro"], default: "trial" },
     active: { type: Boolean, default: true },
 
+     billing: {
+      monthlyFee: { type: Number, default: 0 },
+      paidUntil: { type: Date, default: null },
+    },
+
+
     notify: {
       whatsappOnBooking: { type: Boolean, default: true },
       emailOnBooking: { type: Boolean, default: false },
