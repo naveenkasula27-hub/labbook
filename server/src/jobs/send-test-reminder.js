@@ -22,7 +22,7 @@ if (!config.whatsapp.enabled) {
 const tomorrow = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(
   new Date(Date.now() + 86400000)
 );
-const lab = { name: "Test Lab", address: "Main Road, Ramayampet", phone: "77290 69137" };
+const lab = { name: "Maheera Diagnostics", address: "Main Road, Ramayampet", phone: "77290 69137" };
 const booking = { reference: "LB-TEST-001", date: tomorrow, slot: "Morning", visitType: "lab" };
 const params = reminderParams(lab, booking, "Fasting needed: 10 to 12 hours");
 

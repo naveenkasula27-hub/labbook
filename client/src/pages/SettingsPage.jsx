@@ -348,9 +348,7 @@ export default function SettingsPage({ onSaved }) {
             />
             <span>Remind patients the day before their appointment</span>
           </label>
-          <p className="muted tiny" style={{ margin: 0 }}>
-            Reminders are not switched on yet. This setting is saved for when they are.
-          </p>
+          
         </div>
       </section>
 
