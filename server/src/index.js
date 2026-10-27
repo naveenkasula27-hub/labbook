@@ -7,6 +7,7 @@ import { publicRouter } from "./routes/public.js";
 import { authRouter } from "./routes/auth.js";
 import { dashboardBookingsRouter } from "./routes/dashboard-bookings.js";
 import { dashboardCatalogRouter } from "./routes/dashboard-catalog.js";
+import { cronRouter } from "./routes/cron.js";
 
 /**
  * Decides which websites may call this API.
@@ -59,6 +60,7 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/dashboard/bookings", dashboardBookingsRouter);
   app.use("/api/dashboard/catalog", dashboardCatalogRouter);
+  app.use("/api/cron", cronRouter);
 
   app.use((req, res) => res.status(404).json({ error: "Not found." }));
 
