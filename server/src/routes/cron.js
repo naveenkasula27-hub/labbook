@@ -16,6 +16,15 @@ function requireCronSecret(req, res, next) {
   next();
 }
 
+cronRouter.get("/debug", (req, res) => {
+  res.json({
+    hasSecretInConfig: Boolean(config.cronSecret),
+    secretLength: config.cronSecret.length,
+    hasSecretInEnv: Boolean(process.env.CRON_SECRET),
+    envLength: (process.env.CRON_SECRET || "").length,
+  });
+});
+
 cronRouter.get("/reset-demo-lab", requireCronSecret, async (req, res) => {
   try {
     const result = await resetDemoLab();
