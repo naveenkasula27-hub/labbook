@@ -41,6 +41,8 @@ export const config = {
   // a whole village may share one mobile network address, and a family
   // booking for four people must not be mistaken for spam.
   bookingRateLimit: Number(process.env.BOOKING_RATE_LIMIT || 20),
+  
+  cronSecret: process.env.CRON_SECRET || "",
 
   whatsapp: {
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || "",
