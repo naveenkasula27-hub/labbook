@@ -53,10 +53,12 @@ authRouter.post("/login", loginLimiter, async (req, res) => {
 
   await User.updateOne({ _id: user._id }, { $set: { lastLoginAt: new Date() } });
 
-  res.json({
+    res.json({
     token: signToken(user),
     user: { name: user.name, email: user.email, role: user.role },
-    lab: lab ? { name: lab.name, slug: lab.slug, currency: lab.currency, locale: lab.locale, timezone: lab.timezone } : null,
+    lab: lab
+      ? { name: lab.name, slug: lab.slug, currency: lab.currency, locale: lab.locale, timezone: lab.timezone, billing: billingStatus(lab) }
+      : null,
   });
 });
 
