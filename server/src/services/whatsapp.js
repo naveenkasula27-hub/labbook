@@ -14,6 +14,12 @@ import { config } from "../config.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
+// Approved 27 Oct 2026. Its body has four slots: {{1}} lab name, {{2}}
+// booking reference, {{3}} tests, {{4}} lab phone. Used only for the demo
+// lab's confirmation, which must never read like a real appointment.
+export const DEMO_BOOKING_CONFIRMATION_TEMPLATE =
+  process.env.WHATSAPP_DEMO_BOOKING_CONFIRMATION_TEMPLATE || "demo_booking_confirmation";
+
 async function post(body) {
   if (!config.whatsapp.enabled) {
     console.log("[whatsapp skipped — no token]", JSON.stringify(body));
@@ -75,49 +81,72 @@ export function bookingLinesForLab(lab, booking) {
   return lines.join("\n");
 }
 
+// Approved 27 Oct 2026. Its body has seven slots: {{1}} lab name, {{2}}
+// patient name, {{3}} age, {{4}} gender, {{5}} patient phone, {{6}} tests,
+// {{7}} when. A plain-text alert to the lab owner has the same 24-hour-window
+// problem the reminder had, so this is a template too — it has nothing to do
+// with whether the number belongs to the lab or a stranger.
+export const NEW_BOOKING_ALERT_TEMPLATE =
+  process.env.WHATSAPP_NEW_BOOKING_ALERT_TEMPLATE || "new_booking_alert";
+
+function newBookingAlertParams(lab, booking) {
+  const items = booking.items.map((i) => i.name).join(", ") || "see notes";
+  const when = [booking.date, booking.slot].filter(Boolean).join(", ") || "not chosen";
+  return [
+    param(lab.name),
+    param(booking.patient.name),
+    param(booking.patient.age),
+    param(booking.patient.gender),
+    param(booking.patient.phone),
+    param(items),
+    param(when),
+  ];
+}
+
 export async function notifyLabOfBooking(lab, booking) {
   if (!lab.whatsapp || !lab.notify?.whatsappOnBooking) return { skipped: true };
-  return sendText(lab.whatsapp, bookingLinesForLab(lab, booking));
+  return sendTemplate(lab.whatsapp, NEW_BOOKING_ALERT_TEMPLATE, TEMPLATE_LANG, newBookingAlertParams(lab, booking));
 }
 
 export async function confirmToPatient(lab, booking) {
-  const when = [booking.date, booking.slot].filter(Boolean).join(", ");
-
   // On a sample lab the message must not read like a real appointment. Someone
   // who gets "please come to Main Road" and acts on it has wasted a trip, and
-  // the notice on the page is easy to scroll past.
+  // the notice on the page is easy to scroll past. Approved 27 Oct 2026 as its
+  // own template — same 24-hour-window reasoning as the real confirmation,
+  // the recipient here has never messaged this number either.
   if (lab.isDemo) {
-    const body = [
-      `This is a demo of a lab booking page. Nothing has been booked.`,
-      `${lab.name} is a sample lab, not a real business, so no appointment`,
-      `exists and nobody is expecting you.`,
-      ``,
-      `Reference: ${booking.reference}`,
-      when ? `Slot you picked: ${when}` : "",
-      ``,
-      `Built by UnityWebWorks. Questions? Call ${lab.phone}.`,
-    ]
-      .filter((line) => line !== undefined)
-      .join("\n");
-    return sendText(booking.patient.phone, body);
+    const items = booking.items.map((i) => i.name).join(", ") || "see notes";
+    return sendTemplate(booking.patient.phone, DEMO_BOOKING_CONFIRMATION_TEMPLATE, TEMPLATE_LANG, [
+      param(lab.name),
+      param(booking.reference),
+      param(items),
+      param(lab.phone),
+    ]);
   }
 
-  const body = [
-    `${lab.name}: your booking is confirmed.`,
-    `Reference: ${booking.reference}`,
-    when ? `When: ${when}` : "",
+  // Approved 27 Oct 2026. Its body has five slots: {{1}} lab name, {{2}}
+  // booking reference, {{3}} tests, {{4}} where to go / what happens next,
+  // {{5}} lab phone. A patient booking through the website has never
+  // messaged this WhatsApp number, so it's always outside the 24-hour
+  // window — this has to be a template, not plain text.
+  const items = booking.items.map((i) => i.name).join(", ") || "see notes";
+  const where =
     booking.visitType === "home"
       ? "Our person will come to your address."
-      : `Please come to: ${lab.address || lab.name}`,
-    `Questions? Call ${lab.phone}.`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  // Outside the 24 hour window this needs an approved template.
-  // Swap to sendTemplate once yours is approved by Meta.
-  return sendText(booking.patient.phone, body);
+      : `Please come to ${lab.address || lab.name}.`;
+  return sendTemplate(booking.patient.phone, BOOKING_CONFIRMATION_TEMPLATE, TEMPLATE_LANG, [
+    param(lab.name),
+    param(booking.reference),
+    param(items),
+    param(where),
+    param(lab.phone),
+  ]);
 }
+
+// Approved 27 Oct 2026, same shape as appointment_reminder's body but for the
+// moment of booking rather than the day before.
+export const BOOKING_CONFIRMATION_TEMPLATE =
+  process.env.WHATSAPP_BOOKING_CONFIRMATION_TEMPLATE || "booking_confirmation";
 
 /* ---------- Day-before reminder (approved template) ---------- */
 
@@ -188,11 +217,16 @@ export async function remindPatient(lab, booking, fastingNote = "") {
   return sendReminder(booking.patient.phone, reminderParams(lab, booking, fastingNote));
 }
 
+// Approved 27 Oct 2026. Its body has three slots: {{1}} lab name, {{2}}
+// booking reference, {{3}} lab phone. Same 24-hour-window reasoning as the
+// other two — this is a message we start, so it needs a template.
+export const REPORT_READY_TEMPLATE =
+  process.env.WHATSAPP_REPORT_READY_TEMPLATE || "report_ready";
+
 export async function reportReady(lab, booking) {
-  const body = [
-    `${lab.name}: your report is ready.`,
-    `Reference: ${booking.reference}`,
-    `Collect it at the lab or call ${lab.phone}.`,
-  ].join("\n");
-  return sendText(booking.patient.phone, body);
+  return sendTemplate(booking.patient.phone, REPORT_READY_TEMPLATE, TEMPLATE_LANG, [
+    param(lab.name),
+    param(booking.reference),
+    param(lab.phone),
+  ]);
 }
