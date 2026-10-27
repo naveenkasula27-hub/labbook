@@ -14,6 +14,12 @@ import { config } from "../config.js";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 
+// Approved 27 Oct 2026. Its body has four slots: {{1}} lab name, {{2}}
+// booking reference, {{3}} tests, {{4}} lab phone. Used only for the demo
+// lab's confirmation, which must never read like a real appointment.
+export const DEMO_BOOKING_CONFIRMATION_TEMPLATE =
+  process.env.WHATSAPP_DEMO_BOOKING_CONFIRMATION_TEMPLATE || "demo_booking_confirmation";
+
 async function post(body) {
   if (!config.whatsapp.enabled) {
     console.log("[whatsapp skipped — no token]", JSON.stringify(body));
@@ -103,25 +109,19 @@ export async function notifyLabOfBooking(lab, booking) {
 }
 
 export async function confirmToPatient(lab, booking) {
-  const when = [booking.date, booking.slot].filter(Boolean).join(", ");
-
   // On a sample lab the message must not read like a real appointment. Someone
   // who gets "please come to Main Road" and acts on it has wasted a trip, and
-  // the notice on the page is easy to scroll past.
+  // the notice on the page is easy to scroll past. Approved 27 Oct 2026 as its
+  // own template — same 24-hour-window reasoning as the real confirmation,
+  // the recipient here has never messaged this number either.
   if (lab.isDemo) {
-    const body = [
-      `This is a demo of a lab booking page. Nothing has been booked.`,
-      `${lab.name} is a sample lab, not a real business, so no appointment`,
-      `exists and nobody is expecting you.`,
-      ``,
-      `Reference: ${booking.reference}`,
-      when ? `Slot you picked: ${when}` : "",
-      ``,
-      `Built by UnityWebWorks. Questions? Call ${lab.phone}.`,
-    ]
-      .filter((line) => line !== undefined)
-      .join("\n");
-    return sendText(booking.patient.phone, body);
+    const items = booking.items.map((i) => i.name).join(", ") || "see notes";
+    return sendTemplate(booking.patient.phone, DEMO_BOOKING_CONFIRMATION_TEMPLATE, TEMPLATE_LANG, [
+      param(lab.name),
+      param(booking.reference),
+      param(items),
+      param(lab.phone),
+    ]);
   }
 
   // Approved 27 Oct 2026. Its body has five slots: {{1}} lab name, {{2}}
