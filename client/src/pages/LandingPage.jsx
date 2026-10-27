@@ -239,7 +239,7 @@ export default function LandingPage() {
 
           <div className="lp-actions" style={{ marginTop: 22 }}>
             <Link className="lp-btn lp-btn-main" to="/maheera" onClick={() => track("OpenedDemo")}>
-              Open the booking page
+              Try booking a test — patient's view
             </Link>
             <Link
               className="lp-btn"
@@ -247,7 +247,7 @@ export default function LandingPage() {
               onClick={() => track("OpenedDemoDashboard")}
               style={{ background: "#fff", color: "#14213D", boxShadow: "inset 0 0 0 1.5px #D9BCA6" }}
             >
-              Open the lab dashboard
+              See the owner's dashboard
             </Link>
           </div>
 
