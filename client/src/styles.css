@@ -1,8 +1,14 @@
-/* The lab's own colours are set on :root at runtime from its theme. */
+/* A lab's own colours are set on :root at runtime from its theme, and
+   override everything below once one loads. These are only seen on the one
+   screen that comes before that — the sign-in page, with no lab picked yet
+   — so that's the one place that's actually "UnityWebWorks" rather than a
+   client's own brand, and it uses the UWW palette: Deep Navy and Cursor
+   Orange. --cta stays navy rather than orange here because white text on
+   orange is under the brand kit's own 3:1 minimum for bold button text. */
 :root {
-  --primary: #0f766e;
-  --accent: #0ea5e9;
-  --cta: #0f766e;   /* buttons; labs that want one action colour override it */
+  --primary: #14213D;
+  --accent: #FF6A1F;
+  --cta: #14213D;   /* buttons; labs that want one action colour override it */
 
   --ink: #0f172a;
   /* Three steps of grey, all comfortably readable on white. The faintest used
