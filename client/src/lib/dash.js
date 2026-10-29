@@ -72,6 +72,12 @@ export async function login(email, password) {
   return data;
 }
 
+export async function signup(fields) {
+  const data = await request("/auth/signup", { method: "POST", body: fields });
+  setToken(data.token);
+  return data;
+}
+
 export const me = () => request("/auth/me");
 
 /* ---------- bookings ---------- */

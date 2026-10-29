@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../lib/dash.js";
 
 export default function LoginPage({ onLoggedIn }) {
@@ -87,6 +87,10 @@ export default function LoginPage({ onLoggedIn }) {
 
         <p className="muted tiny" style={{ margin: 0 }}>
           Forgotten your password? Contact whoever set up your account.
+        </p>
+
+        <p className="muted tiny" style={{ margin: 0 }}>
+          Running a lab and new here? <Link to="/signup">Set up your own dashboard</Link>
         </p>
 
         {hasDemo && (
