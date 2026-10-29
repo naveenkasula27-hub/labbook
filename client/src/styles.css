@@ -199,7 +199,15 @@ p { margin: 0 0 10px; }
 .hero-action-icon { display: flex; }
 
 /* ---------- Need-help strip, above the footer ---------- */
-.help-bar { background: var(--bg); border-top: 1px solid var(--line); padding: 22px 0; }
+/* Floats at the bottom from the moment the page loads, same as the
+   reference — it's shown only while the booking bar isn't (picking a test
+   switches priority to "continue booking"), so the two never overlap. */
+.help-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 19;
+  background: var(--card); border-top: 1px solid var(--line);
+  padding: 14px 0; padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.1);
+}
 .help-bar-inner {
   display: flex; align-items: center; justify-content: space-between;
   gap: 16px; flex-wrap: wrap;
@@ -456,7 +464,9 @@ p { margin: 0 0 10px; }
   .bar-go { animation: none; }
 }
 
-.site-foot { padding: 22px 0 36px; color: var(--ink-faint); font-size: 0.8125rem; text-align: center; }
+/* Extra bottom padding so the address/phone line doesn't end up hidden
+   under the floating help bar once you scroll all the way down. */
+.site-foot { padding: 22px 0 100px; color: var(--ink-faint); font-size: 0.8125rem; text-align: center; }
 
 /* ---------- Language toggle ---------- */
 .lang-toggle {

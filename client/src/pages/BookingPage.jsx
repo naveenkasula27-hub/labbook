@@ -470,7 +470,7 @@ function BookingPageInner() {
         </div>
       )}
 
-      {!helpDismissed && (
+      {!helpDismissed && !(pickedCount > 0 && !confirmed) && (
         <div className="help-bar">
           <div className="wrap help-bar-inner">
             <div>
