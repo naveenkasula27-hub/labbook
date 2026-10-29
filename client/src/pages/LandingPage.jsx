@@ -90,6 +90,9 @@ export default function LandingPage() {
           </a>
 
           <div className="lp-top-links">
+            <Link to="/signup" onClick={() => track("ClickedSignupTop")}>
+              Sign up
+            </Link>
             <a href={`tel:${PHONE}`}>
               Call<span className="lp-hide-sm"> {PHONE_SHOWN}</span>
             </a>
@@ -298,6 +301,11 @@ export default function LandingPage() {
               Call instead
             </a>
           </div>
+
+          <p className="lp-signup-alt">
+            In a hurry? <Link to="/signup" onClick={() => track("ClickedSignupBottom")}>Set up your own lab right now</Link> —
+            no waiting on me, start on a free trial and add your own tests and prices.
+          </p>
         </div>
       </section>
 
