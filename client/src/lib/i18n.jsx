@@ -18,6 +18,12 @@ export const STRINGS = {
     directions: "Directions",
     checkBooking: "Check a booking",
 
+    heroCallUs: "Call Us",
+    heroWhatsapp: "WhatsApp",
+    heroCheckBooking: "Check a booking",
+    needHelp: "Need help?",
+    needHelpSub: "Call us or message on WhatsApp",
+
     packagesTitle: "Health checkup packages",
     packagesSub: "A set of tests at one price. You can also pick tests one by one below.",
     pkgTests: (n) => (n === 1 ? "1 test" : `${n} tests`),
@@ -119,6 +125,12 @@ export const STRINGS = {
     whatsapp: "వాట్సాప్",
     directions: "దారి చూపండి",
     checkBooking: "బుకింగ్ చూడండి",
+
+    heroCallUs: "కాల్ చేయండి",
+    heroWhatsapp: "వాట్సాప్",
+    heroCheckBooking: "బుకింగ్ చూడండి",
+    needHelp: "సహాయం కావాలా?",
+    needHelpSub: "కాల్ చేయండి లేదా వాట్సాప్‌లో మెసేజ్ చేయండి",
 
     packagesTitle: "హెల్త్ చెకప్ ప్యాకేజీలు",
     packagesSub: "చాలా టెస్టులు ఒకే ధరలో. కింద ఒక్కొక్క టెస్టు కూడా ఎంచుకోవచ్చు.",

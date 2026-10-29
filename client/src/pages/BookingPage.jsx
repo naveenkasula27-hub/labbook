@@ -252,28 +252,70 @@ function BookingPageInner() {
             </div>
           </div>
           <div className="head-links">
-            <a href={`tel:${lab.phone.replace(/\s/g, "")}`}>{t.callLabel(lab.phone)}</a>
+            {lab.mapsUrl && (
+              <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
+                {t.directions}
+              </a>
+            )}
+            <LangToggle />
+          </div>
+        </div>
+      </header>
+
+      {/* The three things most people open this page to do, in one row they
+          can't miss: call, message on WhatsApp, or check a booking they
+          already made. Burying these in the header's small text links meant
+          first-time visitors scrolled past them without noticing. */}
+      <div className="hero">
+        <div className="wrap">
+          <input
+            className="hero-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.searchPlaceholder}
+            aria-label={t.searchAria}
+          />
+          <div className="hero-actions">
+            <a className="hero-action hero-action-call" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
+              <span className="hero-action-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2.1Z" />
+                </svg>
+              </span>
+              <span className="hero-action-label">{t.heroCallUs}</span>
+            </a>
             {lab.whatsapp && (
               <a
+                className="hero-action hero-action-whatsapp"
                 href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
                   `Hello ${lab.name}, I have a question.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t.whatsapp}
+                <span className="hero-action-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 21l1.4-4.2A8.5 8.5 0 1 1 8 19.6L3 21Z" />
+                    <path d="M8.5 9.5c0 3.5 2.5 6 6 6 .5 0 1-.6.8-1.1l-.6-1.3a.9.9 0 0 0-1-.5l-1 .2a5 5 0 0 1-2.5-2.5l.2-1a.9.9 0 0 0-.5-1l-1.3-.6c-.5-.2-1.1.3-1.1.8Z" />
+                  </svg>
+                </span>
+                <span className="hero-action-label">{t.heroWhatsapp}</span>
               </a>
             )}
-            {lab.mapsUrl && (
-              <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
-                {t.directions}
-              </a>
-            )}
-            <Link to={`/${slug}/check`}>{t.checkBooking}</Link>
-            <LangToggle />
+            <Link className="hero-action hero-action-check" to={`/${slug}/check`}>
+              <span className="hero-action-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 11.5l2 2 4-4.5" />
+                  <path d="M4 12a8 8 0 1 1 3 6.2" />
+                  <path d="M4 18v-4h4" />
+                </svg>
+              </span>
+              <span className="hero-action-label">{t.heroCheckBooking}</span>
+            </Link>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="wrap">
         {confirmed && <Confirmation booking={confirmed} lab={lab} onDone={() => setConfirmed(null)} />}
@@ -302,14 +344,6 @@ function BookingPageInner() {
 
             <section className="card" id="tests">
               <h2>{t.findTitle}</h2>
-              <input
-                className="search"
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                aria-label={t.searchAria}
-              />
               <TestList
                 tests={data.tests}
                 categories={data.categories}
@@ -385,6 +419,32 @@ function BookingPageInner() {
           </div>
         </div>
       )}
+
+      <div className="help-bar">
+        <div className="wrap help-bar-inner">
+          <div>
+            <p className="help-bar-title">{t.needHelp}</p>
+            <p className="help-bar-sub">{t.needHelpSub}</p>
+          </div>
+          <div className="help-bar-actions">
+            <a className="btn btn-ghost" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
+              {t.callLabel(lab.phone)}
+            </a>
+            {lab.whatsapp && (
+              <a
+                className="btn btn-primary"
+                href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
+                  `Hello ${lab.name}, I have a question.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.whatsapp}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
 
       <footer className="site-foot">
         <div className="wrap">
