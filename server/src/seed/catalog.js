@@ -153,6 +153,9 @@ export const CATALOG = [
   { code: "ecg", name: "ECG", alias: "", category: "Scans", sample: "Other", homeCollectable: false, reportTime: "Same day" },
   { code: "echo", name: "Echocardiogram (2D Echo)", alias: "", category: "Scans", sample: "Other", homeCollectable: false, reportTime: "Same day" },
   { code: "tmt", name: "Treadmill Test (TMT)", alias: "Stress test", category: "Scans", sample: "Other", homeCollectable: false, reportTime: "Same day" },
+  { code: "pap_smear", name: "Pap Smear (Cervical Cytology)", alias: "Pap test", category: "Scans", sample: "Other", homeCollectable: false, reportTime: "3 to 5 days" },
+  { code: "mammography", name: "Mammography", alias: "Breast screening", category: "Scans", sample: "Scan", homeCollectable: false, reportTime: "Same day" },
+  { code: "dexa", name: "Bone Density Scan (DEXA)", alias: "DEXA scan", category: "Scans", sample: "Scan", homeCollectable: false, reportTime: "Same day" },
 ];
 
 export const PACKAGE_TEMPLATES = [

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useLang } from "../lib/i18n.jsx";
 import menPhoto from "../assets/audience/men.jpg";
 import womenPhoto from "../assets/audience/women.jpg";
@@ -11,30 +12,24 @@ const TAGS = ["men", "women", "kids", "seniors"];
 const PHOTOS = { men: menPhoto, women: womenPhoto, kids: kidsPhoto, seniors: seniorsPhoto };
 
 /**
- * "Who is this for?" tile row above the packages list. Each tile is a tag a
- * lab owner sets on their own packages in the dashboard (see PricesPage) —
- * clicking one filters the package list below to just that tag, instead of
- * making people read every package name to find the one meant for them.
+ * "Who is this for?" tile row. Each tile opens its own page (AudiencePage)
+ * with a real age/gender checkup panel — basic and advanced tests, each
+ * shown with this lab's own price, fasting note and sample type — rather
+ * than filtering the packages list in place.
  */
-export default function AudienceTiles({ active, onSelect }) {
+export default function AudienceTiles({ slug }) {
   const { t } = useLang();
   const labelFor = { men: t.audienceMen, women: t.audienceWomen, kids: t.audienceKids, seniors: t.audienceSeniors };
 
   return (
     <div className="audience-tiles" role="group" aria-label={t.audienceTitle}>
       {TAGS.map((tag) => (
-        <button
-          key={tag}
-          type="button"
-          className="audience-tile"
-          aria-pressed={active === tag}
-          onClick={() => onSelect(active === tag ? null : tag)}
-        >
+        <Link key={tag} to={`/${slug}/for/${tag}`} className="audience-tile">
           <span className="audience-tile-photo">
             <img src={PHOTOS[tag]} alt="" loading="lazy" />
           </span>
           <span className="audience-tile-label">{labelFor[tag]}</span>
-        </button>
+        </Link>
       ))}
     </div>
   );

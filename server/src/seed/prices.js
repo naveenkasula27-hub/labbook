@@ -22,6 +22,7 @@ export const DEMO_PRICES = {
   pt_inr: 400, aptt: 400, ddimer: 900,
   psa: 800, ca125: 1100,
   xray_chest: 350, usg_abdomen: 900, usg_preg: 800, ecg: 200, echo: 1200,
+  pap_smear: 900, mammography: 1500, dexa: 1800,
 };
 
 export const DEMO_PACKAGE_PRICES = {

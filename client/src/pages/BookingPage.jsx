@@ -38,7 +38,6 @@ function BookingPageInner() {
   const [picked, setPicked] = useState({ tests: new Set(), packages: new Set() });
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [audience, setAudience] = useState(null);
 
   // Dismissing the "Need help?" bar should only last for this one visit —
   // closing the tab and opening the site again should show it, falling in,
@@ -258,21 +257,6 @@ function BookingPageInner() {
 
   const pickedCount = picked.tests.size + picked.packages.size;
 
-  const audienceLabel = {
-    men: t.audienceMen,
-    women: t.audienceWomen,
-    kids: t.audienceKids,
-    seniors: t.audienceSeniors,
-  }[audience];
-
-  const audienceMatches = audience
-    ? data.packages.filter((p) => (p.audience || []).includes(audience))
-    : null;
-  // A lab that hasn't tagged any packages yet shouldn't show an empty list
-  // when someone taps a tile — fall back to showing everything, with a note
-  // explaining why, rather than a dead end.
-  const shownPackages = audienceMatches && audienceMatches.length > 0 ? audienceMatches : data.packages;
-
   return (
     <>
       {lab.isDemo && <DemoStrip labName={lab.name} />}
@@ -407,23 +391,12 @@ function BookingPageInner() {
             {data.packages.length > 0 && (
               <section className="card" id="packages">
                 <h2>{t.audienceTitle}</h2>
-                <AudienceTiles active={audience} onSelect={setAudience} />
+                <AudienceTiles slug={slug} />
 
                 <h2 style={{ marginTop: 18 }}>{t.packagesTitle}</h2>
                 <p className="muted small">{t.packagesSub}</p>
-                {audience && (
-                  <p className="audience-note">
-                    {audienceMatches.length > 0
-                      ? t.audienceShowing(audienceLabel)
-                      : t.audienceEmpty(audienceLabel)}
-                    {" · "}
-                    <button type="button" className="link-btn" onClick={() => setAudience(null)}>
-                      {t.audienceClear}
-                    </button>
-                  </p>
-                )}
                 <Packages
-                  packages={shownPackages}
+                  packages={data.packages}
                   lab={lab}
                   byCode={byCode}
                   picked={picked.packages}
