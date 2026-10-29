@@ -510,7 +510,12 @@ p { margin: 0 0 10px; }
   .test-cards { grid-template-columns: repeat(4, 1fr); }
 }
 .test-card {
-  display: flex; flex-direction: column; gap: 10px;
+  /* Grid stretches every card in a row to the same height, but without this
+     the price/Add row just sat under whatever content came above it — a
+     card with a short name had its button sitting higher than its taller
+     neighbour. justify-content keeps the top content anchored to the top
+     and pushes the price row to the bottom of every card alike. */
+  display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
   padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
 }
 .test-card-top { display: flex; gap: 10px; align-items: flex-start; }
