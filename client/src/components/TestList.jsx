@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { money } from "../lib/api.js";
+import { useLang } from "../lib/i18n.jsx";
+import CategoryIcon from "../lib/categoryIcons.jsx";
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ");
 
@@ -14,13 +16,15 @@ export default function TestList({
   onToggle,
   onAddQueryToNotes,
 }) {
+  const { t } = useLang();
+
   const shown = useMemo(() => {
     const q = norm(query).trim();
     const words = q ? q.split(/\s+/) : [];
-    return tests.filter((t) => {
-      if (category !== "All" && t.category !== category) return false;
+    return tests.filter((test) => {
+      if (category !== "All" && test.category !== category) return false;
       if (!words.length) return true;
-      const hay = norm(`${t.name} ${t.alias} ${t.category}`);
+      const hay = norm(`${test.name} ${test.alias} ${test.category}`);
       return words.every((w) => hay.includes(w));
     });
   }, [tests, query, category]);
@@ -29,28 +33,31 @@ export default function TestList({
 
   return (
     <>
-      <div className="chips" role="group" aria-label="Test categories">
+      <div className="icon-chips" role="group" aria-label={t.categoriesAria}>
         {chips.map((c) => (
           <button
             key={c}
             type="button"
-            className="chip"
+            className="icon-chip"
             aria-pressed={category === c}
             onClick={() => onCategory(c)}
           >
-            {c}
+            <span className="icon-chip-circle">
+              <CategoryIcon category={c} />
+            </span>
+            <span className="icon-chip-label">{c === "All" ? t.all : c}</span>
           </button>
         ))}
       </div>
 
-      <p className="count">{shown.length === 1 ? "1 test" : `${shown.length} tests`}</p>
+      <p className="count">{t.countTests(shown.length)}</p>
 
       {shown.length === 0 ? (
         <div className="empty">
           <p>
-            No test found{query.trim() ? ` for “${query.trim()}”` : ""}.
+            {t.noResult(query.trim())}
             <br />
-            Add it to your notes and the lab will check it for you.
+            {t.noResultHint}
           </p>
           {query.trim() && (
             <button
@@ -58,35 +65,42 @@ export default function TestList({
               className="btn btn-ghost"
               onClick={() => onAddQueryToNotes(query.trim())}
             >
-              Add “{query.trim()}” to my notes
+              {t.addQueryToNotes(query.trim())}
             </button>
           )}
         </div>
       ) : (
-        <ul className="tests">
-          {shown.map((t) => {
-            const on = picked.has(t.code);
+        <ul className="tests test-cards">
+          {shown.map((tst) => {
+            const on = picked.has(tst.code);
             return (
-              <li className="test" key={t.code}>
-                <div>
-                  <h3>{t.name}</h3>
-                  {t.alias && <p className="test-alias">{t.alias}</p>}
-                  <p className="test-meta">
-                    {t.sample} sample
-                    {typeof t.price === "number" ? ` · ${money(t.price, lab)}` : ""}
-                    {t.reportTime ? ` · ${t.reportTime}` : ""}
-                  </p>
-                  {t.fasting && <p className="test-fast">{t.fasting}</p>}
+              <li className="test-card" key={tst.code}>
+                <span className="test-card-icon" aria-hidden="true">
+                  <CategoryIcon category={tst.category} size={20} />
+                </span>
+                <div className="test-card-body">
+                  <h3>{tst.name}</h3>
+                  {tst.alias && <p className="test-alias">{tst.alias}</p>}
+                  <div className="test-card-badges">
+                    {tst.reportTime && <span className="badge">{tst.reportTime}</span>}
+                    <span className="badge badge-muted">{t.sampleType(tst.sample)}</span>
+                  </div>
+                  {tst.fasting && <p className="test-fast">{tst.fasting}</p>}
                 </div>
-                <button
-                  type="button"
-                  className="add"
-                  data-on={on}
-                  onClick={() => onToggle(t.code)}
-                  aria-label={`${on ? "Remove" : "Add"} ${t.name}`}
-                >
-                  {on ? "Added" : "Add"}
-                </button>
+                <div className="test-card-right">
+                  {typeof tst.price === "number" && (
+                    <span className="test-card-price">{money(tst.price, lab)}</span>
+                  )}
+                  <button
+                    type="button"
+                    className="add"
+                    data-on={on}
+                    onClick={() => onToggle(tst.code)}
+                    aria-label={`${on ? t.added : t.add} ${tst.name}`}
+                  >
+                    {on ? t.added : t.add}
+                  </button>
+                </div>
               </li>
             );
           })}

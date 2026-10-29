@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { money, prettyDate } from "../lib/api.js";
+import { useLang } from "../lib/i18n.jsx";
 
 const BLANK = {
   name: "",
@@ -17,6 +18,7 @@ const BookingForm = forwardRef(function BookingForm(
   { lab, basket, labOnly, date, slot, availability, minDate, onDate, onSlot, onSubmit },
   ref
 ) {
+  const { t } = useLang();
   const [v, setV] = useState(BLANK);
   const [errors, setErrors] = useState({});
   const [sending, setSending] = useState(false);
@@ -40,32 +42,32 @@ const BookingForm = forwardRef(function BookingForm(
 
   function validate() {
     const e = {};
-    if (!v.name.trim()) e.name = "Enter the patient's name.";
+    if (!v.name.trim()) e.name = t.eName;
     const age = Number(v.age);
     if (v.age === "" || !Number.isInteger(age) || age < 0 || age > 120)
-      e.age = "Enter an age between 0 and 120.";
-    if (!v.gender) e.gender = "Choose one.";
+      e.age = t.eAge;
+    if (!v.gender) e.gender = t.eGender;
 
     const digits = v.phone.replace(/\D/g, "");
     if (lab.country === "IN") {
       const local = digits.replace(/^(91|0)/, "");
-      if (!/^[6-9]\d{9}$/.test(local)) e.phone = "Enter a 10 digit mobile number.";
+      if (!/^[6-9]\d{9}$/.test(local)) e.phone = t.ePhoneIN;
     } else if (digits.length < 7) {
-      e.phone = "Enter a valid mobile number.";
+      e.phone = t.ePhone;
     }
 
     if (v.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email))
-      e.email = "That email does not look right.";
+      e.email = t.eEmail;
 
     if (v.visitType === "home" && !v.address.trim())
-      e.address = "Enter the address for home collection.";
+      e.address = t.eAddress;
     if (v.visitType === "home" && labOnly.length)
-      e.visitType = `These have to be done at the lab: ${labOnly.join(", ")}.`;
+      e.visitType = t.eVisitType(labOnly.join(", "));
 
     if (!basket.items.length && !v.notes.trim())
-      e.notes = "Pick at least one test, or write what you need here.";
+      e.notes = t.eNotes;
 
-    if (!v.consent) e.consent = "Tick this so the lab can contact you.";
+    if (!v.consent) e.consent = t.eConsent;
     return e;
   }
 
@@ -130,7 +132,7 @@ const BookingForm = forwardRef(function BookingForm(
       )}
 
       <div>
-        <label className="field-label" htmlFor="f-name">Patient's full name</label>
+        <label className="field-label" htmlFor="f-name">{t.patientName}</label>
         <input
           id="f-name"
           className={cls("name", "input")}
@@ -144,7 +146,7 @@ const BookingForm = forwardRef(function BookingForm(
 
       <div className="two">
         <div>
-          <label className="field-label" htmlFor="f-age">Age</label>
+          <label className="field-label" htmlFor="f-age">{t.age}</label>
           <input
             id="f-age"
             className={cls("age", "input")}
@@ -159,7 +161,7 @@ const BookingForm = forwardRef(function BookingForm(
           <Err field="age" />
         </div>
         <div>
-          <label className="field-label" htmlFor="f-gender">Gender</label>
+          <label className="field-label" htmlFor="f-gender">{t.gender}</label>
           <select
             id="f-gender"
             className={cls("gender", "select")}
@@ -167,17 +169,17 @@ const BookingForm = forwardRef(function BookingForm(
             onChange={set("gender")}
             {...aria("gender")}
           >
-            <option value="">Select</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
+            <option value="">{t.select}</option>
+            <option value="Male">{t.male}</option>
+            <option value="Female">{t.female}</option>
+            <option value="Other">{t.other}</option>
           </select>
           <Err field="gender" />
         </div>
       </div>
 
       <div>
-        <label className="field-label" htmlFor="f-phone">Mobile number</label>
+        <label className="field-label" htmlFor="f-phone">{t.mobile}</label>
         <input
           id="f-phone"
           className={cls("phone", "input")}
@@ -191,13 +193,13 @@ const BookingForm = forwardRef(function BookingForm(
         />
         <Err field="phone" />
         <p className="muted tiny" style={{ margin: "4px 0 0" }}>
-          The lab sends your confirmation to this number on WhatsApp.
+          {t.mobileHint}
         </p>
       </div>
 
       <div>
         <label className="field-label" htmlFor="f-email">
-          Email <span className="muted">(optional)</span>
+          {t.email} <span className="muted">{t.optional}</span>
         </label>
         <input
           id="f-email"
@@ -213,7 +215,7 @@ const BookingForm = forwardRef(function BookingForm(
 
       {lab.homeCollection && (
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-          <legend className="field-label">Where should the sample be taken?</legend>
+          <legend className="field-label">{t.sampleWhere}</legend>
           <div className="radios">
             <label className="radio">
               <input
@@ -223,7 +225,7 @@ const BookingForm = forwardRef(function BookingForm(
                 checked={v.visitType === "lab"}
                 onChange={set("visitType")}
               />
-              At the lab
+              {t.atLab}
             </label>
             <label className="radio">
               <input
@@ -234,14 +236,13 @@ const BookingForm = forwardRef(function BookingForm(
                 checked={v.visitType === "home"}
                 onChange={set("visitType")}
               />
-              At my home
+              {t.atHome}
             </label>
           </div>
           <Err field="visitType" />
           {v.visitType === "home" && lab.homeCollectionFee > 0 && (
             <p className="muted tiny" style={{ margin: "6px 0 0" }}>
-              Home collection: {money(lab.homeCollectionFee, lab)}
-              {lab.homeCollectionNote ? `. ${lab.homeCollectionNote}` : ""}
+              {t.homeFee(money(lab.homeCollectionFee, lab), lab.homeCollectionNote)}
             </p>
           )}
         </fieldset>
@@ -249,14 +250,14 @@ const BookingForm = forwardRef(function BookingForm(
 
       {v.visitType === "home" && (
         <div>
-          <label className="field-label" htmlFor="f-address">Home address</label>
+          <label className="field-label" htmlFor="f-address">{t.homeAddress}</label>
           <textarea
             id="f-address"
             className={cls("address", "textarea")}
             value={v.address}
             onChange={set("address")}
             autoComplete="street-address"
-            placeholder="House number, street, village or area"
+            placeholder={t.homeAddressPlaceholder}
             {...aria("address")}
           />
           <Err field="address" />
@@ -265,7 +266,7 @@ const BookingForm = forwardRef(function BookingForm(
 
       <div>
         <label className="field-label" htmlFor="f-date">
-          Date <span className="muted">(optional)</span>
+          {t.date} <span className="muted">{t.optional}</span>
         </label>
         <input
           id="f-date"
@@ -281,8 +282,8 @@ const BookingForm = forwardRef(function BookingForm(
 
       {date && (
         <div>
-          <span className="field-label">Time</span>
-          {availability?.loading && <p className="muted small" style={{ margin: 0 }}>Checking…</p>}
+          <span className="field-label">{t.time}</span>
+          {availability?.loading && <p className="muted small" style={{ margin: 0 }}>{t.checking}</p>}
           {availability?.error && (
             <p className="err" style={{ margin: 0 }}>{availability.error}</p>
           )}
@@ -309,9 +310,9 @@ const BookingForm = forwardRef(function BookingForm(
                         could not pick it. Say so, and warn when a slot is
                         nearly gone, which is also a reason to book now. */}
                     {s.full ? (
-                      <span className="slot-tag slot-tag-full">Full</span>
+                      <span className="slot-tag slot-tag-full">{t.slotFull}</span>
                     ) : s.left <= 2 ? (
-                      <span className="slot-tag">{s.left} left</span>
+                      <span className="slot-tag">{t.slotLeft(s.left)}</span>
                     ) : null}
                   </button>
                 ))}
@@ -327,7 +328,7 @@ const BookingForm = forwardRef(function BookingForm(
 
       <div>
         <label className="field-label" htmlFor="f-notes">
-          Notes <span className="muted">(optional)</span>
+          {t.notes} <span className="muted">{t.optional}</span>
         </label>
         <textarea
           id="f-notes"
@@ -335,7 +336,7 @@ const BookingForm = forwardRef(function BookingForm(
           className={cls("notes", "textarea")}
           value={v.notes}
           onChange={set("notes")}
-          placeholder="Other tests, or what your doctor wrote"
+          placeholder={t.notesPlaceholder}
           {...aria("notes")}
         />
         <Err field="notes" />
@@ -351,11 +352,11 @@ const BookingForm = forwardRef(function BookingForm(
             {...aria("consent")}
           />
           <span>
-            The lab may call or send me a WhatsApp message about this booking.{" "}
+            {t.consentText}{" "}
             {/* Opens in a new tab on purpose: tapping this should not throw away
                 a half filled form. */}
             <a href="/privacy" target="_blank" rel="noopener">
-              How my details are handled
+              {t.consentLink}
             </a>
             .
           </span>
@@ -364,11 +365,11 @@ const BookingForm = forwardRef(function BookingForm(
       </div>
 
       <button className="btn btn-primary btn-block" type="submit" disabled={sending}>
-        {sending ? "Booking…" : "Confirm booking"}
+        {sending ? t.booking : t.confirmBooking}
       </button>
 
       <p className="muted tiny" style={{ margin: 0 }}>
-        Your booking is saved with {lab.name} and they will contact you to confirm.
+        {t.savedWith(lab.name)}
       </p>
     </form>
   );

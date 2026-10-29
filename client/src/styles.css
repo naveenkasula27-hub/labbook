@@ -396,3 +396,70 @@ p { margin: 0 0 10px; }
 }
 
 .site-foot { padding: 22px 0 36px; color: var(--ink-faint); font-size: 0.8125rem; text-align: center; }
+
+/* ---------- Language toggle ---------- */
+.lang-toggle {
+  display: inline-flex; background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px; padding: 3px; gap: 2px; flex: none;
+}
+.lang-btn {
+  cursor: pointer; border: 0; background: transparent; color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8125rem; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+  font-family: var(--font-head);
+}
+.lang-btn[aria-pressed="true"] { background: #fff; color: var(--primary); }
+
+/* ---------- Icon category chips ---------- */
+.icon-chips {
+  display: flex; gap: 16px; padding: 14px 2px 6px;
+  overflow-x: auto; min-width: 0; scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.icon-chip {
+  flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; border: 0; background: transparent; width: 68px;
+}
+.icon-chip-circle {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-faint); transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.icon-chip[aria-pressed="true"] .icon-chip-circle {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.icon-chip-label {
+  font-size: 0.75rem; line-height: 1.2; color: var(--ink-soft); text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 68px;
+}
+.icon-chip[aria-pressed="true"] .icon-chip-label { color: var(--ink); font-weight: 600; }
+
+/* ---------- Test cards ---------- */
+.test-cards { display: flex; flex-direction: column; gap: 10px; }
+.test-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+}
+.test-card-icon {
+  flex: none; width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+}
+.test-card-body { flex: 1; min-width: 0; }
+.test-card-body h3 { margin: 0 0 4px; font-size: 0.975rem; }
+.test-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.badge {
+  font-size: 0.75rem; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+  background: var(--ok-bg); color: var(--ok);
+}
+.badge-muted { background: var(--bg); color: var(--ink-faint); font-weight: 500; }
+.badge-warn { background: var(--warn-bg); color: #92400e; }
+.test-card-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.test-card-price { font-weight: 700; color: var(--ink); font-family: var(--font-head); }
+
+/* ---------- Package cards ---------- */
+.pkg-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.pkg-top h3 { margin: 0; }
+.pkg-price { font-weight: 700; color: var(--ink); flex: none; font-family: var(--font-head); }
+.pkg-badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.pkg-included { font-size: 0.8125rem; color: var(--ink-faint); }

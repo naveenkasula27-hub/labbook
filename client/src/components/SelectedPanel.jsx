@@ -1,11 +1,13 @@
 import { money } from "../lib/api.js";
+import { useLang } from "../lib/i18n.jsx";
 
 export default function SelectedPanel({ basket, lab, fastingNotes, onRemove }) {
+  const { t } = useLang();
+
   if (!basket.items.length) {
     return (
       <p className="muted small" style={{ margin: 0 }}>
-        Nothing picked yet. Choose a package or add tests, or just write what you need in the notes
-        below.
+        {t.nothingPicked}
       </p>
     );
   }
@@ -17,12 +19,12 @@ export default function SelectedPanel({ basket, lab, fastingNotes, onRemove }) {
           <li key={`${i.kind}-${i.code}`}>
             <span>
               {i.name}
-              {i.kind === "package" && <span className="muted tiny"> (package)</span>}
+              {i.kind === "package" && <span className="muted tiny"> ({t.packageLabel})</span>}
             </span>
             <span style={{ display: "flex", gap: 10, alignItems: "baseline", flex: "none" }}>
               {typeof i.price === "number" && <span className="small">{money(i.price, lab)}</span>}
               <button type="button" className="link-btn" onClick={() => onRemove(i)}>
-                Remove
+                {t.remove}
               </button>
             </span>
           </li>
@@ -31,12 +33,12 @@ export default function SelectedPanel({ basket, lab, fastingNotes, onRemove }) {
 
       {basket.subtotal !== null ? (
         <div className="total">
-          <span>Estimated total</span>
+          <span>{t.estimatedTotal}</span>
           <span>{money(basket.subtotal, lab)}</span>
         </div>
       ) : (
         <p className="muted tiny" style={{ margin: 0 }}>
-          Some of these are not priced online. The lab will confirm the amount.
+          {t.notAllPriced}
         </p>
       )}
 

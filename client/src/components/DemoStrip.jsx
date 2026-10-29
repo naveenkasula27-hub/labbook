@@ -1,3 +1,5 @@
+import { useLang } from "../lib/i18n.jsx";
+
 /**
  * The bar above a demo lab's page.
  *
@@ -39,6 +41,7 @@ function UnityMark({ size = 30 }) {
 }
 
 export default function DemoStrip({ labName }) {
+  const { t } = useLang();
   return (
     <div className="demo-strip">
       <div className="wrap demo-strip-inner">
@@ -62,8 +65,7 @@ export default function DemoStrip({ labName }) {
               scrolls: moving text on a lab's page looks like an advert and is
               hard to read. */}
           <span className="demo-pip" aria-hidden="true" />
-          <strong>Demo site.</strong> {labName} is a sample lab, not a real business.
-          Please do not enter real personal details.
+          <strong>{t.demoSiteBold}</strong> {t.demoSiteRest(labName)}
         </p>
       </div>
     </div>

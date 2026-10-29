@@ -14,8 +14,19 @@ import SelectedPanel from "../components/SelectedPanel.jsx";
 import BookingForm from "../components/BookingForm.jsx";
 import Confirmation from "../components/Confirmation.jsx";
 import DemoStrip from "../components/DemoStrip.jsx";
+import LangToggle from "../components/LangToggle.jsx";
+import { LangProvider, useLang } from "../lib/i18n.jsx";
 
 export default function BookingPage() {
+  return (
+    <LangProvider>
+      <BookingPageInner />
+    </LangProvider>
+  );
+}
+
+function BookingPageInner() {
+  const { t } = useLang();
   const { slug } = useParams();
 
   const [data, setData] = useState(null);
@@ -204,7 +215,7 @@ export default function BookingPage() {
   if (loadError) {
     return (
       <main className="center">
-        <h1>This page is not available</h1>
+        <h1>{t.notAvailableTitle}</h1>
         <p className="muted">{loadError}</p>
       </main>
     );
@@ -216,7 +227,7 @@ export default function BookingPage() {
         <div className="skeleton" style={{ height: 34, width: "55%", marginBottom: 12 }} />
         <div className="skeleton" style={{ height: 18, width: "35%", marginBottom: 26 }} />
         <div className="skeleton" style={{ height: 230 }} />
-        <span className="center muted small" style={{ display: "block" }}>Loading…</span>
+        <span className="center muted small" style={{ display: "block" }}>{t.loading}</span>
       </main>
     );
   }
@@ -241,7 +252,7 @@ export default function BookingPage() {
             </div>
           </div>
           <div className="head-links">
-            <a href={`tel:${lab.phone.replace(/\s/g, "")}`}>Call {lab.phone}</a>
+            <a href={`tel:${lab.phone.replace(/\s/g, "")}`}>{t.callLabel(lab.phone)}</a>
             {lab.whatsapp && (
               <a
                 href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
@@ -250,15 +261,16 @@ export default function BookingPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                WhatsApp
+                {t.whatsapp}
               </a>
             )}
             {lab.mapsUrl && (
               <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
-                Directions
+                {t.directions}
               </a>
             )}
-            <Link to={`/${slug}/check`}>Check a booking</Link>
+            <Link to={`/${slug}/check`}>{t.checkBooking}</Link>
+            <LangToggle />
           </div>
         </div>
       </header>
@@ -276,10 +288,8 @@ export default function BookingPage() {
 
             {data.packages.length > 0 && (
               <section className="card" id="packages">
-                <h2>Health checkup packages</h2>
-                <p className="muted small">
-                  A set of tests at one price. You can also pick tests one by one below.
-                </p>
+                <h2>{t.packagesTitle}</h2>
+                <p className="muted small">{t.packagesSub}</p>
                 <Packages
                   packages={data.packages}
                   lab={lab}
@@ -291,14 +301,14 @@ export default function BookingPage() {
             )}
 
             <section className="card" id="tests">
-              <h2>Find a test</h2>
+              <h2>{t.findTitle}</h2>
               <input
                 className="search"
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Type a test name, for example sugar, thyroid, CBC"
-                aria-label="Search tests"
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchAria}
               />
               <TestList
                 tests={data.tests}
@@ -316,7 +326,7 @@ export default function BookingPage() {
 
           <aside className="side">
             <section className="card">
-              <h2>Your booking</h2>
+              <h2>{t.yourBooking}</h2>
               <SelectedPanel
                 basket={basket}
                 lab={lab}
@@ -328,7 +338,7 @@ export default function BookingPage() {
             </section>
 
             <section className="card" id="book">
-              <h2>Your details</h2>
+              <h2>{t.yourDetails}</h2>
               <BookingForm
                 ref={formRef}
                 lab={lab}
@@ -366,14 +376,12 @@ export default function BookingPage() {
             </span>
 
             <div className="bar-text">
-              <span className="bar-count">
-                {pickedCount} {pickedCount === 1 ? "test" : "tests"} chosen
-              </span>
+              <span className="bar-count">{t.testsChosen(pickedCount)}</span>
               {basket.subtotal !== null && <> · {money(basket.subtotal, lab)}</>}
               {date && <div className="tiny muted">{prettyDate(date, lab)}{slot ? `, ${slot}` : ""}</div>}
             </div>
 
-            <a className="btn btn-primary bar-go" href="#book">Continue</a>
+            <a className="btn btn-primary bar-go" href="#book">{t.continue}</a>
           </div>
         </div>
       )}
