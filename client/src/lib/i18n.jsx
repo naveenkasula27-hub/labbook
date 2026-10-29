@@ -23,6 +23,7 @@ export const STRINGS = {
     heroCheckBooking: "Check a booking",
     needHelp: "Need help?",
     needHelpSub: "Call us or message on WhatsApp",
+    close: "Close",
 
     audienceTitle: "Who is this for?",
     audienceMen: "Men",
@@ -140,6 +141,7 @@ export const STRINGS = {
     heroCheckBooking: "బుకింగ్ చూడండి",
     needHelp: "సహాయం కావాలా?",
     needHelpSub: "కాల్ చేయండి లేదా వాట్సాప్‌లో మెసేజ్ చేయండి",
+    close: "మూసివేయండి",
 
     audienceTitle: "ఇది ఎవరి కోసం?",
     audienceMen: "పురుషులు",

@@ -39,6 +39,25 @@ function BookingPageInner() {
   const [category, setCategory] = useState("All");
   const [audience, setAudience] = useState(null);
 
+  // Dismissing the "Need help?" bar is a per-visitor convenience, not data
+  // that needs to be saved anywhere real — localStorage is enough, and it
+  // fails silently (try/catch) in case a browser blocks it.
+  const [helpDismissed, setHelpDismissed] = useState(() => {
+    try {
+      return localStorage.getItem("labbook-help-dismissed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  function dismissHelp() {
+    setHelpDismissed(true);
+    try {
+      localStorage.setItem("labbook-help-dismissed", "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
   // Date and slots
   const [date, setDate] = useState("");
   const [slot, setSlot] = useState("");
@@ -451,31 +470,43 @@ function BookingPageInner() {
         </div>
       )}
 
-      <div className="help-bar">
-        <div className="wrap help-bar-inner">
-          <div>
-            <p className="help-bar-title">{t.needHelp}</p>
-            <p className="help-bar-sub">{t.needHelpSub}</p>
-          </div>
-          <div className="help-bar-actions">
-            <a className="btn btn-ghost" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
-              {t.callLabel(lab.phone)}
-            </a>
-            {lab.whatsapp && (
-              <a
-                className="btn btn-primary"
-                href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
-                  `Hello ${lab.name}, I have a question.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t.whatsapp}
+      {!helpDismissed && (
+        <div className="help-bar">
+          <div className="wrap help-bar-inner">
+            <div>
+              <p className="help-bar-title">{t.needHelp}</p>
+              <p className="help-bar-sub">{t.needHelpSub}</p>
+            </div>
+            <div className="help-bar-actions">
+              <a className="btn btn-ghost" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
+                {t.callLabel(lab.phone)}
               </a>
-            )}
+              {lab.whatsapp && (
+                <a
+                  className="btn btn-primary"
+                  href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
+                    `Hello ${lab.name}, I have a question.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.whatsapp}
+                </a>
+              )}
+              <button
+                type="button"
+                className="help-bar-close"
+                onClick={dismissHelp}
+                aria-label={t.close}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <footer className="site-foot">
         <div className="wrap">

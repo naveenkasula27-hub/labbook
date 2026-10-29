@@ -206,7 +206,14 @@ p { margin: 0 0 10px; }
 }
 .help-bar-title { margin: 0; font-weight: 700; font-size: 1.0625rem; }
 .help-bar-sub { margin: 2px 0 0; color: var(--ink-soft); font-size: 0.875rem; }
-.help-bar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.help-bar-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.help-bar-close {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+  cursor: pointer; flex: none;
+}
+.help-bar-close:hover { background: var(--bg); color: var(--ink); }
 
 /* ---------- Layout ---------- */
 .cols { display: grid; gap: 18px; padding: 20px 0 110px; }
