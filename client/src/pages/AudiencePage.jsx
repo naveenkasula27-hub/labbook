@@ -13,6 +13,31 @@ import seniorsPhoto from "../assets/audience/seniors.jpg";
 
 const HERO_PHOTOS = { men: menPhoto, women: womenPhoto, kids: kidsPhoto, seniors: seniorsPhoto };
 
+// Picks made on this page are handed to the booking page through
+// sessionStorage rather than a shared cart, since this is a separate route
+// from BookingPage and the two never share React state. BookingPage reads
+// this key once on load, merges the codes into its own basket, and clears
+// it — so it only ever applies once per visit here.
+const pendingKey = (slug) => `labbook-pending-tests:${slug}`;
+
+function readPending(slug) {
+  try {
+    const raw = sessionStorage.getItem(pendingKey(slug));
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writePending(slug, set) {
+  try {
+    sessionStorage.setItem(pendingKey(slug), JSON.stringify([...set]));
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function AudiencePage() {
   return (
     <LangProvider>
@@ -28,6 +53,25 @@ function AudiencePageInner() {
 
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState("");
+  const [added, setAdded] = useState(() => readPending(slug));
+
+  function toggleAdd(code) {
+    setAdded((prev) => {
+      const next = new Set(prev);
+      next.has(code) ? next.delete(code) : next.add(code);
+      writePending(slug, next);
+      return next;
+    });
+  }
+
+  function addAllInGroup(items) {
+    setAdded((prev) => {
+      const next = new Set(prev);
+      for (const item of items) next.add(item.code);
+      writePending(slug, next);
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (!guide) return;
@@ -180,38 +224,62 @@ function AudiencePageInner() {
             const priced = group.items.filter((i) => typeof i.price === "number");
             const total = priced.length ? priced.reduce((sum, i) => sum + i.price, 0) : null;
 
+            const allInGroupAdded = group.items.every((i) => added.has(i.code));
+
             return (
               <section className="card guide-group" key={group.title}>
-                <h2>{group.title}</h2>
+                <div className="guide-group-head">
+                  <h2>{group.title}</h2>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => addAllInGroup(group.items)}
+                    disabled={allInGroupAdded}
+                  >
+                    {allInGroupAdded ? t.added : t.guideAddAll}
+                  </button>
+                </div>
 
                 <ul className="tests test-cards">
-                  {group.items.map((test) => (
-                    <li className="test-card" key={test.code}>
-                      <div className="test-card-top">
-                        <span className="test-card-icon guide-card-icon" aria-hidden="true">
-                          {CATEGORY_PHOTOS[test.category] ? (
-                            <img className="icon-chip-photo" src={CATEGORY_PHOTOS[test.category]} alt="" />
-                          ) : (
-                            <CategoryIcon category={test.category} size={26} />
-                          )}
-                        </span>
-                        <div className="test-card-body">
-                          <h3>{test.name}</h3>
-                          <div className="test-card-badges">
-                            {test.reportTime && <span className="badge">{test.reportTime}</span>}
-                            <span className="badge badge-muted">{t.sampleType(test.sample)}</span>
-                            {test.guideBadge && <span className="badge badge-warn">{test.guideBadge}</span>}
+                  {group.items.map((test) => {
+                    const on = added.has(test.code);
+                    return (
+                      <li className="test-card" key={test.code}>
+                        <div className="test-card-top">
+                          <span className="test-card-icon guide-card-icon" aria-hidden="true">
+                            {CATEGORY_PHOTOS[test.category] ? (
+                              <img className="icon-chip-photo" src={CATEGORY_PHOTOS[test.category]} alt="" />
+                            ) : (
+                              <CategoryIcon category={test.category} size={26} />
+                            )}
+                          </span>
+                          <div className="test-card-body">
+                            <h3>{test.name}</h3>
+                            <div className="test-card-badges">
+                              {test.reportTime && <span className="badge">{test.reportTime}</span>}
+                              <span className="badge badge-muted">{t.sampleType(test.sample)}</span>
+                              {test.guideBadge && <span className="badge badge-warn">{test.guideBadge}</span>}
+                            </div>
+                            {test.fasting && <p className="test-fast">{test.fasting}</p>}
                           </div>
-                          {test.fasting && <p className="test-fast">{test.fasting}</p>}
                         </div>
-                      </div>
-                      <div className="test-card-right">
-                        <span className="test-card-price">
-                          {typeof test.price === "number" ? money(test.price, lab) : t.guideAskLab}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
+                        <div className="test-card-right">
+                          <span className="test-card-price">
+                            {typeof test.price === "number" ? money(test.price, lab) : t.guideAskLab}
+                          </span>
+                          <button
+                            type="button"
+                            className="add"
+                            data-on={on}
+                            onClick={() => toggleAdd(test.code)}
+                            aria-label={`${on ? t.added : t.add} ${test.name}`}
+                          >
+                            {on ? t.added : t.add}
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 {total !== null && (
@@ -229,7 +297,9 @@ function AudiencePageInner() {
 
         {groups.length > 0 && (
           <div className="guide-actions">
-            <Link className="btn btn-primary" to={`/${slug}`}>{t.guideGoToBooking}</Link>
+            <Link className="btn btn-primary" to={`/${slug}`}>
+              {added.size > 0 ? t.guideGoToBookingWithCount(added.size) : t.guideGoToBooking}
+            </Link>
             {lab.whatsapp && (
               <a
                 className="btn btn-ghost"

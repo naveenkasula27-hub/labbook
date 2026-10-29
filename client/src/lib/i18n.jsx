@@ -36,6 +36,8 @@ export const STRINGS = {
     guideEstimated: "Estimated for this panel",
     guideAskLab: "Ask the lab",
     guideGoToBooking: "Go to booking page",
+    guideGoToBookingWithCount: (n) => `Go to booking page (${n} added)`,
+    guideAddAll: "Add all in this panel",
     guideEmptyTitle: "This lab hasn't set these tests up yet",
     guideEmptyBody: (labName) => `Message ${labName} directly and they'll tell you what's available.`,
 
@@ -168,6 +170,8 @@ export const STRINGS = {
     guideEstimated: "ఈ ప్యానెల్‌కు అంచనా",
     guideAskLab: "ల్యాబ్‌ని అడగండి",
     guideGoToBooking: "బుకింగ్ పేజీకి వెళ్ళండి",
+    guideGoToBookingWithCount: (n) => `బుకింగ్ పేజీకి వెళ్ళండి (${n} జోడించారు)`,
+    guideAddAll: "ఈ ప్యానెల్‌లోని అన్నీ జోడించండి",
     guideEmptyTitle: "ఈ ల్యాబ్ ఇంకా ఈ టెస్టులు పెట్టలేదు",
     guideEmptyBody: (labName) => `${labName}‌ని నేరుగా మెసేజ్ చేయండి, ఏమి అందుబాటులో ఉందో వారు చెప్తారు.`,
 

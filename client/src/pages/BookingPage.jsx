@@ -130,6 +130,38 @@ function BookingPageInner() {
     () => Object.fromEntries((data?.tests || []).map((t) => [t.code, t])),
     [data]
   );
+
+  // Picks made on the "Men"/"Women"/"Kids"/"Seniors" checkup guide page
+  // arrive here through sessionStorage, since that's a separate route with
+  // no shared React state. Pull them into the basket once the real test
+  // list has loaded (so only codes this lab actually has get added), then
+  // clear the key so a later visit doesn't re-apply the same picks.
+  useEffect(() => {
+    if (!data) return;
+    let codes = [];
+    try {
+      const raw = sessionStorage.getItem(`labbook-pending-tests:${slug}`);
+      codes = raw ? JSON.parse(raw) : [];
+    } catch {
+      codes = [];
+    }
+    if (Array.isArray(codes) && codes.length) {
+      const valid = codes.filter((c) => byCode[c]);
+      if (valid.length) {
+        setPicked((p) => {
+          const tests = new Set(p.tests);
+          for (const c of valid) tests.add(c);
+          return { ...p, tests };
+        });
+      }
+    }
+    try {
+      sessionStorage.removeItem(`labbook-pending-tests:${slug}`);
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, slug]);
   const pkgByCode = useMemo(
     () => Object.fromEntries((data?.packages || []).map((p) => [p.code, p])),
     [data]
