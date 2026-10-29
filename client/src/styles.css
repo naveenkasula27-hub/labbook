@@ -534,9 +534,18 @@ p { margin: 0 0 10px; }
   background: var(--bg); border: 1px solid var(--line);
   display: flex; align-items: center; justify-content: center;
   color: var(--ink-faint); transition: background 0.15s, color 0.15s, border-color 0.15s;
+  overflow: hidden;
 }
 .icon-chip[aria-pressed="true"] .icon-chip-circle {
   background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.icon-chip-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.icon-chip[aria-pressed="true"] .icon-chip-circle:has(.icon-chip-photo) {
+  /* A photo already reads clearly on its own, so selection shows as a ring
+     around it instead of tinting the image the lab's brand colour. */
+  background: var(--bg);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
 }
 .icon-chip-label {
   font-size: 0.75rem; line-height: 1.2; color: var(--ink-soft); text-align: center;

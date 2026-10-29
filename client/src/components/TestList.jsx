@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { money } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
 import CategoryIcon from "../lib/categoryIcons.jsx";
+import CATEGORY_PHOTOS from "../lib/categoryPhotos.jsx";
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ");
 const PAGE_SIZE = 24;
@@ -55,7 +56,11 @@ export default function TestList({
             onClick={() => onCategory(c)}
           >
             <span className="icon-chip-circle">
-              <CategoryIcon category={c} />
+              {CATEGORY_PHOTOS[c] ? (
+                <img className="icon-chip-photo" src={CATEGORY_PHOTOS[c]} alt="" />
+              ) : (
+                <CategoryIcon category={c} />
+              )}
             </span>
             <span className="icon-chip-label">{c === "All" ? t.all : c}</span>
           </button>
