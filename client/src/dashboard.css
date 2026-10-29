@@ -1,9 +1,34 @@
 /* Dashboard. Loads after styles.css and reuses its tokens and controls. */
 
+/* ---------- Brand ----------
+   The dashboard is LabBook's own product, not a lab's branded page — every
+   owner uses the same software, whatever their own booking page looks like.
+   So unlike styles.css (which a lab's theme overrides at runtime), these
+   tokens are pinned to the UnityWebWorks brand kit on a wrapper that sits
+   between the dashboard and :root, and win regardless of what a booking
+   page visited earlier in the same tab left on :root. */
+.dash-root {
+  --primary: #14213D;
+  --accent: #FF6A1F;
+  --cta: #14213D;
+  --amber: #FFA55C;
+  --pale-orange: #FFE4D1;
+}
+
 .dash-head {
   background: #fff;
   border-bottom: 1px solid var(--line);
   padding-top: 16px;
+  position: relative;
+}
+/* A thin brand strip along the very top — the one constant brand touch a lab
+   owner sees, whatever their own site looks like. */
+.dash-head::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 .dash-head h1 { font-size: 1.3rem; margin: 0 0 2px; }
 .dash-head-row {
@@ -17,9 +42,20 @@
   flex: none; cursor: pointer; font: inherit; font-size: 0.925rem;
   background: none; border: 0; border-bottom: 2px solid transparent;
   padding: 9px 14px; color: var(--ink-soft);
+  transition: color 0.15s, border-color 0.15s;
 }
-.tab[aria-current="page"] { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+.tab[aria-current="page"] { color: var(--primary); border-bottom-color: var(--accent); font-weight: 600; }
+.tab:hover { color: var(--primary); }
 .tab:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* The content under each tab fades and lifts in on mount — the same motion
+   as switching tabs anywhere else, so moving around the dashboard feels
+   responsive rather than like a flat reload. */
+.tab-panel { animation: dash-panel-in 0.25s ease-out; }
+@keyframes dash-panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .dash-main { padding: 18px 16px 80px; }
 
@@ -28,7 +64,10 @@
   min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px;
   background: var(--bg);
 }
-.login-card { width: 100%; max-width: 380px; display: grid; gap: 14px; }
+.login-card {
+  width: 100%; max-width: 380px; display: grid; gap: 14px;
+  animation: dash-panel-in 0.3s ease-out;
+}
 .login-card h1 { font-size: 1.35rem; margin: 0; }
 
 /* Separated from the real sign-in above it by a rule, so nobody types their
@@ -46,10 +85,15 @@
 .tile {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
   padding: 12px 14px; display: grid; gap: 1px;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.tile-accent { border-color: var(--primary); background: var(--ok-bg); }
+.tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+/* Pale Orange + Cursor Orange, not green — this tile means "needs you",
+   not "all good", so it should read as attention rather than success. */
+.tile-accent { border-color: var(--accent); background: var(--pale-orange); }
 .tile-label { font-size: 0.8125rem; color: var(--ink-soft); }
-.tile-value { font-size: 1.6rem; line-height: 1.1; }
+.tile-value { font-size: 1.6rem; line-height: 1.1; color: var(--primary); }
+.tile-accent .tile-value { color: #9a3412; }
 .tile-hint { font-size: 0.75rem; color: var(--ink-faint); }
 
 /* ---------- Filters ---------- */
@@ -155,6 +199,14 @@
   background: #fff; border-top: 1px solid var(--line);
   margin: 14px -16px -16px; padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  animation: dash-save-in 0.3s ease-out;
+}
+
+/* Drops in from below, same motion as the "Need help" bar on the public
+   booking page — one consistent feel across the whole product. */
+@keyframes dash-save-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 /* ---------- Settings ---------- */
@@ -172,10 +224,24 @@
   position: sticky; bottom: 0; background: var(--bg);
   padding: 12px 0; padding-bottom: calc(12px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
+  animation: dash-save-in 0.3s ease-out;
 }
+
+/* ---------- Buttons (lift on press, not just the colour change) ---------- */
+.dash-root .btn { transition: transform 0.12s ease-out, filter 0.12s, box-shadow 0.12s; }
+.dash-root .btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(20, 33, 61, 0.18);
+}
+.dash-root .btn:active:not(:disabled) { transform: translateY(0); }
 
 @media (max-width: 420px) {
   .tiles { grid-template-columns: 1fr; }
   .tile { display: flex; align-items: baseline; gap: 8px; }
   .tile-value { font-size: 1.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel, .login-card, .sticky-save, .save-bar { animation: none; }
+  .tile, .dash-root .btn { transition: none; }
 }

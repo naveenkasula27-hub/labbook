@@ -46,20 +46,24 @@ export default function DashboardPage() {
 
   if (checking) {
     return (
-      <main className="center">
+      <main className="center dash-root">
         <p className="muted">Checking your sign in…</p>
       </main>
     );
   }
 
   if (!session) {
-    return <LoginPage onLoggedIn={setSession} />;
+    return (
+      <div className="dash-root">
+        <LoginPage onLoggedIn={setSession} />
+      </div>
+    );
   }
 
   const lab = session.lab;
 
   return (
-    <>
+    <div className="dash-root">
       <header className="dash-head">
         <div className="wrap dash-head-row">
           <div>
@@ -110,10 +114,22 @@ export default function DashboardPage() {
             running without interruption.
           </div>
         )}
-        {tab === "bookings" && <BookingsPage lab={lab} />}
-        {tab === "prices" && <PricesPage lab={lab} />}
-        {tab === "settings" && <SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} />}
+        {tab === "bookings" && (
+          <div className="tab-panel">
+            <BookingsPage lab={lab} />
+          </div>
+        )}
+        {tab === "prices" && (
+          <div className="tab-panel">
+            <PricesPage lab={lab} />
+          </div>
+        )}
+        {tab === "settings" && (
+          <div className="tab-panel">
+            <SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} />
+          </div>
+        )}
       </main>
-    </>
+    </div>
   );
 }
