@@ -75,17 +75,19 @@ export default function TestList({
             const on = picked.has(tst.code);
             return (
               <li className="test-card" key={tst.code}>
-                <span className="test-card-icon" aria-hidden="true">
-                  <CategoryIcon category={tst.category} size={20} />
-                </span>
-                <div className="test-card-body">
-                  <h3>{tst.name}</h3>
-                  {tst.alias && <p className="test-alias">{tst.alias}</p>}
-                  <div className="test-card-badges">
-                    {tst.reportTime && <span className="badge">{tst.reportTime}</span>}
-                    <span className="badge badge-muted">{t.sampleType(tst.sample)}</span>
+                <div className="test-card-top">
+                  <span className="test-card-icon" aria-hidden="true">
+                    <CategoryIcon category={tst.category} size={20} />
+                  </span>
+                  <div className="test-card-body">
+                    <h3>{tst.name}</h3>
+                    {tst.alias && <p className="test-alias">{tst.alias}</p>}
+                    <div className="test-card-badges">
+                      {tst.reportTime && <span className="badge">{tst.reportTime}</span>}
+                      <span className="badge badge-muted">{t.sampleType(tst.sample)}</span>
+                    </div>
+                    {tst.fasting && <p className="test-fast">{tst.fasting}</p>}
                   </div>
-                  {tst.fasting && <p className="test-fast">{tst.fasting}</p>}
                 </div>
                 <div className="test-card-right">
                   {typeof tst.price === "number" && (

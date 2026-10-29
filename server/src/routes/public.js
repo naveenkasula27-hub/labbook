@@ -62,7 +62,7 @@ publicRouter.get("/:slug", loadLab, async (req, res) => {
       .sort({ sort: 1 })
       .lean(),
     Package.find({ lab: req.lab._id, active: true })
-      .select("code name description testCodes price fasting")
+      .select("code name description testCodes price fasting audience")
       .sort({ sort: 1 })
       .lean(),
   ]);

@@ -135,6 +135,20 @@
 .price-input input[type="number"]::-webkit-outer-spin-button,
 .price-input input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
+/* A package row holds the usual price line plus, below it, who the package
+   is for — overrides the plain price-list row to stack instead of sit
+   side by side. */
+.price-list-pkg { flex-direction: column; align-items: stretch; gap: 8px; }
+.price-list-pkg-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.audience-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.audience-chip {
+  font-size: 0.8125rem; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer;
+}
+.audience-chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+
 .sticky-save {
   position: sticky; bottom: 0; z-index: 10;
   display: flex; justify-content: space-between; align-items: center; gap: 10px;

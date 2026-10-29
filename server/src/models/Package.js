@@ -10,6 +10,15 @@ const packageSchema = new mongoose.Schema(
     testCodes: { type: [String], default: [] },   // Test.code values within the same lab
     price: { type: Number, default: null },
     fasting: { type: String, default: "" },
+    // Who this package is meant for, set by the lab owner in the dashboard.
+    // Drives the photo category tiles on the public page ("Men", "Women",
+    // "Kids", "Seniors"). "Everyone" (or left empty) means it doesn't belong
+    // under any one tile — it still shows in the normal package list.
+    audience: {
+      type: [String],
+      enum: ["men", "women", "kids", "seniors"],
+      default: [],
+    },
     active: { type: Boolean, default: true },
     sort: { type: Number, default: 0 },
   },

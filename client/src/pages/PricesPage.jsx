@@ -101,6 +101,20 @@ export default function PricesPage({ lab }) {
     }
   }
 
+  async function toggleAudience(pkg, tag) {
+    const has = (pkg.audience || []).includes(tag);
+    const next = has
+      ? pkg.audience.filter((a) => a !== tag)
+      : [...(pkg.audience || []), tag];
+    setError("");
+    try {
+      const res = await updatePackage(pkg.code, { audience: next });
+      setPackages((prev) => prev.map((p) => (p.code === pkg.code ? res.package : p)));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function savePackagePrice(pkg, raw) {
     const trimmed = String(raw).trim();
     const value = trimmed === "" ? null : Number(trimmed);
@@ -140,17 +154,36 @@ export default function PricesPage({ lab }) {
 
         <ul className="price-list">
           {packages.map((p) => (
-            <li key={p.code}>
-              <div>
-                <strong>{p.name}</strong>
-                <span className="muted tiny"> · {p.testCodes.length} tests</span>
+            <li key={p.code} className="price-list-pkg">
+              <div className="price-list-pkg-row">
+                <div>
+                  <strong>{p.name}</strong>
+                  <span className="muted tiny"> · {p.testCodes.length} tests</span>
+                </div>
+                <PriceInput
+                  value={p.price}
+                  currency={lab?.currency}
+                  onCommit={(raw) => savePackagePrice(p, raw)}
+                  ariaLabel={`Price for ${p.name}`}
+                />
               </div>
-              <PriceInput
-                value={p.price}
-                currency={lab?.currency}
-                onCommit={(raw) => savePackagePrice(p, raw)}
-                ariaLabel={`Price for ${p.name}`}
-              />
+              <div className="audience-row">
+                <span className="muted tiny">Who is this for?</span>
+                {["men", "women", "kids", "seniors"].map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className="audience-chip"
+                    aria-pressed={(p.audience || []).includes(tag)}
+                    onClick={() => toggleAudience(p, tag)}
+                  >
+                    {tag[0].toUpperCase() + tag.slice(1)}
+                  </button>
+                ))}
+                {(!p.audience || p.audience.length === 0) && (
+                  <span className="muted tiny">Everyone (no tile selected)</span>
+                )}
+              </div>
             </li>
           ))}
         </ul>

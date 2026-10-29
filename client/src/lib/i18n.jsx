@@ -24,6 +24,15 @@ export const STRINGS = {
     needHelp: "Need help?",
     needHelpSub: "Call us or message on WhatsApp",
 
+    audienceTitle: "Who is this for?",
+    audienceMen: "Men",
+    audienceWomen: "Women",
+    audienceKids: "Kids",
+    audienceSeniors: "Seniors",
+    audienceShowing: (label) => `Showing packages for ${label}`,
+    audienceClear: "Show all packages",
+    audienceEmpty: (label) => `No packages tagged for ${label} yet. Showing all packages instead.`,
+
     packagesTitle: "Health checkup packages",
     packagesSub: "A set of tests at one price. You can also pick tests one by one below.",
     pkgTests: (n) => (n === 1 ? "1 test" : `${n} tests`),
@@ -131,6 +140,15 @@ export const STRINGS = {
     heroCheckBooking: "బుకింగ్ చూడండి",
     needHelp: "సహాయం కావాలా?",
     needHelpSub: "కాల్ చేయండి లేదా వాట్సాప్‌లో మెసేజ్ చేయండి",
+
+    audienceTitle: "ఇది ఎవరి కోసం?",
+    audienceMen: "పురుషులు",
+    audienceWomen: "మహిళలు",
+    audienceKids: "పిల్లలు",
+    audienceSeniors: "వృద్ధులు",
+    audienceShowing: (label) => `${label} కోసం ప్యాకేజీలు చూపిస్తోంది`,
+    audienceClear: "అన్ని ప్యాకేజీలు చూపించు",
+    audienceEmpty: (label) => `${label} కోసం ఇంకా ప్యాకేజీలు లేవు. అన్ని ప్యాకేజీలు చూపిస్తోంది.`,
 
     packagesTitle: "హెల్త్ చెకప్ ప్యాకేజీలు",
     packagesSub: "చాలా టెస్టులు ఒకే ధరలో. కింద ఒక్కొక్క టెస్టు కూడా ఎంచుకోవచ్చు.",

@@ -479,27 +479,58 @@ p { margin: 0 0 10px; }
 .icon-chip[aria-pressed="true"] .icon-chip-label { color: var(--ink); font-weight: 600; }
 
 /* ---------- Test cards ---------- */
-.test-cards { display: flex; flex-direction: column; gap: 10px; }
+/* A side-by-side grid instead of one long stacked column — on a wide
+   screen a list of 100+ tests was a full minute of scrolling before anyone
+   reached the booking form. Two (then three) columns cut that way down. */
+.test-cards { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) {
+  .test-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1150px) {
+  .test-cards { grid-template-columns: repeat(3, 1fr); }
+}
 .test-card {
-  display: flex; gap: 12px; align-items: flex-start;
+  display: flex; flex-direction: column; gap: 10px;
   padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
 }
+.test-card-top { display: flex; gap: 10px; align-items: flex-start; }
 .test-card-icon {
   flex: none; width: 36px; height: 36px; border-radius: 10px;
   background: var(--bg); color: var(--primary);
   display: flex; align-items: center; justify-content: center;
 }
 .test-card-body { flex: 1; min-width: 0; }
-.test-card-body h3 { margin: 0 0 4px; font-size: 0.975rem; }
-.test-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.test-card-body h3 { margin: 0 0 4px; font-size: 0.9375rem; line-height: 1.25; }
+.test-card-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .badge {
   font-size: 0.75rem; font-weight: 600; padding: 3px 9px; border-radius: 999px;
   background: var(--ok-bg); color: var(--ok);
 }
 .badge-muted { background: var(--bg); color: var(--ink-faint); font-weight: 500; }
 .badge-warn { background: var(--warn-bg); color: #92400e; }
-.test-card-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.test-card-price { font-weight: 700; color: var(--ink); font-family: var(--font-head); }
+.test-card-right {
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding-top: 8px; border-top: 1px solid var(--line);
+}
+.test-card-price { font-weight: 700; color: var(--ink); font-family: var(--font-head); font-size: 1.0625rem; }
+
+/* ---------- Audience tiles: "who is this for?" ---------- */
+.audience-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+.audience-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 6px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--bg); color: var(--ink-soft); cursor: pointer;
+}
+.audience-tile-icon {
+  width: 44px; height: 44px; border-radius: 999px;
+  background: #fff; color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+}
+.audience-tile-label { font-size: 0.8125rem; font-weight: 600; }
+.audience-tile[aria-pressed="true"] { border-color: var(--primary); background: var(--ok-bg); }
+.audience-tile[aria-pressed="true"] .audience-tile-icon { border-color: var(--primary); color: var(--primary); }
+.audience-note { font-size: 0.8125rem; color: var(--ink-soft); margin: 8px 0 0; }
 
 /* ---------- Package cards ---------- */
 .pkg-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 4px; }

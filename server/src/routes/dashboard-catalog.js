@@ -106,7 +106,7 @@ dashboardCatalogRouter.patch("/tests", async (req, res) => {
 
 dashboardCatalogRouter.get("/packages", async (req, res) => {
   const packages = await Package.find({ lab: req.labId })
-    .select("code name description testCodes price fasting active sort")
+    .select("code name description testCodes price fasting audience active sort")
     .sort({ sort: 1 })
     .lean();
   res.json({ packages });
@@ -118,6 +118,10 @@ const packageUpdateSchema = z.object({
   name: z.string().trim().min(2).max(120).optional(),
   description: z.string().trim().max(400).optional(),
   fasting: z.string().trim().max(120).optional(),
+  // Who the package is for — picked from the dashboard, used to decide which
+  // photo tile(s) on the public page show this package. Empty array is valid:
+  // it means "everyone," so it's left off every tile.
+  audience: z.array(z.enum(["men", "women", "kids", "seniors"])).max(4).optional(),
 });
 
 dashboardCatalogRouter.patch("/packages/:code", async (req, res) => {
