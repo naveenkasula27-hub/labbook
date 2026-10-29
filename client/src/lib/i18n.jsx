@@ -54,6 +54,15 @@ export const STRINGS = {
     add: "Add",
     added: "Added",
     sampleType: (s) => `${s} sample`,
+    prevPage: "Previous page",
+    nextPage: "Next page",
+    pageOf: (cur, total) => `Page ${cur} of ${total}`,
+
+    aboutHeading: (name) => `About ${name}`,
+    aboutStatTests: (n) => (n === 1 ? "1 test listed" : `${n} tests listed`),
+    aboutStatPackages: (n) => (n === 1 ? "1 health package" : `${n} health packages`),
+    aboutChat: "Chat on WhatsApp",
+    aboutCall: "Call us",
 
     yourBooking: "Your booking",
     nothingPicked:
@@ -172,6 +181,15 @@ export const STRINGS = {
     add: "జోడించు",
     added: "జోడించబడింది",
     sampleType: (s) => `${s === "Blood" ? "రక్తం" : s === "Urine" ? "మూత్రం" : s} నమూనా`,
+    prevPage: "ముందు పేజీ",
+    nextPage: "తర్వాత పేజీ",
+    pageOf: (cur, total) => `పేజీ ${cur} / ${total}`,
+
+    aboutHeading: (name) => `${name} గురించి`,
+    aboutStatTests: (n) => `${n} టెస్టులు అందుబాటులో`,
+    aboutStatPackages: (n) => `${n} హెల్త్ ప్యాకేజీలు`,
+    aboutChat: "వాట్సాప్‌లో చాట్ చేయండి",
+    aboutCall: "కాల్ చేయండి",
 
     yourBooking: "మీ బుకింగ్",
     nothingPicked:

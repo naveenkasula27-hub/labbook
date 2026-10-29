@@ -198,6 +198,27 @@ p { margin: 0 0 10px; }
 .hero-action:hover { background: rgba(255, 255, 255, 0.22); }
 .hero-action-icon { display: flex; }
 
+/* ---------- About band: real description, real counts, no stock photos ---------- */
+.about-band { background: var(--bg); padding: 34px 0; border-bottom: 1px solid var(--line); }
+.about-band-inner {
+  display: flex; align-items: center; gap: 36px;
+}
+.about-band-text { flex: 1; min-width: 0; }
+.about-band-text h2 { margin: 0 0 10px; }
+.about-band-copy { margin: 0 0 16px; color: var(--ink-soft); max-width: 56ch; }
+.about-band-stats { display: flex; gap: 28px; margin-bottom: 18px; flex-wrap: wrap; }
+.about-band-stat { display: flex; flex-direction: column; }
+.about-band-stat strong { font-family: var(--font-head); font-size: 1.75rem; color: var(--primary); line-height: 1.1; }
+.about-band-stat span { color: var(--ink-faint); font-size: 0.8125rem; }
+.about-band-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.about-band-art { flex: none; color: var(--primary); display: flex; }
+@media (max-width: 760px) {
+  .about-band-inner { flex-direction: column-reverse; text-align: center; gap: 18px; }
+  .about-band-stats { justify-content: center; }
+  .about-band-actions { justify-content: center; }
+  .about-band-art svg { width: 150px; height: 150px; }
+}
+
 /* ---------- Need-help strip, above the footer ---------- */
 /* Floats at the bottom from the moment the page loads, same as the
    reference — it's shown only while the booking bar isn't (picking a test
@@ -548,6 +569,23 @@ p { margin: 0 0 10px; }
   gap: 8px; padding-top: 8px; border-top: 1px solid var(--line);
 }
 .test-card-price { font-weight: 700; color: var(--ink); font-family: var(--font-head); font-size: 1.0625rem; }
+
+/* ---------- Test list pager (shown only once there's more than one page) ---------- */
+.test-pager {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-top: 18px;
+}
+.test-pager-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 9px; font-size: 0.875rem; font-weight: 600;
+  cursor: pointer;
+}
+.test-pager-prev { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+.test-pager-prev:hover:not(:disabled) { background: var(--bg); }
+.test-pager-next { background: var(--primary); color: #fff; border: 1px solid var(--primary); }
+.test-pager-next:hover:not(:disabled) { background: var(--cta, var(--primary)); }
+.test-pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.test-pager-of { color: var(--ink-faint); font-size: 0.875rem; }
 
 /* ---------- Audience tiles: "who is this for?" ---------- */
 .audience-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }

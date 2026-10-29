@@ -16,6 +16,7 @@ import Confirmation from "../components/Confirmation.jsx";
 import DemoStrip from "../components/DemoStrip.jsx";
 import LangToggle from "../components/LangToggle.jsx";
 import AudienceTiles from "../components/AudienceTiles.jsx";
+import AboutIllustration from "../components/AboutIllustration.jsx";
 import { LangProvider, useLang } from "../lib/i18n.jsx";
 
 export default function BookingPage() {
@@ -353,17 +354,57 @@ function BookingPageInner() {
         </div>
       </div>
 
+      {/* An "about" band using only facts that are actually true of this
+          lab right now — its own description, its real test/package
+          counts, its real phone and WhatsApp. No invented trust badges,
+          no stock photos of people, no numbers we can't back up — just
+          an original drawn illustration in the lab's own colour. */}
+      <section className="about-band">
+        <div className="wrap about-band-inner">
+          <div className="about-band-text">
+            <h2>{t.aboutHeading(lab.name)}</h2>
+            {lab.about && <p className="about-band-copy">{lab.about}</p>}
+            <div className="about-band-stats">
+              <div className="about-band-stat">
+                <strong>{data.tests.length}</strong>
+                <span>{t.aboutStatTests(data.tests.length)}</span>
+              </div>
+              {data.packages.length > 0 && (
+                <div className="about-band-stat">
+                  <strong>{data.packages.length}</strong>
+                  <span>{t.aboutStatPackages(data.packages.length)}</span>
+                </div>
+              )}
+            </div>
+            <div className="about-band-actions">
+              {lab.whatsapp && (
+                <a
+                  className="btn btn-primary"
+                  href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
+                    `Hello ${lab.name}, I have a question.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t.aboutChat}
+                </a>
+              )}
+              <a className="btn btn-ghost" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
+                {t.aboutCall}
+              </a>
+            </div>
+          </div>
+          <div className="about-band-art">
+            <AboutIllustration />
+          </div>
+        </div>
+      </section>
+
       <div className="wrap">
         {confirmed && <Confirmation booking={confirmed} lab={lab} onDone={() => setConfirmed(null)} />}
 
         <div className="cols">
           <main>
-            {lab.about && (
-              <section className="card">
-                <p className="muted" style={{ margin: 0 }}>{lab.about}</p>
-              </section>
-            )}
-
             {data.packages.length > 0 && (
               <section className="card" id="packages">
                 <h2>{t.audienceTitle}</h2>

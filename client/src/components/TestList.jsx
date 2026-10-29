@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { money } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
 import CategoryIcon from "../lib/categoryIcons.jsx";
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ");
+const PAGE_SIZE = 24;
 
 export default function TestList({
   tests,
@@ -17,6 +18,7 @@ export default function TestList({
   onAddQueryToNotes,
 }) {
   const { t } = useLang();
+  const [page, setPage] = useState(1);
 
   const shown = useMemo(() => {
     const q = norm(query).trim();
@@ -28,6 +30,16 @@ export default function TestList({
       return words.every((w) => hay.includes(w));
     });
   }, [tests, query, category]);
+
+  // A fresh search or category pick should always start back on page 1,
+  // otherwise someone could land on an empty "page 4" of a 2-page result.
+  useEffect(() => {
+    setPage(1);
+  }, [query, category]);
+
+  const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = shown.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const chips = ["All", ...categories];
 
@@ -71,7 +83,7 @@ export default function TestList({
         </div>
       ) : (
         <ul className="tests test-cards">
-          {shown.map((tst) => {
+          {pageItems.map((tst) => {
             const on = picked.has(tst.code);
             return (
               <li className="test-card" key={tst.code}>
@@ -107,6 +119,28 @@ export default function TestList({
             );
           })}
         </ul>
+      )}
+
+      {shown.length > PAGE_SIZE && (
+        <div className="test-pager">
+          <button
+            type="button"
+            className="test-pager-btn test-pager-prev"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage <= 1}
+          >
+            ← {t.prevPage}
+          </button>
+          <span className="test-pager-of">{t.pageOf(safePage, pageCount)}</span>
+          <button
+            type="button"
+            className="test-pager-btn test-pager-next"
+            onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+            disabled={safePage >= pageCount}
+          >
+            {t.nextPage} →
+          </button>
+        </div>
       )}
     </>
   );
