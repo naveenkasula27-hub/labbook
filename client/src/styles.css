@@ -228,6 +228,11 @@ p { margin: 0 0 10px; }
   background: var(--card); border-top: 1px solid var(--line);
   padding: 14px 0; padding-bottom: calc(14px + env(safe-area-inset-bottom));
   box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.1);
+  animation: help-bar-drop-in 0.4s ease-out;
+}
+@keyframes help-bar-drop-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 .help-bar-inner {
   display: flex; align-items: center; justify-content: space-between;

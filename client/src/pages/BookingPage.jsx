@@ -40,12 +40,14 @@ function BookingPageInner() {
   const [category, setCategory] = useState("All");
   const [audience, setAudience] = useState(null);
 
-  // Dismissing the "Need help?" bar is a per-visitor convenience, not data
-  // that needs to be saved anywhere real — localStorage is enough, and it
-  // fails silently (try/catch) in case a browser blocks it.
+  // Dismissing the "Need help?" bar should only last for this one visit —
+  // closing the tab and opening the site again should show it, falling in,
+  // like a first-time visitor. sessionStorage (cleared when the tab closes)
+  // is right for that; localStorage would hide it forever after one click,
+  // which is the bug this replaced. Fails silently in case a browser blocks it.
   const [helpDismissed, setHelpDismissed] = useState(() => {
     try {
-      return localStorage.getItem("labbook-help-dismissed") === "1";
+      return sessionStorage.getItem("labbook-help-dismissed") === "1";
     } catch {
       return false;
     }
@@ -53,7 +55,7 @@ function BookingPageInner() {
   function dismissHelp() {
     setHelpDismissed(true);
     try {
-      localStorage.setItem("labbook-help-dismissed", "1");
+      sessionStorage.setItem("labbook-help-dismissed", "1");
     } catch {
       /* ignore */
     }
