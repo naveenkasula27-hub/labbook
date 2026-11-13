@@ -327,7 +327,17 @@ function BookingPageInner() {
             className="hero-search"
             type="search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setQuery(next);
+              // Typing here filters the "Find a test" list, but that section
+              // sits far down the page (past About, audience tiles and
+              // packages), so the first keystroke looked like it did nothing.
+              // Jump to it once, right when a search actually starts.
+              if (next.trim() && !query.trim()) {
+                document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }}
             placeholder={t.searchPlaceholder}
             aria-label={t.searchAria}
           />
