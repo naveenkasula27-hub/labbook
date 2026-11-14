@@ -170,6 +170,18 @@ p { margin: 0 0 10px; }
 }
 .head-links a:hover { background: rgba(255, 255, 255, 0.26); }
 
+.head-nav {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+.head-nav a {
+  color: #fff; text-decoration: none; font-size: 0.875rem; font-weight: 600;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 14px; border-radius: 999px;
+}
+.head-nav a:hover { background: rgba(255, 255, 255, 0.22); }
+
 /* ---------- Hero: search + the three things people open this page for ---------- */
 .hero { background: var(--primary); padding: 0 0 22px; }
 .hero-search-row {

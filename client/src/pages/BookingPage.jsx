@@ -306,12 +306,20 @@ function BookingPageInner() {
               {lab.tagline && <p className="tagline">{lab.tagline}</p>}
             </div>
           </div>
-          <div className="head-links">
+          {/* A real menu, like the Book a Test / Health Checkup rows on the
+              bigger diagnostic sites, instead of a bare Directions link —
+              gives first-time visitors a way to jump straight to a section. */}
+          <nav className="head-nav" aria-label={t.findTitle}>
+            <a href="#tests">{t.findTitle}</a>
+            {data.packages.length > 0 && <a href="#packages">{t.packagesTitle}</a>}
+            <Link to={`/${slug}/check`}>{t.heroCheckBooking}</Link>
             {lab.mapsUrl && (
               <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
                 {t.directions}
               </a>
             )}
+          </nav>
+          <div className="head-links">
             <LangToggle />
           </div>
         </div>
