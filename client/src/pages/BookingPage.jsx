@@ -323,24 +323,38 @@ function BookingPageInner() {
           first-time visitors scrolled past them without noticing. */}
       <div className="hero">
         <div className="wrap">
-          <input
-            className="hero-search"
-            type="search"
-            value={query}
-            onChange={(e) => {
-              const next = e.target.value;
-              setQuery(next);
-              // Typing here filters the "Find a test" list, but that section
-              // sits far down the page (past About, audience tiles and
-              // packages), so the first keystroke looked like it did nothing.
-              // Jump to it once, right when a search actually starts.
-              if (next.trim() && !query.trim()) {
-                document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }
+          <form
+            className="hero-search-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
-            placeholder={t.searchPlaceholder}
-            aria-label={t.searchAria}
-          />
+          >
+            <input
+              className="hero-search"
+              type="search"
+              value={query}
+              onChange={(e) => {
+                const next = e.target.value;
+                setQuery(next);
+                // Typing here filters the "Find a test" list, which now sits
+                // right under this bar, but on short screens it can still be
+                // just off-screen — jump to it once a search actually starts.
+                if (next.trim() && !query.trim()) {
+                  document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              placeholder={t.searchPlaceholder}
+              aria-label={t.searchAria}
+            />
+            <button type="submit" className="hero-search-btn" aria-label={t.searchButton}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <span className="hero-search-btn-label">{t.searchButton}</span>
+            </button>
+          </form>
           <div className="hero-actions">
             <a className="hero-action hero-action-call" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
               <span className="hero-action-badge hero-action-badge-call" aria-hidden="true">
@@ -430,6 +444,24 @@ function BookingPageInner() {
 
         <div className="cols">
           <main>
+            {/* The hero search above filters this list, so it has to be the
+                first thing in the column — right under the search bar, not
+                after Audience/Packages where a search felt like it vanished. */}
+            <section className="card" id="tests">
+              <h2>{t.findTitle}</h2>
+              <TestList
+                tests={data.tests}
+                categories={data.categories}
+                lab={lab}
+                query={query}
+                category={category}
+                onCategory={setCategory}
+                picked={picked.tests}
+                onToggle={toggleTest}
+                onAddQueryToNotes={addQueryToNotes}
+              />
+            </section>
+
             {data.packages.length > 0 && (
               <section className="card" id="packages">
                 <h2>{t.audienceTitle}</h2>
@@ -446,21 +478,6 @@ function BookingPageInner() {
                 />
               </section>
             )}
-
-            <section className="card" id="tests">
-              <h2>{t.findTitle}</h2>
-              <TestList
-                tests={data.tests}
-                categories={data.categories}
-                lab={lab}
-                query={query}
-                category={category}
-                onCategory={setCategory}
-                picked={picked.tests}
-                onToggle={toggleTest}
-                onAddQueryToNotes={addQueryToNotes}
-              />
-            </section>
           </main>
 
           <aside className="side">

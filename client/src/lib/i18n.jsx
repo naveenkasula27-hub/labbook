@@ -50,8 +50,9 @@ export const STRINGS = {
     packageLabel: "package",
 
     findTitle: "Find a test",
-    searchPlaceholder: "Type a test name, for example sugar, thyroid, CBC",
+    searchPlaceholder: "Search for test and health checkups",
     searchAria: "Search tests",
+    searchButton: "Search",
     categoriesAria: "Test categories",
     all: "All",
     countTests: (n) => (n === 1 ? "1 test" : `${n} tests`),
@@ -184,8 +185,9 @@ export const STRINGS = {
     packageLabel: "ప్యాకేజీ",
 
     findTitle: "టెస్టు వెతకండి",
-    searchPlaceholder: "టెస్టు పేరు టైప్ చేయండి, ఉదా. షుగర్, థైరాయిడ్, CBC",
+    searchPlaceholder: "టెస్టులు మరియు హెల్త్ చెకప్‌ల కోసం వెతకండి",
     searchAria: "టెస్టులు వెతకండి",
+    searchButton: "వెతకండి",
     categoriesAria: "టెస్టు రకాలు",
     all: "అన్నీ",
     countTests: (n) => `${n} టెస్టులు`,
