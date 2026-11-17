@@ -1,178 +1,60 @@
-# LabBook: where things stand
+# LabBook status
 
-Last updated 15 October 2026, end of day.
+Updated 2 November 2026. This describes local source, not a verified deployment.
 
-## Addresses
+## Implemented
 
-| What | Address |
-|---|---|
-| Front page, where ads should point | https://labbook-d5sm.vercel.app |
-| Public demo lab | https://labbook-d5sm.vercel.app/maheera |
-| Dashboard | https://labbook-d5sm.vercel.app/dashboard |
-| Nandu's page | https://labbook-d5sm.vercel.app/nandu |
-| API | https://labbook-ten.vercel.app |
-| Health check | https://labbook-ten.vercel.app/api/health |
+- Separate lab booking pages, catalog/prices, dashboard and home sample collection.
+- Atomic slot seats to prevent simultaneous bookings taking the same place.
+- Booking status lookup requires four matching phone digits; checks have a shared rate limit.
+- Dashboard summary aggregates use a MongoDB ObjectId.
+- Rejected asynchronous route and middleware operations reach the JSON error handler.
+- Home bookings check individual tests and every test inside selected packages.
+- Slot times are valid 24-hour times and must end after they start.
+- Password changes and administrator resets invalidate older sessions, including pre-update tokens.
+- Password changes in Settings; administrators manage labs and reset owner/staff passwords.
+- Shared MongoDB fixed-window counters for bookings, login, password attempts and public lookups.
+- Private PDF upload/download/delete in booking details. PDF files up to 2 MB live in MongoDB.
+- Patients download ready/completed reports using their reference and full booking phone number.
+- WhatsApp template sends, patient reminders via GitHub Actions, demo reset via Vercel cron.
+- Manual billing tracking; payment collection remains outside the app.
 
-Vercel projects: `labbook` is the API, `labbook-d5sm` is the website. Both build
-from the same GitHub repo, each pointed at a different folder.
+## Set up an administrator
 
-Demo login, published on purpose: `demo@maheera.test` / `demo1234`
+From server, run `npm run admin:create`, then sign in at `/dashboard`.
+This creates one new account; it does not change any existing account.
+The terminal password prompt explicitly displays typed characters. Use a private terminal.
+Use the administration screen to create a lab, its catalog and owner account together.
+New catalogs start with empty prices. The owner fills them in under Prices.
+Onboarding transactions require MongoDB Atlas or a replica set, not a standalone local MongoDB.
+Existing owners change passwords in Settings; forgotten passwords are reset by the administrator.
+Self-service email password recovery and public self-registration are not implemented.
 
----
+## Reports
 
-## What exists
+Staff upload PDFs from expanded booking details. Upload replaces the previous PDF.
+Mark the booking report ready to release the file to the patient. Upload alone does not send a message.
+Patients open `/<lab-slug>/check`, look up their booking, then enter their full phone to download.
+Files are attachments with no-store headers; never public URLs. A reference plus full phone is
+knowledge-based access, not phone ownership verification. Keep the reference private.
+Demo reset removes the demo lab's reports. Real reports are kept until the lab deletes them.
 
-**Two labs on one site.** Nandu Diagnostics at `/nandu`, and Maheera
-Diagnostics at `/maheera`. Separate data. A lab signed into one cannot see the
-other's bookings, and there are tests for that.
+## Before deploying
 
-**Maheera is the public demo.** An invented lab in Ramayampet with Naveen's own
-phone number, marked as a demo in the database, so its page carries a notice
-saying it is a sample rather than a real business. Anyone can sign in and
-change whatever they like.
+1. Run `npm test`, `npm run test:api` in server and `npm run build` in client.
+2. API integration tests use isolated `labbook_test_*` databases, never the production database.
+3. Review these local changes, then deploy both server and client. Check `/api/health` afterward.
+4. Create the administrator intentionally; no administrator or new real lab was created by this change.
+5. Confirm the GitHub Actions reminder secrets and latest run; local source cannot prove delivery.
+6. Confirm the Vercel cron secret and nightly reset execution.
+7. Use separate development and production MongoDB credentials/databases.
 
-**A front page.** Explains what the product is, shows both sides of a booking,
-links to the demo, and ends on WhatsApp. The root address used to redirect to
-`/nandu`, which meant anyone typing the bare address landed on a real
-business's booking page.
+## Remaining product work
 
-**The UnityWebWorks palette on the demo.** Navy header, orange buttons, Poppins
-and Lato, the split-U logo and the tagline in a strip above the page. Colours
-are set per lab, not in the stylesheet, so a real client's site is their own
-colours. That is part of what the demo is showing.
+- Payment gateway/subscription automation (manual billing exists).
+- Optional phone OTP for report downloads, email verification and email password recovery.
+- Agree report retention/deletion and backup procedures with each lab.
+- Validate the landing-page copy with a real lab owner before paid advertising.
+- Confirm WhatsApp delivery and production hosting settings after deployment.
 
-**Double booking is fixed.** Two people pressing Book at the same moment can no
-longer take the same last place in a slot. Each booking claims a numbered place
-and the database refuses a second claim on the same number. There is a test
-that fires eight requests at a two-place slot and checks exactly two get in.
-
-**Passwords changed.** The Atlas database user, and the dashboard login. The
-old `nandu1234` no longer works anywhere.
-
----
-
-## Still open
-
-### No landing page copy has been tested on a real lab owner
-
-The page says what the product does and offers a free demo first. Nobody has
-read it yet except us. Show it to one lab owner before spending money on ads.
-
-### The demo does not reset itself
-
-Visitors can change prices and cancel bookings, and it stays that way until it
-is cleaned by hand:
-
-```bash
-cd server
-npm run demo-lab:reset
-```
-
-Making that run nightly needs a Vercel cron job, about half an hour of work.
-Worth doing once people are actually visiting, not before.
-
-### The API root returns a 500
-
-`https://labbook-ten.vercel.app/` crashes instead of answering. Nothing uses
-it, the website never calls it.
-
-Vercel builds two functions from the `server` folder. One from `api/index.js`
-serves `/api/*` and works. Another, from `src/index.js`, serves everything else
-and has no valid entry point.
-
-Fixing it by moving the handler into `src/index.js` and re-exporting it from
-`api/index.js` broke `/api/*` entirely, because Vercel's build could not parse
-`export { default } from "..."` even though Node can. It was reverted within
-twenty minutes. The two approaches not yet tried are changing the project's
-Framework Preset away from Express, or writing explicit function configuration
-in `server/vercel.json`. Both only show their behaviour once deployed, so
-change one thing, deploy, and check `/api/health` immediately.
-
-### Changing a password does not sign anyone out
-
-Existing sessions keep working until their token expires.
-
-### The rate limit is looser when hosted
-
-Bookings per device are counted in memory, and Vercel runs several copies of
-the API, each with its own count. The proper fix is to keep the count in the
-database.
-
-### The live site and the laptop share one database
-
-Test bookings made locally show up on the live site and the other way round.
-
-### Nandu Diagnostics is a real business
-
-Its page is still public at `/nandu`. Nobody will guess the address, and ads
-point at `/maheera` instead, but it is there.
-
----
-
-## Commands
-
-All from the `server` folder.
-
-```bash
-npm run dev                          # local API on port 4000
-npm run seed                         # Nandu's demo data
-npm test                             # 71 tests, no database needed
-npm run test:api                     # 77 tests against a real database
-
-npm run demo-lab                     # create or update Maheera
-npm run demo-lab:reset               # wipe what visitors did to it
-npm run set-password -- EMAIL        # change a dashboard password
-npm run backfill:seats               # show what place numbers would change
-npm run backfill:seats -- --write    # apply them
-```
-
-The database tests use separate databases named `labbook_test_*` and wipe
-those. The real `labbook` data is never touched: `test/_dburi.mjs` refuses to
-run against anything not named as a test database.
-
----
-
-## Environment variables
-
-API project (`labbook`): `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`
-
-Website project (`labbook-d5sm`): `VITE_API_BASE`, `VITE_DEMO_EMAIL`,
-`VITE_DEMO_PASSWORD`
-
-Changing any of them needs a new deployment of that project. Vercel does not
-apply them to deployments that already exist. The `VITE_` ones are read when
-the site is built, not when it loads, so they need a rebuild rather than a
-restart.
-
----
-
-## Setting up a new lab
-
-1. Copy `server/src/scripts/demo-lab.js` and change the lab details at the top
-2. Run it to create the lab, its tests and its login
-3. `npm run set-password -- their@email` to set a password you can give them
-4. Send them `labbook-d5sm.vercel.app/their-slug`
-
-Their colours go in the lab's `theme` field: `primary` for the header, `cta`
-for the buttons. Leave `cta` empty and the buttons match the header.
-
----
-
-## Before a paying client
-
-- Keep the rate limit count in the database rather than in memory
-- Give each lab its own database user, rather than one `atlasAdmin` for all
-- Turn WhatsApp on, so confirmations actually send instead of going to the logs
-- Narrow `0.0.0.0/0` in Atlas if Vercel ever publishes a fixed IP range
-
----
-
-## Two things worth remembering
-
-**Vercel's build is not Node.** Code that passes `npm test` locally can still
-fail once deployed, as the `export { default } from` change proved. After any
-change to `api/index.js`, `src/index.js` or `vercel.json`, open
-`/api/health` straight after the deploy rather than trusting the test suite.
-
-**Close files in VS Code before Claude writes to them.** A write was silently
-overwritten by VS Code saving its older copy of the same file.
+Legacy deployment addresses in DEPLOY.md must be verified before relying on them.

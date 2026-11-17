@@ -1,152 +1,53 @@
-import { useEffect, useMemo, useState } from "react";
-import { money } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
-import CategoryIcon from "../lib/categoryIcons.jsx";
-import CATEGORY_PHOTOS from "../lib/categoryPhotos.jsx";
+import { useMemo, useState, useEffect } from "react";
+import { money } from "../lib/api.js";
+import { catalogImage, matchesTest } from "../lib/catalog.js";
 
-const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ");
-const PAGE_SIZE = 24;
-
-export default function TestList({
-  tests,
-  categories,
-  lab,
-  query,
-  category,
-  onCategory,
-  picked,
-  onToggle,
-  onAddQueryToNotes,
-}) {
+export default function TestList({ tests, categories, lab, query, category, onCategory, picked, onToggle, onAddQueryToNotes }) {
   const { t } = useLang();
+  const PAGE_SIZE = 12;
   const [page, setPage] = useState(1);
-
-  const shown = useMemo(() => {
-    const q = norm(query).trim();
-    const words = q ? q.split(/\s+/) : [];
-    return tests.filter((test) => {
-      if (category !== "All" && test.category !== category) return false;
-      if (!words.length) return true;
-      const hay = norm(`${test.name} ${test.alias} ${test.category}`);
-      return words.every((w) => hay.includes(w));
-    });
-  }, [tests, query, category]);
-
-  // A fresh search or category pick should always start back on page 1,
-  // otherwise someone could land on an empty "page 4" of a 2-page result.
-  useEffect(() => {
-    setPage(1);
-  }, [query, category]);
-
+  useEffect(() => setPage(1), [query, category]);
+  const shown = useMemo(() => tests.filter((test) =>
+    (category === "All" || test.category === category) && matchesTest(test, query)
+  ), [tests, query, category]);
   const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
   const pageItems = shown.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const chips = ["All", ...categories];
-
-  return (
-    <>
-      <div className="icon-chips" role="group" aria-label={t.categoriesAria}>
-        {chips.map((c) => (
-          <button
-            key={c}
-            type="button"
-            className="icon-chip"
-            aria-pressed={category === c}
-            onClick={() => onCategory(c)}
-          >
-            <span className="icon-chip-circle">
-              {CATEGORY_PHOTOS[c] ? (
-                <img className="icon-chip-photo" src={CATEGORY_PHOTOS[c]} alt="" />
-              ) : (
-                <CategoryIcon category={c} />
-              )}
-            </span>
-            <span className="icon-chip-label">{c === "All" ? t.all : c}</span>
-          </button>
-        ))}
-      </div>
-
-      <p className="count">{t.countTests(shown.length)}</p>
-
-      {shown.length === 0 ? (
-        <div className="empty">
-          <p>
-            {t.noResult(query.trim())}
-            <br />
-            {t.noResultHint}
-          </p>
-          {query.trim() && (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => onAddQueryToNotes(query.trim())}
-            >
-              {t.addQueryToNotes(query.trim())}
-            </button>
-          )}
-        </div>
-      ) : (
-        <ul className="tests test-cards">
-          {pageItems.map((tst) => {
-            const on = picked.has(tst.code);
-            return (
-              <li className="test-card" key={tst.code}>
-                <div className="test-card-top">
-                  <span className="test-card-icon" aria-hidden="true">
-                    <CategoryIcon category={tst.category} size={20} />
-                  </span>
-                  <div className="test-card-body">
-                    <h3>{tst.name}</h3>
-                    {tst.alias && <p className="test-alias">{tst.alias}</p>}
-                    <div className="test-card-badges">
-                      {tst.reportTime && <span className="badge">{tst.reportTime}</span>}
-                      <span className="badge badge-muted">{t.sampleType(tst.sample)}</span>
-                    </div>
-                    {tst.fasting && <p className="test-fast">{tst.fasting}</p>}
-                  </div>
-                </div>
-                <div className="test-card-right">
-                  {typeof tst.price === "number" && (
-                    <span className="test-card-price">{money(tst.price, lab)}</span>
-                  )}
-                  <button
-                    type="button"
-                    className="add"
-                    data-on={on}
-                    onClick={() => onToggle(tst.code)}
-                    aria-label={`${on ? t.added : t.add} ${tst.name}`}
-                  >
-                    {on ? t.added : t.add}
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {shown.length > PAGE_SIZE && (
-        <div className="test-pager">
-          <button
-            type="button"
-            className="test-pager-btn test-pager-prev"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={safePage <= 1}
-          >
-            ← {t.prevPage}
-          </button>
-          <span className="test-pager-of">{t.pageOf(safePage, pageCount)}</span>
-          <button
-            type="button"
-            className="test-pager-btn test-pager-next"
-            onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-            disabled={safePage >= pageCount}
-          >
-            {t.nextPage} →
-          </button>
-        </div>
-      )}
-    </>
-  );
+  return <>
+    <div className="chips" role="group" aria-label={t.categoriesAria}>
+      {["All", ...categories].map((name) => <button key={name} type="button" className="chip" aria-pressed={category === name} onClick={() => onCategory(name)}>{name === "All" ? t.all : name}</button>)}
+    </div>
+    <p className="count" role="status" aria-live="polite">{t.countTests(shown.length)}{query.trim() ? ` matching “${query.trim()}”` : " available"}{category !== "All" ? ` in ${category}` : ""}</p>
+    {!shown.length ? <div className="empty">
+      <h3>Let’s help you find your test</h3>
+      <p>No matching test{query.trim() ? ` for “${query.trim()}”` : ""}. Try another name or category, or ask the lab.</p>
+      {category !== "All" && <button type="button" className="btn btn-ghost" onClick={() => onCategory("All")}>Search all categories</button>}
+      {query.trim() && <button type="button" className="btn btn-ghost" onClick={() => onAddQueryToNotes(query.trim())}>{t.addQueryToNotes(query.trim())}</button>}
+    </div> : <>
+      <ul className="test-grid">
+        {pageItems.map((test) => {
+          const on = picked.has(test.code);
+          return <li className="catalog-card" data-selected={on} key={test.code}>
+            <div className="catalog-photo"><img {...catalogImage(test.category)} loading="lazy" width="480" height="280" /><span className="catalog-label">{test.category}</span></div>
+            <div className="catalog-body">
+              <h3>{test.name}</h3>
+              {test.alias && <p className="test-alias">{test.alias}</p>}
+              <p className="catalog-meta">{t.sampleType(test.sample)} · {lab.homeCollection && test.homeCollectable ? "Home collection available" : "At the lab"}</p>
+              {test.reportTime && <p className="catalog-meta">Reports: <strong>{test.reportTime}</strong></p>}
+              <details className="catalog-details"><summary>Preparation details</summary><p>{test.fasting || "No fasting instruction listed. Confirm any preparation with the lab."}</p></details>
+              <div className="catalog-bottom"><div><span className="catalog-price">{typeof test.price === "number" ? money(test.price, lab) : "Ask the lab"}</span><small>{typeof test.price === "number" ? "Test price" : "Price on request"}</small></div>
+                <button type="button" className="add" data-on={on} aria-pressed={on} aria-label={`${on ? t.remove : t.add} ${test.name}`} onClick={() => onToggle(test.code)}>{on ? t.added : t.add}</button>
+              </div>
+            </div>
+          </li>;
+        })}
+      </ul>
+      {shown.length > PAGE_SIZE && <nav className="test-pager" aria-label={t.findTitle}>
+        <button type="button" className="test-pager-btn" disabled={safePage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>← {t.prevPage}</button>
+        <span className="test-pager-of">{t.pageOf(safePage, pageCount)}</span>
+        <button type="button" className="test-pager-btn" disabled={safePage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>{t.nextPage} →</button>
+      </nav>}
+    </>}
+  </>;
 }

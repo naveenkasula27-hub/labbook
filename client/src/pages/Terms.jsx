@@ -7,7 +7,7 @@ import LegalLayout from "./LegalLayout.jsx";
 
 export default function Terms() {
   return (
-    <LegalLayout title="Terms of service" updated="16 October 2026">
+    <LegalLayout title="Terms of service" updated="2 November 2026">
       <div className="legal-note">
         <p>
           <strong>The short version.</strong> We build your booking page, you try it free,
@@ -77,7 +77,7 @@ export default function Terms() {
           Prices on the page are estimates for the patient's information.
         </li>
         <li>
-          It does not store test reports or results. Only the booking and its status.
+          Labs can upload PDF reports for patients to download. LabBook stores these files but does not interpret their contents.
         </li>
       </ul>
 

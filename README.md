@@ -34,14 +34,23 @@ this server to Meta's Cloud API. There is no n8n, Zapier or other middleman.
 Built for labs outside India too: currency, language, time zone and phone
 format all come from the lab's own settings.
 
-## Not built yet
+## Current improvements
 
-- Day-before reminders (the message is written, the scheduled job is not)
-- Lab sign-up and billing
-- Report upload and download
-- A known flaw: the slot capacity check counts, then saves. Two bookings landing
-  in the same instant could both take the last place in a slot. Fix before any
-  paying client uses this.
+See STATUS.md for the current implementation and deployment checklist.
+
+- Dashboard counts, four-digit booking checks, package home-collection checks and slot time validation are fixed.
+- Async route failures return JSON errors.
+- Rate limits are stored atomically in MongoDB across server instances.
+- Password changes in Settings sign out older sessions.
+- Run `npm run admin:create` in server to create an administrator, then sign in at `/dashboard`.
+  Administrators create labs and owner accounts and reset forgotten lab passwords.
+- Labs upload, replace, download and delete PDFs (up to 2 MB) in booking details.
+  Patients download released reports with their reference and full booking phone number.
+- Patient reminders run through `.github/workflows/reminders.yml`.
+- Demo reset is configured in server/vercel.json.
+
+Onboarding uses MongoDB transactions: use Atlas or a local replica set.
+Public self-registration, email password recovery and automated payment collection remain future work.
 
 ## Running it
 
@@ -108,7 +117,7 @@ send first needs a message template approved by Meta. `sendTemplate()` in
 
 ```bash
 cd server
-npm test          # 49 tests, no database needed
+npm test          # unit, isolation and hosting tests; no database needed
 npm run test:api  # the API end to end. Needs MongoDB.
 ```
 
@@ -136,9 +145,10 @@ amount cannot be changed by editing the page.
 
 ## Adding a new lab
 
-There is no sign-up screen yet. For now, copy `server/src/seed/seed.js`, change
-the details at the top, and run it. Every new lab starts with the full test
-catalog and no prices, then you set its prices.
+Run `npm run admin:create` in server once and sign in at `/dashboard` as that administrator.
+Use **Add a diagnostic lab** to set the lab name, booking address, phone and owner login.
+The lab and full unpriced catalog are created together. Share credentials privately;
+the owner can change their password in Settings and enter prices in Prices.
 
 ## Layout
 

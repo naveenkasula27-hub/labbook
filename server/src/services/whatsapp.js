@@ -28,6 +28,7 @@ async function post(body) {
 
   const res = await fetch(`${GRAPH}/${config.whatsapp.phoneNumberId}/messages`, {
     method: "POST",
+    signal: AbortSignal.timeout(8000),
     headers: {
       Authorization: `Bearer ${config.whatsapp.accessToken}`,
       "Content-Type": "application/json",

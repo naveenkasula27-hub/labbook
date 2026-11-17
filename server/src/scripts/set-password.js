@@ -62,13 +62,14 @@ async function main() {
     await mongoose.disconnect();
     process.exit(1);
   }
-  if (password.length < 8) {
-    console.error("\nUse at least 8 characters. Nothing changed.");
+  if (password.length < 12 || Buffer.byteLength(password, "utf8") > 72) {
+    console.error("\nUse at least 12 characters and at most 72 UTF-8 bytes. Nothing changed.");
     await mongoose.disconnect();
     process.exit(1);
   }
 
   user.passwordHash = await bcrypt.hash(password, 10);
+  user.sessionVersion = (user.sessionVersion || 0) + 1;
   await user.save();
 
   console.log(`\nDone. ${user.email} now signs in with the new password.`);

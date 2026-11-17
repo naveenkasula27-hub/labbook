@@ -225,7 +225,7 @@ test("the lab comes from the token, not anywhere else", async () => {
 
   assert.ok(queries.length > 0);
   for (const q of queries) {
-    assert.equal(String(q.filter.lab), LAB_B, "a lab B token must query lab B");
+    assert.equal(String(q.name === "Lab.findById" ? q.filter._id : q.filter.lab), LAB_B, "a lab B token must query lab B");
   }
 
   User.findById = original;

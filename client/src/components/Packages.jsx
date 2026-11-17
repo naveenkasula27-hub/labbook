@@ -1,45 +1,21 @@
-import { money } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
+import { money } from "../lib/api.js";
+import { packageImage } from "../lib/catalog.js";
 
 export default function Packages({ packages, lab, byCode, picked, onToggle }) {
   const { t } = useLang();
-
-  return (
-    <ul className="pkgs">
-      {packages.map((p) => {
-        const on = picked.has(p.code);
-        const names = p.testCodes.map((c) => byCode[c]?.name).filter(Boolean);
-        const shownNames = names.slice(0, 4).join(", ");
-        const more = names.length - 4;
-
-        return (
-          <li className="pkg" key={p.code}>
-            <div className="pkg-top">
-              <h3>{p.name}</h3>
-              {typeof p.price === "number" && <span className="pkg-price">{money(p.price, lab)}</span>}
-            </div>
-            {p.description && <p>{p.description}</p>}
-            <div className="pkg-badges">
-              <span className="badge">{t.pkgTests(names.length)}</span>
-              {p.fasting && <span className="badge badge-warn">{p.fasting}</span>}
-            </div>
-            {shownNames && (
-              <p className="pkg-included">
-                {shownNames}
-                {more > 0 && <> {t.pkgMore(more)}</>}
-              </p>
-            )}
-            <button
-              type="button"
-              className={`btn ${on ? "btn-primary" : "btn-ghost"}`}
-              style={{ width: "100%", marginTop: 4 }}
-              onClick={() => onToggle(p.code)}
-            >
-              {on ? t.pkgAdded : t.pkgAdd}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
+  return <ul className="package-grid">{packages.map((pack) => {
+    const on = picked.has(pack.code);
+    const names = pack.testCodes.map((code) => byCode[code]?.name).filter(Boolean);
+    return <li className="catalog-card" data-selected={on} key={pack.code}>
+      <div className="catalog-photo"><img {...packageImage(pack.name)} loading="lazy" width="480" height="280" /><span className="catalog-label">{t.packagesTitle}</span></div>
+      <div className="catalog-body">
+        <h3>{pack.name}</h3>
+        {pack.description && <p className="catalog-meta">{pack.description}</p>}
+        <p className="package-count">{t.pkgTests(names.length)}</p>
+        <details className="catalog-details"><summary>See included tests & preparation</summary><ul>{names.map((name) => <li key={name}>{name}</li>)}</ul>{pack.fasting && <p>{pack.fasting}</p>}</details>
+        <div className="catalog-bottom"><div><span className="catalog-price">{typeof pack.price === "number" ? money(pack.price, lab) : "Ask the lab"}</span><small>{typeof pack.price === "number" ? "Package price" : "Price on request"}</small></div><button type="button" className="add" data-on={on} aria-pressed={on} aria-label={`${on ? t.remove : t.add} ${pack.name}`} onClick={() => onToggle(pack.code)}>{on ? t.pkgAdded : t.pkgAdd}</button></div>
+      </div>
+    </li>;
+  })}</ul>;
 }

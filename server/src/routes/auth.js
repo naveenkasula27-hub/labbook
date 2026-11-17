@@ -6,8 +6,8 @@
  * entered by the owner on the Prices tab, not seeded by us. Billing stays
  * manual (see lib/billing.js) — nothing here talks to Razorpay.
  */
-import express from "express";
-import rateLimit from "express-rate-limit";
+import { createRouter } from "../lib/router.js";
+import { sharedLimit } from "../middleware/rate-limit.js";
 import { z } from "zod";
 import { User } from "../models/User.js";
 import { Lab } from "../models/Lab.js";
@@ -15,7 +15,7 @@ import { signToken } from "../lib/jwt.js";
 import { requireAuth } from "../middleware/auth.js";
 import { billingStatus } from "../lib/billing.js";
 
-export const authRouter = express.Router();
+export const authRouter = createRouter();
 
 const presentLab = (lab) => ({
   name: lab.name,
@@ -28,17 +28,11 @@ const presentLab = (lab) => ({
 
 // Password guessing protection. Counted per IP, not per email, so someone
 // cannot lock a real owner out of their own account by guessing at it.
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many login attempts. Please wait a few minutes." },
-});
+const loginLimiter = sharedLimit("login", 20, 15 * 60 * 1000, "Too many login attempts. Please wait a few minutes.");
 
 const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email address."),
-  password: z.string().min(1, "Enter your password."),
+  password: z.string().min(1, "Enter your password.").max(128),
 });
 
 authRouter.post("/login", loginLimiter, async (req, res) => {
@@ -85,13 +79,7 @@ authRouter.get("/me", requireAuth, async (req, res) => {
 // Looser than login's limiter (this is a one-time action per lab, not
 // something a real owner retries often), but still capped per IP so a
 // script cannot mass-create labs.
-const signupLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  limit: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many sign-up attempts from this device. Please wait and try again." },
-});
+const signupLimiter = sharedLimit("signup", 10, 60 * 60 * 1000, "Too many sign-up attempts from this device. Please wait and try again.");
 
 const signupSchema = z.object({
   labName: z.string().trim().min(2, "Enter your lab's name.").max(80),
@@ -154,4 +142,18 @@ authRouter.post("/signup", signupLimiter, async (req, res) => {
     user: { name: user.name, email: user.email, role: user.role },
     lab: presentLab(lab),
   });
+});
+
+const passwordSchema = z.object({ currentPassword: z.string().min(1).max(128), newPassword: z.string().min(12).max(128).refine(v => Buffer.byteLength(v, "utf8") <= 72, "Password must be at most 72 UTF-8 bytes.") });
+authRouter.post("/password", requireAuth, sharedLimit("password", 10, 15 * 60 * 1000, "Too many password attempts. Try again later."), async (req, res) => {
+  const parsed = passwordSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Enter your current password and a new password of at least 12 characters and at most 72 UTF-8 bytes." });
+  const user = await User.findById(req.user._id);
+  if (!(await user.checkPassword(parsed.data.currentPassword))) return res.status(400).json({ error: "Your current password is incorrect." });
+  const hash = await User.hashPassword(parsed.data.newPassword);
+  const updated = await User.findOneAndUpdate(
+    { _id: user._id, passwordHash: user.passwordHash },
+    { $set: { passwordHash: hash }, $inc: { sessionVersion: 1 } }, { new: true });
+  if (!updated) return res.status(409).json({ error: "The password changed in another session. Please sign in again." });
+  res.json({ token: signToken(updated) });
 });

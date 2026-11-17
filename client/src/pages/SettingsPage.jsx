@@ -95,7 +95,7 @@ export default function SettingsPage({ onSaved }) {
     }
     for (const s of form.slots) {
       if (!s.label.trim()) return setError("Every time slot needs a name.");
-      if (!/^\d{2}:\d{2}$/.test(s.start) || !/^\d{2}:\d{2}$/.test(s.end)) {
+      if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(s.start) || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(s.end)) {
         return setError(`Check the times on "${s.label || "the new slot"}".`);
       }
       if (s.start >= s.end) {

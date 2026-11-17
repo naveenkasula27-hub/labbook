@@ -3,14 +3,14 @@
  *
  * This is how a lab sets its prices without anyone touching code.
  */
-import express from "express";
+import { createRouter } from "../lib/router.js";
 import { z } from "zod";
 import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
 import { Lab } from "../models/Lab.js";
 import { requireAuth, requireLab } from "../middleware/auth.js";
 
-export const dashboardCatalogRouter = express.Router();
+export const dashboardCatalogRouter = createRouter();
 dashboardCatalogRouter.use(requireAuth, requireLab);
 
 /**
@@ -157,10 +157,10 @@ dashboardCatalogRouter.get("/settings", async (req, res) => {
 
 const slotSchema = z.object({
   label: z.string().trim().min(1).max(30),
-  start: z.string().regex(/^\d{2}:\d{2}$/, "Use a time like 07:00."),
-  end: z.string().regex(/^\d{2}:\d{2}$/, "Use a time like 11:00."),
+  start: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Use a time like 07:00."),
+  end: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Use a time like 11:00."),
   capacity: z.coerce.number().int().min(1).max(500),
-});
+}).refine((s) => s.start < s.end, { message: "A slot must end after it starts.", path: ["end"] });
 
 const settingsSchema = z.object({
   tagline: z.string().trim().max(160).optional(),

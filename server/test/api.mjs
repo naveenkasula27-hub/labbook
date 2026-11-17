@@ -293,13 +293,13 @@ test("prices come from the database, not the browser", async () => {
   assert.equal(body.items[0].name, "Complete Blood Count (CBC)");
 });
 
-test("unknown test codes are dropped, not fatal", async () => {
+test("unavailable test codes reject the booking rather than silently dropping tests", async () => {
   const [status, body] = await api.post("/public/nandu/bookings", {
     ...booking(),
     testCodes: ["cbc", "no_such_test"],
   });
-  assert.equal(status, 201);
-  assert.equal(body.items.length, 1);
+  assert.equal(status, 400);
+  assert.match(body.error, /no longer available/);
 });
 
 test("one lab cannot book another lab's tests", async () => {
@@ -317,9 +317,8 @@ test("one lab cannot book another lab's tests", async () => {
     ...booking(),
     testCodes: ["cbc", "secret_test"],
   });
-  assert.equal(status, 201);
-  assert.equal(body.items.length, 1, "the other lab's test must not come through");
-  assert.equal(body.items[0].name, "Complete Blood Count (CBC)");
+  assert.equal(status, 400);
+  assert.match(body.error, /no longer available/);
 
   await Test.deleteMany({ lab: other._id });
   await Lab.deleteOne({ _id: other._id });

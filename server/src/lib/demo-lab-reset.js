@@ -10,6 +10,7 @@
 import { Lab } from "../models/Lab.js";
 import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
+import { Report } from "../models/Report.js";
 import { Booking } from "../models/Booking.js";
 import { User } from "../models/User.js";
 import { CATALOG, PACKAGE_TEMPLATES } from "../seed/catalog.js";
@@ -134,6 +135,7 @@ export async function resetDemoLab() {
   }
 
   const removed = await Booking.deleteMany({ lab: lab._id });
+  await Report.deleteMany({ lab: lab._id });
   await putSampleBookingsBack(lab);
 
   await Lab.updateOne({ _id: lab._id }, { $set: DEMO_LAB_FIELDS });
@@ -153,7 +155,7 @@ export async function resetDemoLab() {
 
   await User.updateOne(
     { email: DEMO_LOGIN.email },
-    { $set: { passwordHash: await User.hashPassword(DEMO_LOGIN.password) } }
+    { $set: { passwordHash: await User.hashPassword(DEMO_LOGIN.password) }, $inc: { sessionVersion: 1 } }
   );
 
   return {

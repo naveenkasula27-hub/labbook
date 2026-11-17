@@ -7,6 +7,7 @@ import {
   STATUS_LABELS,
   NEXT_STATUS,
 } from "../lib/dash.js";
+import ReportPanel from "../components/ReportPanel.jsx";
 import { money, prettyDate } from "../lib/api.js";
 
 const FILTERS = [
@@ -318,6 +319,7 @@ function BookingRow({ booking: b, lab, busy, expanded, onToggle, onMove, onSaved
             <dd>{new Date(b.createdAt).toLocaleString(lab?.locale || "en-IN")}</dd>
           </dl>
 
+          <ReportPanel reference={b.reference} />
           <div className="notes-box">
             <label className="field-label" htmlFor={`n-${b.reference}`}>
               Your notes <span className="muted">(the patient never sees these)</span>

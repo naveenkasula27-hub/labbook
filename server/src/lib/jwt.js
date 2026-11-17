@@ -5,7 +5,7 @@ const EXPIRES_IN = "30d"; // a lab owner stays logged in for a month
 
 export function signToken(user) {
   return jwt.sign(
-    { sub: String(user._id), lab: user.lab ? String(user.lab) : null, role: user.role },
+    { sub: String(user._id), lab: user.lab ? String(user.lab) : null, role: user.role, version: user.sessionVersion || 0 },
     config.jwtSecret,
     { expiresIn: EXPIRES_IN }
   );

@@ -4,6 +4,8 @@ import { me, clearToken, getToken } from "../lib/dash.js";
 import BookingsPage from "./BookingsPage.jsx";
 import PricesPage from "./PricesPage.jsx";
 import SettingsPage from "./SettingsPage.jsx";
+import AdminPage from "./AdminPage.jsx";
+import PasswordForm from "../components/PasswordForm.jsx";
 import LoginPage from "./LoginPage.jsx";
 
 const TABS = [
@@ -61,6 +63,7 @@ export default function DashboardPage() {
   }
 
   const lab = session.lab;
+  const isAdmin = session.user.role === "admin";
 
   return (
     <div className="dash-root">
@@ -91,7 +94,7 @@ export default function DashboardPage() {
 
         <div className="wrap">
           <nav className="tabs" aria-label="Dashboard sections">
-            {TABS.map((t) => (
+            {(isAdmin ? [] : TABS).map((t) => (
               <button
                 key={t.key}
                 type="button"
@@ -114,21 +117,10 @@ export default function DashboardPage() {
             running without interruption.
           </div>
         )}
-        {tab === "bookings" && (
-          <div className="tab-panel">
-            <BookingsPage lab={lab} />
-          </div>
-        )}
-        {tab === "prices" && (
-          <div className="tab-panel">
-            <PricesPage lab={lab} />
-          </div>
-        )}
-        {tab === "settings" && (
-          <div className="tab-panel">
-            <SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} />
-          </div>
-        )}
+        {isAdmin && <AdminPage />}
+        {!isAdmin && tab === "bookings" && <div className="tab-panel"><BookingsPage lab={lab} /></div>}
+        {!isAdmin && tab === "prices" && <div className="tab-panel"><PricesPage lab={lab} /></div>}
+        {!isAdmin && tab === "settings" && <div className="tab-panel"><SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} /><PasswordForm /></div>}
       </main>
     </div>
   );

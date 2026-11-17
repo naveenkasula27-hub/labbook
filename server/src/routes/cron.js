@@ -1,8 +1,8 @@
-import express from "express";
+import { createRouter } from "../lib/router.js";
 import { config } from "../config.js";
 import { resetDemoLab } from "../lib/demo-lab-reset.js";
 
-export const cronRouter = express.Router();
+export const cronRouter = createRouter();
 
 function requireCronSecret(req, res, next) {
   const expected = config.cronSecret;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { downloadPatientReport } from "../lib/reports.js";
 import { findBooking, money, prettyDate } from "../lib/api.js";
 
 const STATUS_TEXT = {
@@ -18,12 +19,15 @@ export default function CheckBookingPage() {
   const [phone, setPhone] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [reportPhone, setReportPhone] = useState("");
+  const [reportBusy, setReportBusy] = useState(false);
+  const [reportError, setReportError] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
     setError("");
-    setResult(null);
+    setResult(null); setReportPhone(""); setReportError("");
 
     if (!reference.trim()) return setError("Enter your booking reference.");
     const last4 = phone.replace(/\D/g, "").slice(-4);
@@ -111,6 +115,14 @@ export default function CheckBookingPage() {
                 </>
               )}
             </dl>
+            {["report_ready", "completed"].includes(result.status) && <form className="form" onSubmit={async e => {
+              e.preventDefault(); setReportBusy(true); setReportError("");
+              try { await downloadPatientReport(slug, result.reference, reportPhone); }
+              catch (err) { setReportError(err.message); } finally { setReportBusy(false); }
+            }}><label>Full booking phone number<input className="input" type="tel" autoComplete="tel" required value={reportPhone} onChange={e => setReportPhone(e.target.value)} /></label>
+              <button className="btn btn-primary" disabled={reportBusy}>{reportBusy ? "Downloading…" : "Download PDF report"}</button>
+              {reportError && <p role="alert">{reportError}</p>}
+            </form>}
           </section>
         )}
       </div>

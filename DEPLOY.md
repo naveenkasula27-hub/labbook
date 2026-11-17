@@ -1,3 +1,20 @@
+# Local update — 2 November 2026
+
+Read STATUS.md for the current feature list. Deploy both client and server for
+these changes. No production deploy is performed by the local implementation.
+New MongoDB collections: ratebuckets and reports. Keep default index creation
+enabled, or create the indexes declared in their models before enabling traffic.
+Rate buckets need a TTL index on expiresAt; report records need a unique index on
+(lab, reference). The booking seat index remains essential for capacity safety.
+
+Onboarding uses MongoDB transactions, so Atlas or a replica set is required.
+Run `npm run admin:create` from server deliberately to provision your administrator.
+After deploying, sign in at `/dashboard`, create a lab, fill its prices, test a
+booking, upload a PDF and verify a patient can download it after report release.
+Check `/api/health` and verify GitHub Actions and cron execution history.
+
+The older hosting walkthrough follows; old test counts are historical.
+
 # Putting LabBook online
 
 You end up with two addresses:

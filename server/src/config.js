@@ -55,6 +55,10 @@ export const config = {
   },
 };
 
+if (!Number.isInteger(config.bookingRateLimit) || config.bookingRateLimit < 1) {
+  throw new Error("BOOKING_RATE_LIMIT must be a positive integer.");
+}
+
 if (isProduction && config.jwtSecret === "dev-only-insecure-secret") {
   throw new Error("Set a real JWT_SECRET before running in production.");
 }

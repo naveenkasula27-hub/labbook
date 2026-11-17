@@ -9,7 +9,7 @@ import LegalLayout from "./LegalLayout.jsx";
 
 export default function PrivacyPolicy() {
   return (
-    <LegalLayout title="Privacy policy" updated="16 October 2026">
+    <LegalLayout title="Privacy policy" updated="2 November 2026">
       <div className="legal-note">
         <p>
           <strong>The short version.</strong> If you booked a test, your details go to the
@@ -48,9 +48,10 @@ export default function PrivacyPolicy() {
       <p>
         Which tests you booked says something about your health. We treat it as sensitive
         and so should the lab. It is never used for advertising, never shared with anyone
-        outside the list below, and it does not go to Meta, Google or any analytics service.
+        outside the list below, and it is not sent to advertising or analytics services. When WhatsApp alerts are enabled, message contents can include the tests booked and are processed by Meta for delivery.
       </p>
 
+      <p>If your lab uploads a PDF report, we store it with your booking. Your lab can replace or delete it. Downloading it requires your booking reference and full booking phone number after the lab marks it ready. Keep both private. Reports are not sent to advertising services or attached to WhatsApp messages.</p>
       <h3>Who sees it</h3>
       <table>
         <thead>
@@ -69,7 +70,7 @@ export default function PrivacyPolicy() {
           </tr>
           <tr>
             <td>MongoDB Atlas</td>
-            <td>The stored booking</td>
+            <td>The stored booking and any PDF report uploaded by your lab</td>
             <td>The database. Hosted in Mumbai, India.</td>
           </tr>
           <tr>
@@ -131,7 +132,7 @@ export default function PrivacyPolicy() {
       <p>For a lab account we store:</p>
       <ul>
         <li>Your name and email address, used to sign in</li>
-        <li>Your password, stored as a one-way hash — we cannot read it, and neither can anyone who steals the database</li>
+        <li>Your password, stored as a one-way hash rather than readable text</li>
         <li>When you last signed in</li>
         <li>Your lab's business details: name, phone, WhatsApp number, address, opening days, slots, tests and prices</li>
       </ul>

@@ -1,4 +1,5 @@
 import { verifyToken } from "../lib/jwt.js";
+import { Lab } from "../models/Lab.js";
 import { User } from "../models/User.js";
 
 /**
@@ -19,7 +20,7 @@ export async function requireAuth(req, res, next) {
   }
 
   const user = await User.findById(payload.sub).lean();
-  if (!user || !user.active) {
+  if (!user || !user.active || (payload.version || 0) !== (user.sessionVersion || 0)) {
     return res.status(401).json({ error: "This account is no longer active." });
   }
 
@@ -32,7 +33,9 @@ export async function requireAuth(req, res, next) {
  * Must run after requireAuth. Blocks anyone without a lab attached — an
  * "admin" user with no lab should use separate admin routes, not these.
  */
-export function requireLab(req, res, next) {
+export async function requireLab(req, res, next) {
   if (!req.labId) return res.status(403).json({ error: "This account is not attached to a lab." });
+  const lab = await Lab.findById(req.labId).lean();
+  if (!lab || !lab.active) return res.status(403).json({ error: "This lab account is not active." });
   next();
 }

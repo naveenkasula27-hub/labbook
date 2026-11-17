@@ -7,6 +7,8 @@ import { publicRouter } from "./routes/public.js";
 import { authRouter } from "./routes/auth.js";
 import { dashboardBookingsRouter } from "./routes/dashboard-bookings.js";
 import { dashboardCatalogRouter } from "./routes/dashboard-catalog.js";
+import { reportsRouter } from "./routes/reports.js";
+import { adminRouter } from "./routes/admin.js";
 import { cronRouter } from "./routes/cron.js";
 
 /**
@@ -45,6 +47,7 @@ export function createApp() {
   const app = express();
 
   app.set("trust proxy", 1);           // behind Vercel / nginx, so rate limiting sees the real IP
+  app.use((req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
   app.use(express.json({ limit: "100kb" }));
   app.use(cors({ origin: allowedOrigin, credentials: true }));
 
@@ -61,12 +64,15 @@ export function createApp() {
   app.use("/api/dashboard/bookings", dashboardBookingsRouter);
   app.use("/api/dashboard/catalog", dashboardCatalogRouter);
   app.use("/api/cron", cronRouter);
+  app.use("/api/reports", reportsRouter);
+  app.use("/api/admin", adminRouter);
 
   app.use((req, res) => res.status(404).json({ error: "Not found." }));
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
     console.error(err);
+    if (err?.type === "entity.too.large") return res.status(413).json({ error: "The file or request is too large." });
     if (err?.type === "entity.parse.failed") {
       return res.status(400).json({ error: "The request body was not valid JSON." });
     }

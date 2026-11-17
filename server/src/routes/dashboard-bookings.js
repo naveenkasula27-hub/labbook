@@ -4,7 +4,8 @@
  * Every query filters on req.labId, which comes from the token, never from
  * anything the browser sends. That is what keeps one lab out of another's data.
  */
-import express from "express";
+import mongoose from "mongoose";
+import { createRouter } from "../lib/router.js";
 import { z } from "zod";
 import { Booking, BOOKING_STATUSES } from "../models/Booking.js";
 import { Lab } from "../models/Lab.js";
@@ -13,7 +14,7 @@ import { todayInZone, isValidDateStr, addDays } from "../lib/dates.js";
 import { reportReady } from "../services/whatsapp.js";
 import { reclaimSlot } from "../lib/seats.js";
 
-export const dashboardBookingsRouter = express.Router();
+export const dashboardBookingsRouter = createRouter();
 dashboardBookingsRouter.use(requireAuth, requireLab);
 
 /* ---------- Counts for the top of the screen ---------- */
@@ -27,7 +28,7 @@ dashboardBookingsRouter.get("/summary", async (req, res) => {
     Booking.countDocuments({ lab: req.labId, date: today, status: { $nin: ["cancelled", "no_show"] } }),
     Booking.countDocuments({ lab: req.labId, date: tomorrow, status: { $nin: ["cancelled", "no_show"] } }),
     Booking.aggregate([
-      { $match: { lab: req.labId } },
+      { $match: { lab: new mongoose.Types.ObjectId(req.labId) } },
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]),
     Booking.countDocuments({ lab: req.labId, status: "new" }),

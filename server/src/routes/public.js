@@ -3,8 +3,8 @@
  *
  * Multi-tenant by lab slug in the URL: /api/public/nandu/tests
  */
-import express from "express";
-import rateLimit from "express-rate-limit";
+import { createRouter } from "../lib/router.js";
+import { sharedLimit } from "../middleware/rate-limit.js";
 import { z } from "zod";
 import { Lab } from "../models/Lab.js";
 import { Test } from "../models/Test.js";
@@ -18,7 +18,7 @@ import { config } from "../config.js";
 import { notifyLabOfBooking, confirmToPatient } from "../services/whatsapp.js";
 import { todayInZone, isValidDateStr } from "../lib/dates.js";
 
-export const publicRouter = express.Router();
+export const publicRouter = createRouter();
 
 /** Look up the lab once and hang it on the request. */
 async function loadLab(req, res, next) {
@@ -114,13 +114,9 @@ publicRouter.get("/:slug/availability", loadLab, async (req, res) => {
 
 /* ---------- Create a booking ---------- */
 
-const bookingLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  limit: config.bookingRateLimit,   // per IP, per 10 minutes
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many bookings from this device. Please try again in a few minutes." },
-});
+const bookingLimiter = sharedLimit("booking", config.bookingRateLimit, 10 * 60 * 1000,
+  "Too many bookings from this device. Please try again in a few minutes.");
+const lookupLimiter = sharedLimit("lookup", 30, 10 * 60 * 1000, "Too many booking checks. Please try again later.");
 
 const bookingSchema = z.object({
   name: z.string().trim().min(2, "Enter the patient's name.").max(80),
@@ -172,6 +168,9 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
       : [],
   ]);
 
+  if (tests.length !== new Set(b.testCodes).size || packages.length !== new Set(b.packageCodes).size) {
+    return res.status(400).json({ error: "Some selected tests or packages are no longer available. Refresh and try again." });
+  }
   const items = [
     ...packages.map((p) => ({ kind: "package", code: p.code, name: p.name, price: p.price })),
     ...tests.map((t) => ({ kind: "test", code: t.code, name: t.name, price: t.price })),
@@ -185,7 +184,13 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
   }
 
   if (b.visitType === "home") {
-    const notAtHome = tests.filter((t) => !t.homeCollectable).map((t) => t.name);
+    const packageTestCodes = [...new Set(packages.flatMap((p) => p.testCodes))];
+    const packageTests = packageTestCodes.length
+      ? await Test.find({ lab: lab._id, code: { $in: packageTestCodes } }).lean() : [];
+    if (packageTests.length !== packageTestCodes.length) {
+      return res.status(400).json({ error: "A package contains unavailable tests. Please contact the lab.", field: "visitType" });
+    }
+    const notAtHome = [...new Set([...tests, ...packageTests].filter((t) => !t.homeCollectable || !t.active).map((t) => t.name))];
     if (notAtHome.length) {
       return res.status(400).json({
         error: `These have to be done at the lab: ${notAtHome.join(", ")}.`,
@@ -286,7 +291,7 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
 
 /* ---------- Patient checks their own booking ---------- */
 
-publicRouter.get("/:slug/bookings/:reference", loadLab, async (req, res) => {
+publicRouter.get("/:slug/bookings/:reference", lookupLimiter, loadLab, async (req, res) => {
   const booking = await Booking.findOne({
     lab: req.lab._id,
     reference: String(req.params.reference).toUpperCase(),
@@ -297,7 +302,7 @@ publicRouter.get("/:slug/bookings/:reference", loadLab, async (req, res) => {
   // The last 4 digits of the phone must match, so a guessed reference
   // does not hand over someone else's details.
   const last4 = String(req.query.phone || "").replace(/\D/g, "").slice(-4);
-  if (!last4 || !booking.patient.phone.endsWith(last4)) {
+  if (last4.length !== 4 || !booking.patient.phone.endsWith(last4)) {
     return res.status(403).json({ error: "Add the last 4 digits of the booking phone number." });
   }
 

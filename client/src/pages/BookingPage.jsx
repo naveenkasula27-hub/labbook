@@ -16,8 +16,9 @@ import Confirmation from "../components/Confirmation.jsx";
 import DemoStrip from "../components/DemoStrip.jsx";
 import LangToggle from "../components/LangToggle.jsx";
 import AudienceTiles from "../components/AudienceTiles.jsx";
-import AboutIllustration from "../components/AboutIllustration.jsx";
 import { LangProvider, useLang } from "../lib/i18n.jsx";
+import { catalogImage, matchesTest, normalize } from "../lib/catalog.js";
+import "../storefront.css";
 
 export default function BookingPage() {
   return (
@@ -67,6 +68,12 @@ function BookingPageInner() {
 
   const [confirmed, setConfirmed] = useState(null);
   const formRef = useRef(null);
+
+  useEffect(() => {
+    if (!data || !["#tests", "#packages", "#book"].includes(window.location.hash)) return;
+    const frame = requestAnimationFrame(() => document.querySelector(window.location.hash)?.scrollIntoView());
+    return () => cancelAnimationFrame(frame);
+  }, [data]);
 
   /* ---------- Load the lab ---------- */
   useEffect(() => {
@@ -288,9 +295,13 @@ function BookingPageInner() {
   }
 
   const pickedCount = picked.tests.size + picked.packages.size;
+  const visiblePackages = data.packages.filter((pack) => !normalize(query) ||
+    matchesTest({ name: pack.name, alias: pack.description, category: "checkup package" }, query) ||
+    pack.testCodes.some((code) => byCode[code] && matchesTest(byCode[code], query)));
+  const browseCategories = data.categories.filter((name) => data.tests.some((test) => test.category === name)).slice(0, 8);
 
   return (
-    <>
+    <div className="lb-store">
       {lab.isDemo && <DemoStrip labName={lab.name} />}
 
       <header className="site-head">
@@ -299,7 +310,7 @@ function BookingPageInner() {
             {lab.logoUrl ? (
               <img className="logo" src={lab.logoUrl} alt="" />
             ) : (
-              <div className="logo" aria-hidden="true" />
+              <div className="lb-monogram" aria-hidden="true">{lab.name.slice(0, 1)}</div>
             )}
             <div>
               <h1>{lab.name}</h1>
@@ -320,143 +331,52 @@ function BookingPageInner() {
             )}
           </nav>
           <div className="head-links">
+            <a href={`tel:${lab.phone.replace(/\s/g, "")}`}>{t.heroCallUs}</a>
+            {lab.whatsapp && <a href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(`Hello ${lab.name}, I have a question.`)}`} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>}
             <LangToggle />
           </div>
         </div>
       </header>
 
-      {/* The three things most people open this page to do, in one row they
-          can't miss: call, message on WhatsApp, or check a booking they
-          already made. Burying these in the header's small text links meant
-          first-time visitors scrolled past them without noticing. */}
-      <div className="hero">
-        <div className="wrap">
-          <form
-            className="hero-search-row"
-            onSubmit={(e) => {
-              e.preventDefault();
-              document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-          >
-            <input
-              className="hero-search"
-              type="search"
-              value={query}
-              onChange={(e) => {
-                const next = e.target.value;
-                setQuery(next);
-                // Typing here filters the "Find a test" list, which now sits
-                // right under this bar, but on short screens it can still be
-                // just off-screen — jump to it once a search actually starts.
-                if (next.trim() && !query.trim()) {
-                  document.getElementById("tests")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }
-              }}
-              placeholder={t.searchPlaceholder}
-              aria-label={t.searchAria}
-            />
-            <button type="submit" className="hero-search-btn" aria-label={t.searchButton}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M20 20l-3.5-3.5" />
-              </svg>
-              <span className="hero-search-btn-label">{t.searchButton}</span>
-            </button>
-          </form>
-          <div className="hero-actions">
-            <a className="hero-action hero-action-call" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
-              <span className="hero-action-badge hero-action-badge-call" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-                  <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.2c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2 2Z" />
-                </svg>
-              </span>
-              <span className="hero-action-label">{t.heroCallUs}</span>
-            </a>
-            {lab.whatsapp && (
-              <a
-                className="hero-action hero-action-whatsapp"
-                href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
-                  `Hello ${lab.name}, I have a question.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="hero-action-badge hero-action-badge-whatsapp" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-                    <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5.6 14.2c-.2.6-1.3 1.2-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.6-.6-2.9-1.2-4.7-4.1-4.9-4.3-.1-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.1.3-.3.5l-.4.5c-.1.2-.3.3-.1.6.2.3.9 1.4 1.8 2.3 1.3 1.1 2.3 1.5 2.6 1.7.3.2.5.1.7-.1l.7-.8c.2-.3.4-.2.7-.1l1.8.9c.2.1.4.2.5.3.1.2.1.9-.1 1.5Z" />
-                  </svg>
-                </span>
-                <span className="hero-action-label">{t.heroWhatsapp}</span>
-              </a>
-            )}
-            <Link className="hero-action hero-action-check" to={`/${slug}/check`}>
-              <span className="hero-action-badge hero-action-badge-check" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.3 14.5-4-4 1.4-1.4 2.6 2.6 5.6-5.6L17.7 9.5l-7 7Z" />
-                </svg>
-              </span>
-              <span className="hero-action-label">{t.heroCheckBooking}</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* An "about" band using only facts that are actually true of this
-          lab right now — its own description, its real test/package
-          counts, its real phone and WhatsApp. No invented trust badges,
-          no stock photos of people, no numbers we can't back up — just
-          an original drawn illustration in the lab's own colour. */}
-      <section className="about-band">
-        <div className="wrap about-band-inner">
-          <div className="about-band-text">
-            <h2>{t.aboutHeading(lab.name)}</h2>
-            {lab.about && <p className="about-band-copy">{lab.about}</p>}
-            <div className="about-band-stats">
-              <div className="about-band-stat">
-                <strong>{data.tests.length}</strong>
-                <span>{t.aboutStatTests(data.tests.length)}</span>
-              </div>
-              {data.packages.length > 0 && (
-                <div className="about-band-stat">
-                  <strong>{data.packages.length}</strong>
-                  <span>{t.aboutStatPackages(data.packages.length)}</span>
-                </div>
-              )}
-            </div>
-            <div className="about-band-actions">
-              {lab.whatsapp && (
-                <a
-                  className="btn btn-primary"
-                  href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
-                    `Hello ${lab.name}, I have a question.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t.aboutChat}
-                </a>
-              )}
-              <a className="btn btn-ghost" href={`tel:${lab.phone.replace(/\s/g, "")}`}>
-                {t.aboutCall}
-              </a>
-            </div>
-          </div>
-          <div className="about-band-art">
-            <AboutIllustration />
-          </div>
-        </div>
-      </section>
-
       <div className="wrap">
         {confirmed && <Confirmation booking={confirmed} lab={lab} onDone={() => setConfirmed(null)} />}
 
+        <section className="lb-hero" aria-labelledby="lb-hero-title">
+          <div className="lb-hero-copy">
+            <p className="lb-eyebrow">YOUR HEALTH, A LITTLE SIMPLER</p>
+            <h2 id="lb-hero-title">A small check.<br />A step towards<br /><em>better health.</em></h2>
+            <p>Find your test, choose a convenient time, and book directly with {lab.name}.</p>
+            <div className="lb-hero-actions"><a href="#tests" className="btn btn-primary">Find a lab test <span aria-hidden="true">↗</span></a>{data.packages.length > 0 && <a href="#packages">Explore checkups →</a>}</div>
+            <p className="lb-hero-note">{data.tests.length} tests to explore · Book online, speak to your lab</p>
+          </div>
+          <div className="lb-hero-photo"><img src="/images/care.jpg" alt="A healthcare professional reviewing a mobile device" width="1000" height="750" fetchpriority="high" /><div className="lb-photo-note"><strong>Care that fits your day.</strong><span>Choose a test. We’ll take it from there.</span></div></div>
+        </section>
+
+        <div className="lb-benefits"><div><strong>Book directly</strong><span>Your local lab, one simple booking</span></div><div><strong>Clear preparation details</strong><span>Sample type and fasting information</span></div><div><strong>Follow your booking</strong><span>Check status and released reports online</span></div></div>
+
+        {browseCategories.length > 0 && <section className="lb-discover" aria-labelledby="lb-category-title"><div className="lb-section-heading"><div><p className="lb-eyebrow">START WITH WHAT MATTERS TO YOU</p><h2 id="lb-category-title">Explore by health category</h2></div><a href="#tests" onClick={() => { setCategory("All"); setQuery(""); }}>View all tests →</a></div><div className="lb-category-grid">{browseCategories.map((name) => <a key={name} href="#tests" className="lb-category" aria-label={`Browse ${name} tests`} onClick={() => { setCategory(name); setQuery(""); }}><img {...catalogImage(name)} loading="lazy" width="240" height="220" /><span>{name}</span></a>)}</div></section>}
+
         <div className="cols">
           <main>
-            {/* The hero search above filters this list, so it has to be the
-                first thing in the column — right under the search bar, not
-                after Audience/Packages where a search felt like it vanished. */}
-            <section className="card" id="tests">
+            <section className="lb-catalog-section" id="tests">
+              <p className="lb-eyebrow">FIND THE TEST YOU’RE LOOKING FOR</p>
               <h2>{t.findTitle}</h2>
+              <p className="muted small">Search by test name, abbreviation, or health category.</p>
+              <div className="lb-search-box">
+              <input
+                id="catalog-search"
+                className="search"
+                type="search"
+                value={query}
+                onChange={(e) => { setQuery(e.target.value); setCategory("All"); }}
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchAria}
+                aria-controls="catalog-results"
+              />
+              {query && <button type="button" onClick={() => { setQuery(""); document.getElementById("catalog-search")?.focus(); }} aria-label="Clear search">Clear</button>}
+              </div>
+              {!query && <div className="lb-popular"><span>Try:</span>{["CBC", "Thyroid", "Sugar", "Vitamin"].map((term) => <button type="button" key={term} onClick={() => { setQuery(term); setCategory("All"); }}>{term}</button>)}</div>}
+              <div id="catalog-results">
               <TestList
                 tests={data.tests}
                 categories={data.categories}
@@ -468,24 +388,15 @@ function BookingPageInner() {
                 onToggle={toggleTest}
                 onAddQueryToNotes={addQueryToNotes}
               />
+              </div>
             </section>
 
-            {data.packages.length > 0 && (
-              <section className="card" id="packages">
-                <h2>{t.audienceTitle}</h2>
-                <AudienceTiles slug={slug} />
+            {!query.trim() && <section className="lb-catalog-section"><h2>{t.audienceTitle}</h2><AudienceTiles slug={slug} /></section>}
 
-                <h2 style={{ marginTop: 18 }}>{t.packagesTitle}</h2>
-                <p className="muted small">{t.packagesSub}</p>
-                <Packages
-                  packages={data.packages}
-                  lab={lab}
-                  byCode={byCode}
-                  picked={picked.packages}
-                  onToggle={togglePackage}
-                />
-              </section>
-            )}
+            {visiblePackages.length > 0 && <section className="lb-catalog-section" id="packages"><p className="lb-eyebrow">A MORE COMPLETE PICTURE</p><h2>{query.trim() ? "Matching health checkups" : t.packagesTitle}</h2><p className="muted small">A set of tests, together in one package. Explore what’s included before you book.</p><Packages packages={visiblePackages} lab={lab} byCode={byCode} picked={picked.packages} onToggle={togglePackage} /></section>}
+
+            <section className="lb-how"><p className="lb-eyebrow">FROM BOOKING TO REPORT</p><h2>Your next checkup, in three steps</h2><ol><li><strong>Choose your tests</strong><p>Add individual tests or a health package to your booking.</p></li><li><strong>Pick a time that works</strong><p>Enter your details and choose an available collection slot.</p></li><li><strong>Stay up to date</strong><p>Use your booking reference to follow progress and access released reports.</p></li></ol></section>
+            {lab.about && <section className="card"><h2>{t.aboutHeading(lab.name)}</h2><p className="muted">{lab.about}</p></section>}
           </main>
 
           <aside className="side">
@@ -594,6 +505,6 @@ function BookingPageInner() {
           <p style={{ margin: "4px 0 0" }}>{lab.name} · {lab.phone}</p>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

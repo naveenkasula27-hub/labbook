@@ -21,7 +21,7 @@ export function setToken(token) {
     if (token) localStorage.setItem(KEY, token);
     else localStorage.removeItem(KEY);
   } catch {
-    // No storage available. The session still works until the page reloads.
+    // Persistent sign-in is unavailable when browser storage is blocked.
   }
 }
 
@@ -29,7 +29,7 @@ export function clearToken() {
   setToken(null);
 }
 
-async function request(path, { method = "GET", body } = {}) {
+export async function request(path, { method = "GET", body } = {}) {
   const token = getToken();
   let res;
   try {
@@ -145,3 +145,11 @@ export const NEXT_STATUS = {
   sample_collected: "report_ready",
   report_ready: "completed",
 };
+
+export async function changePassword(currentPassword, newPassword) {
+  const r = await request("/auth/password", { method: "POST", body: { currentPassword, newPassword } });
+  setToken(r.token); return r;
+}
+export const listLabs = () => request("/admin/labs");
+export const createLab = (body) => request("/admin/labs", { method: "POST", body });
+export const resetLabPassword = (body) => request("/admin/reset-password", { method: "POST", body });

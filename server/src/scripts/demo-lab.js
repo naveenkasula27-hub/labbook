@@ -17,6 +17,7 @@ import { connectDb, disconnectDb } from "../db.js";
 import { Lab } from "../models/Lab.js";
 import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
+import { Report } from "../models/Report.js";
 import { Booking } from "../models/Booking.js";
 import { User } from "../models/User.js";
 import { CATALOG, PACKAGE_TEMPLATES } from "../seed/catalog.js";
@@ -166,6 +167,7 @@ async function run() {
     }
 
     const removed = await Booking.deleteMany({ lab: lab._id });
+  await Report.deleteMany({ lab: lab._id });
     console.log(`Removed ${removed.deletedCount} booking(s) from ${lab.name}.`);
 
     await putSampleBookingsBack(lab);
@@ -190,7 +192,7 @@ async function run() {
     // The password too, in case a visitor changed it.
     await User.updateOne(
       { email: DEMO_LOGIN.email },
-      { $set: { passwordHash: await User.hashPassword(DEMO_LOGIN.password) } }
+      { $set: { passwordHash: await User.hashPassword(DEMO_LOGIN.password) }, $inc: { sessionVersion: 1 } }
     );
     console.log(`Password reset to ${DEMO_LOGIN.password}.`);
 
@@ -257,6 +259,7 @@ async function run() {
   if (existing) {
     existing.lab = lab._id;
     existing.passwordHash = await User.hashPassword(DEMO_LOGIN.password);
+    existing.sessionVersion = (existing.sessionVersion || 0) + 1;
     await existing.save();
     console.log(`Login updated: ${DEMO_LOGIN.email} / ${DEMO_LOGIN.password}`);
   } else {

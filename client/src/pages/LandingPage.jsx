@@ -200,6 +200,17 @@ export default function LandingPage() {
       </section>
 
       {/* ---------- how it works ---------- */}
+      <section className="lp-band lp-catalog-preview">
+        <div className="lp-wrap">
+          <h2>A better way to discover lab tests</h2>
+          <p>Give patients a clear place to start: search for a test, browse by health category, or explore a checkup package.</p>
+          <div className="lp-photo-grid">
+            <Link to="/maheera#tests"><img src="/images/blood.jpg" alt="Diagnostic laboratory with sample testing equipment" loading="lazy" width="600" height="360" /><div><span>INDIVIDUAL TESTS</span><h3>Find the right test</h3><p>Search names and abbreviations. See sample and preparation details.</p><strong>Explore the demo →</strong></div></Link>
+            <Link to="/maheera#tests"><img src="/images/diabetes.jpg" alt="Blood glucose monitoring equipment" loading="lazy" width="600" height="360" /><div><span>HEALTH CATEGORIES</span><h3>Start with your health</h3><p>Browse diabetes, thyroid, heart health, vitamins, and more.</p><strong>Browse categories →</strong></div></Link>
+            <Link to="/maheera#packages"><img src="/images/wellness.jpg" alt="Outdoor meditation as part of a wellness routine" loading="lazy" width="600" height="360" /><div><span>CHECKUP PACKAGES</span><h3>See the bigger picture</h3><p>Explore included tests and add a package to your booking.</p><strong>Discover checkups →</strong></div></Link>
+          </div>
+        </div>
+      </section>
       <section className="lp-band">
         <div className="lp-wrap">
           <h2>How a booking reaches you</h2>
