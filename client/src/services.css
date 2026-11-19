@@ -1,0 +1,79 @@
+.lb-services { --ink: #163d4b; --soft: #f1f7f7; }
+.lb-services .lb-services-section { margin: 60px 0; }
+.lb-services .lb-section-heading { gap: 24px; flex-wrap: wrap; align-items: end; }
+.lb-services .lb-section-heading > p { max-width: 35ch; color: #60747d; }
+.lb-services .lb-section-heading h2,.lb-services .lb-how h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); letter-spacing: -.035em; }
+.lb-service-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-top: 26px; }
+.lb-service-grid > a,.lb-service-grid > button { display: flex; flex-direction: column; align-items: start; text-align: left; padding: 26px 22px; background: #f3f8f7; color: #183e4b; border: 1px solid #dbe8e7; border-radius: 18px; text-decoration: none; font: inherit; cursor: pointer; }
+.lb-service-grid > :nth-child(even) { background: #faf8f2; border-color: #e9e4d7; }
+.lb-service-grid span { font-size: .68rem; letter-spacing: .09em; font-weight: 700; color: #57726f; }
+.lb-service-grid h3 { margin: 26px 0 12px; font-size: 1.18rem; line-height: 1.4; }
+.lb-service-grid p { font-size: .92rem; line-height: 1.7; color: #536a75; margin: 0 0 24px; }
+.lb-service-grid b { margin-top: auto; font-size: .86rem; color: #086477; }
+.lb-service-grid > :hover { border-color: #6c999b; box-shadow: 0 8px 22px #244f4610; }
+.lb-services .lb-category-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 112px; grid-template-columns: none; gap: 24px; overflow-x: auto; padding: 8px 2px 14px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.lb-services .lb-category { scroll-snap-align: start; text-decoration: none; color: #264754; text-align: center; font-size: .9rem; }
+.lb-services .lb-category img { display: block; box-sizing: border-box; width: 106px; height: 106px; border: 1px solid #d8e2e4; border-radius: 50%; background: #f8fbfb; padding: 16px; object-fit: contain; margin: 0 auto 12px; }
+.lb-services .lb-category:hover img { border-color: #0f7181; background: #eaf4f4; }
+.lb-swipe-hint { font-size: .75rem; color: #647b83; margin-top: 8px; }
+.lb-fever { display: grid; grid-template-columns: 250px minmax(0,1fr); gap: 28px; padding: 32px; background: #eaf2f4; border-radius: 24px; margin: 54px 0; }
+.lb-fever-intro img { width: 76px; height: 76px; object-fit: contain; margin-bottom: 14px; }
+.lb-fever-intro h2 { font-size: clamp(1.6rem,2.4vw,2rem); line-height: 1.2; letter-spacing: -.035em; color: #214b5c; }
+.lb-fever-intro p:not(.lb-eyebrow) { color: #526d79; font-size: .9rem; line-height: 1.6; }
+.lb-fever-intro a { color: #075e74; font-weight: 700; font-size: .9rem; }
+.lb-fever-content { min-width: 0; align-self: center; }
+.lb-fever-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.lb-fever-heading > p { font-size: .9rem; color: #466675; margin: 0; }
+.lb-lane-controls { display: flex; gap: 6px; flex: none; }
+.lb-lane-controls button { border: 1px solid #c4d7dd; background: #fff; color: #254e5e; border-radius: 20px; min-height: 38px; padding: 6px 12px; cursor: pointer; font: 700 .75rem var(--font-body); }
+.lb-fever-lane { list-style: none; margin: 0; padding: 3px 2px 14px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px,48%); gap: 18px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.lb-fever-card { border: 1px solid #d4e1e5; border-radius: 20px; background: linear-gradient(135deg,#fff,#fffcf3); padding: 24px 20px 16px; display: flex; flex-direction: column; scroll-snap-align: start; }
+.lb-test-category { font-size: .7rem; color: #526d79; letter-spacing: .04em; }
+.lb-fever-card h3 { font-size: 1.08rem; line-height: 1.45; min-height: 3em; margin: 10px 0 20px; }
+.lb-fever-card p { font-size: .8rem; color: #61727a; margin: 0 0 8px; }
+.lb-fever-card .lb-report-line { margin-bottom: 22px; }
+.lb-fever-price { margin-top: auto; border-radius: 16px; background: #f1f4f3; padding: 12px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.lb-fever-price strong { font-size: 1.15rem; }
+.lb-fever-price small { display: block; font-size: .68rem; color: #5d757c; }
+.lb-fever-price .add { background: #fff; border: 1px solid #146c79; color: #146c79; padding: 9px 16px; border-radius: 30px; cursor: pointer; white-space: nowrap; }
+.lb-fever-book { border: 0; background: transparent; padding: 12px 0 0; color: #146c79; cursor: pointer; font: 700 .8rem var(--font-body); align-self: end; }
+.lb-browse-top { padding: 32px 0 24px; }
+.lb-browse-top > a { display: inline-block; margin-bottom: 26px; color: #215c6b; font-weight: 700; font-size: .9rem; }
+.lb-browse-top h2 { font-size: clamp(1.7rem,3vw,2.5rem); color: #153d4c; }
+.lb-browse-top > p:not(.lb-eyebrow) { color: #5c717b; }
+.lb-route-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.lb-route-tabs a { padding: 12px 22px; border: 1px solid #ccdedd; border-radius: 999px; color: #315c66; text-decoration: none; font-size: .9rem; }
+.lb-route-tabs a[aria-current=page] { background: #145e70; color: #fff; border-color: #145e70; }
+.lb-services .test-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-rows: 1fr; }
+.lb-services .catalog-card { position: relative; border-radius: 20px; background: linear-gradient(130deg,#fff 45%,#fffdf3); border-color: #d5dfdf; height: 100%; min-width: 0; }
+.lb-services .test-grid .catalog-photo { position: absolute; right: 16px; top: 18px; width: 52px; height: 52px; border-radius: 50%; background: #f0f6f6; overflow: hidden; }
+.lb-services .test-grid .catalog-photo img { object-fit: contain; padding: 7px; width: 100%; height: 100%; }
+.lb-services .test-grid .catalog-label { display: none; }
+.lb-services .test-grid .catalog-body { padding: 24px 20px 18px; }
+.lb-services .test-grid .catalog-body h3 { min-height: 4.2em; padding-right: 52px; line-height: 1.4; margin: 0 0 12px; font-size: 1rem; }
+.lb-services .test-grid .test-alias { display: none; }
+.lb-services .catalog-meta { line-height: 1.6; }
+.lb-services .catalog-bottom { background: #f1f4f3; border-radius: 16px; padding: 12px; margin-top: auto; }
+.lb-services .catalog-body { gap: 10px; }
+.lb-services .catalog-actions { flex-wrap: wrap; gap: 6px; }
+.lb-services .catalog-actions .add { border-radius: 999px; border-color: #17717e; color: #17717e; background: #fff; }
+.lb-services .catalog-actions .add[data-on=true] { color: #fff; background: #17717e; }
+.lb-services .book-now { border-radius: 999px; }
+.lb-services .catalog-price { font-size: 1.13rem; }
+.lb-services .catalog-bottom small { font-size: .68rem; }
+.lb-services .catalog-details { margin-bottom: 16px; }
+.lb-services .package-grid { grid-auto-rows: 1fr; }
+.lb-services .package-grid .catalog-body h3 { min-height: 3em; }
+.lb-sample-note { font-size: .8rem; color: #795d2b; background: #fff6df; padding: 12px 16px; border-radius: 10px; margin: 18px 0; }
+.lb-guide-navigation { padding-block: 18px; }
+.lb-guide-navigation .guide-back { display: inline-flex; padding: 10px 16px; background: #edf6f6; border: 1px solid #c7dcdf; border-radius: 999px; color: #185b70; text-decoration: none; font-weight: 700; }
+.lb-appointment-request,.lb-test-booking-dialog { box-sizing: border-box; margin: auto; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overscroll-behavior: contain; scroll-padding-block: 50px; }
+.lb-appointment-request .lb-dialog-close,.lb-test-booking-dialog .lb-dialog-close { position: sticky; top: 0; margin: -26px -22px 0 auto; display: block; z-index: 2; background: #fff; width: 38px; height: 38px; box-shadow: 0 2px 12px #173b4d20; }
+body:has(dialog[open]) { overflow: hidden; }
+.lb-services :focus-visible { outline: 3px solid #3a95af; outline-offset: 4px; }
+@media(min-width:1450px) { .lb-services .test-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .lb-services .cols { grid-template-columns: minmax(0,1fr) 300px; } }
+@media(max-width:1000px) { .lb-service-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .lb-fever { grid-template-columns: 210px minmax(0,1fr); padding: 24px; gap: 20px; } .lb-fever-lane { grid-auto-columns: minmax(260px,85%); } }
+@media(max-width:650px) { .lb-services .lb-services-section { margin: 36px 0; } .lb-service-grid { gap: 12px; } .lb-service-grid > a,.lb-service-grid > button { padding: 20px 16px; } .lb-service-grid h3 { font-size: 1rem; margin-top: 18px; } .lb-service-grid p { font-size: .85rem; } .lb-fever { display: block; padding: 22px 16px; margin: 34px 0; } .lb-fever-intro img { float: right; width: 90px; height: 90px; } .lb-fever-intro p { max-width: 35ch; } .lb-fever-content { margin-top: 24px; } .lb-fever-lane { grid-auto-columns: 88%; } .lb-fever-heading { flex-wrap: wrap; gap: 10px; } .lb-services .test-grid { grid-template-columns: 1fr; } .lb-services .lb-category-grid { grid-auto-columns: 96px; gap: 14px; } .lb-services .lb-category img { width: 88px; height: 88px; } .lb-services .catalog-bottom { flex-wrap: wrap; } .lb-appointment-request,.lb-test-booking-dialog { padding: 32px 18px 24px; width: calc(100% - 20px); max-width: calc(100vw - 20px); max-height: calc(100dvh - 20px); border-radius: 14px; } .lb-appointment-request .lb-dialog-close,.lb-test-booking-dialog .lb-dialog-close { margin: -18px -6px 0 auto; } .lb-request-fields { grid-template-columns: minmax(0,1fr); } .lb-test-booking-dialog .form input,.lb-test-booking-dialog .form select,.lb-test-booking-dialog .form textarea { min-width: 0; max-width: 100%; box-sizing: border-box; font-size: 16px; } }
+@media(max-width:360px) { .lb-service-grid { grid-template-columns: 1fr; } .lb-fever-lane { grid-auto-columns: 96%; } }
+@media(max-width:650px) { .lb-service-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 82%; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 12px; scrollbar-width: thin; } .lb-service-grid > * { scroll-snap-align: start; } .lb-services .lb-how ol { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 88%; overflow-x: auto; scroll-snap-type: x proximity; gap: 20px; padding-bottom: 14px; } .lb-services .lb-how li { scroll-snap-align: start; } }
+@media(prefers-reduced-motion:reduce) { .lb-services *, .lb-appointment-request, .lb-test-booking-dialog { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }

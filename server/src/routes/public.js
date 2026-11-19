@@ -3,6 +3,7 @@
  *
  * Multi-tenant by lab slug in the URL: /api/public/nandu/tests
  */
+import { cataloguePrice } from "../lib/demo-prices.js";
 import { createRouter } from "../lib/router.js";
 import { sharedLimit } from "../middleware/rate-limit.js";
 import { z } from "zod";
@@ -74,7 +75,7 @@ publicRouter.get("/:slug", loadLab, async (req, res) => {
   const categories = CATEGORY_ORDER.filter((c) => present.has(c));
   for (const c of present) if (!categories.includes(c)) categories.push(c);
 
-  res.json({ lab: publicLab(req.lab), tests, packages, categories });
+  res.json({ lab: publicLab(req.lab), tests: tests.map(row => ({ ...row, ...cataloguePrice(row, req.lab) })), packages: packages.map(row => ({ ...row, ...cataloguePrice(row, req.lab, "package") })), categories });
 });
 
 publicRouter.get("/:slug/doctors", loadLab, async (req, res) => {
@@ -219,8 +220,8 @@ publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) =
     return res.status(400).json({ error: "Some selected tests or packages are no longer available. Refresh and try again." });
   }
   const items = [
-    ...packages.map((p) => ({ kind: "package", code: p.code, name: p.name, price: p.price })),
-    ...tests.map((t) => ({ kind: "test", code: t.code, name: t.name, price: t.price })),
+    ...packages.map((p) => ({ kind: "package", code: p.code, name: p.name, price: cataloguePrice(p, lab, "package").price })),
+    ...tests.map((t) => ({ kind: "test", code: t.code, name: t.name, price: cataloguePrice(t, lab).price })),
   ];
 
   if (!items.length && !b.notes) {

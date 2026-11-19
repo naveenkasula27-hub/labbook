@@ -5,6 +5,7 @@ import { LangProvider, useLang } from "../lib/i18n.jsx";
 import CategoryIcon from "../lib/categoryIcons.jsx";
 import CATEGORY_PHOTOS from "../lib/categoryPhotos.jsx";
 import { AUDIENCE_GUIDE } from "../lib/audienceGuide.js";
+import "../services.css";
 import LangToggle from "../components/LangToggle.jsx";
 import menPhoto from "../assets/audience/men.jpg";
 import womenPhoto from "../assets/audience/women.jpg";
@@ -47,7 +48,7 @@ export default function AudiencePage() {
 }
 
 function AudiencePageInner() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { slug, audience } = useParams();
   const guide = AUDIENCE_GUIDE[audience];
 
@@ -182,6 +183,7 @@ function AudiencePageInner() {
         </div>
       </header>
 
+      <div className="wrap lb-guide-navigation"><Link className="guide-back" to={`/${slug}/tests`}>← {lang === "te" ? "బుకింగ్‌లకు తిరిగి వెళ్లండి" : "Back to bookings"}</Link></div>
       <div className="guide-hero">
         <div className="wrap guide-hero-inner">
           <span className="guide-hero-photo">
@@ -195,9 +197,6 @@ function AudiencePageInner() {
       </div>
 
       <div className="wrap">
-        <p style={{ margin: "16px 0" }}>
-          <Link className="guide-back" to={`/${slug}`}>← {t.guideBackToTests}</Link>
-        </p>
 
         {groups.length === 0 ? (
           <div className="card guide-empty">
@@ -297,7 +296,7 @@ function AudiencePageInner() {
 
         {groups.length > 0 && (
           <div className="guide-actions">
-            <Link className="btn btn-primary" to={`/${slug}`}>
+            <Link className="btn btn-primary" to={`/${slug}/tests#book`}>
               {added.size > 0 ? t.guideGoToBookingWithCount(added.size) : t.guideGoToBooking}
             </Link>
             {lab.whatsapp && (

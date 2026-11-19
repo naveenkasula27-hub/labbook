@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   getLab,
   getAvailability,
@@ -17,21 +17,21 @@ import DemoStrip from "../components/DemoStrip.jsx";
 import LangToggle from "../components/LangToggle.jsx";
 import AudienceTiles from "../components/AudienceTiles.jsx";
 import { LangProvider, useLang } from "../lib/i18n.jsx";
-import { catalogImage, matchesTest, normalize } from "../lib/catalog.js";
+import { matchesTest, normalize } from "../lib/catalog.js";
 import "../storefront.css";
 import CallbackDialog from "../components/CallbackDialog.jsx";
-import CareBenefits from "../components/CareBenefits.jsx";
-import BookingFAQ from "../components/BookingFAQ.jsx";
 import { EXPERIENCE } from "../lib/experience.js";
 import "../experience.css";
-import DoctorCarousel from "../components/DoctorCarousel.jsx";
+import ServiceHome from "../components/ServiceHome.jsx";
 import BookingDialog from "../components/BookingDialog.jsx";
 import "../appointments.css";
+import "../services.css";
 
 export default function BookingPage() {
+  const { slug } = useParams();
   return (
     <LangProvider>
-      <BookingPageInner />
+      <BookingPageInner key={slug} />
     </LangProvider>
   );
 }
@@ -40,25 +40,38 @@ function BookingPageInner() {
   const { t, lang } = useLang();
   const copy = EXPERIENCE[lang];
   const { slug } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const view = location.pathname.endsWith('/checkups') ? 'packages' : location.pathname.endsWith('/tests') ? 'tests' : 'home';
+  useEffect(() => {
+    setCategory(new URLSearchParams(location.search).get('category') || 'All');
+    setQuery('');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [view, location.search]);
 
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState("");
 
   // What the patient has picked
-  const [picked, setPicked] = useState({ tests: new Set(), packages: new Set() });
+  const [picked, setPicked] = useState(() => {
+    try { const saved = JSON.parse(sessionStorage.getItem(`labbook-basket:${slug}`) || '{}'); return { tests: new Set(saved.tests || []), packages: new Set(saved.packages || []) }; }
+    catch { return { tests: new Set(), packages: new Set() }; }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem(`labbook-basket:${slug}`, JSON.stringify({ tests: [...picked.tests], packages: [...picked.packages] })); } catch {}
+  }, [picked, slug]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [searchMode, setSearchMode] = useState("all");
+  const searchMode = view === "packages" ? "packages" : "tests";
   const [homeOnly, setHomeOnly] = useState(false);
   const [sort, setSort] = useState("catalog");
   const [helpOpen, setHelpOpen] = useState(false);
   const [requestKind, setRequestKind] = useState("callback");
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [bookingOpen, setBookingOpen] = useState(false);
-  const [doctorCount, setDoctorCount] = useState(0);
 
-  function openHelp(kind = "callback", doctor = null) {
-    setRequestKind(kind); setSelectedDoctor(doctor); setHelpOpen(true);
+
+  function openHelp(kind = "callback") {
+    setRequestKind(kind); setHelpOpen(true);
   }
 
   useEffect(() => {
@@ -76,10 +89,7 @@ function BookingPageInner() {
 
   function exploreTests() {
     setHelpOpen(false);
-    requestAnimationFrame(() => {
-      document.getElementById("catalog-search")?.focus({ preventScroll: true });
-      document.getElementById("tests")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    });
+    navigate(`/${slug}/tests`);
   }
 
   // Dismissing the "Need help?" bar should only last for this one visit —
@@ -113,6 +123,7 @@ function BookingPageInner() {
 
   useEffect(() => {
     if (!data || !["#tests", "#packages", "#book"].includes(window.location.hash)) return;
+    if (window.location.hash === "#book") setBookingOpen(true);
     const frame = requestAnimationFrame(() => document.querySelector(window.location.hash)?.scrollIntoView());
     return () => cancelAnimationFrame(frame);
   }, [data]);
@@ -194,6 +205,7 @@ function BookingPageInner() {
     } catch {
       codes = [];
     }
+    setPicked((current) => ({ tests: new Set([...current.tests].filter(code => byCode[code])), packages: new Set([...current.packages].filter(code => data.packages.some(pack => pack.code === code))) }));
     if (Array.isArray(codes) && codes.length) {
       const valid = codes.filter((c) => byCode[c]);
       if (valid.length) {
@@ -353,9 +365,9 @@ function BookingPageInner() {
   const browseCategories = data.categories.filter((name) => data.tests.some((test) => test.category === name));
 
   return (
-    <div className="lb-store">
+    <div className={`lb-store lb-services ${view === "home" ? "lb-home" : "lb-browse"}`}>
       {lab.isDemo && <DemoStrip labName={lab.name} />}
-      <CallbackDialog key={slug} lab={lab} kind={requestKind} doctor={selectedDoctor} open={helpOpen} onClose={() => setHelpOpen(false)} onExplore={exploreTests} />
+      <CallbackDialog key={slug} lab={lab} kind={requestKind} open={helpOpen} onClose={() => setHelpOpen(false)} onExplore={exploreTests} />
       <BookingDialog open={bookingOpen} onClose={() => setBookingOpen(false)}>
         <SelectedPanel basket={basket} lab={lab} fastingNotes={fastingNotes} onRemove={(item) => item.kind === "package" ? togglePackage(item.code) : toggleTest(item.code)} />
         <BookingForm ref={formRef} lab={lab} basket={basket} labOnly={labOnly} date={date} slot={slot} availability={availability} minDate={todayForLab(lab)} onDate={(value) => { setDate(value); setSlot(""); }} onSlot={setSlot} onSubmit={submit} />
@@ -378,9 +390,8 @@ function BookingPageInner() {
               bigger diagnostic sites, instead of a bare Directions link —
               gives first-time visitors a way to jump straight to a section. */}
           <nav className="head-nav" aria-label={t.findTitle}>
-            <a href="#tests">{t.findTitle}</a>
-            {doctorCount > 0 && <a href="#doctors">{lang === "te" ? "డాక్టర్లు" : "Doctors"}</a>}
-            {data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}>{t.packagesTitle}</a>}
+            <Link to={`/${slug}`}>Home</Link><Link to={`/${slug}/tests`} aria-current={view === "tests" ? "page" : undefined}>{t.findTitle}</Link>
+            {data.packages.length > 0 && <Link to={`/${slug}/checkups`} aria-current={view === "packages" ? "page" : undefined}>{t.packagesTitle}</Link>}
             <Link to={`/${slug}/check`}>{t.heroCheckBooking}</Link>
             {lab.mapsUrl && (
               <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
@@ -400,32 +411,15 @@ function BookingPageInner() {
       <div className="wrap">
         {confirmed && <Confirmation booking={confirmed} lab={lab} onDone={() => setConfirmed(null)} />}
 
-        <section className="lb-hero" aria-labelledby="lb-hero-title">
-          <div className="lb-hero-copy">
-            <p className="lb-eyebrow">YOUR HEALTH, A LITTLE SIMPLER</p>
-            <h2 id="lb-hero-title">A small check.<br />A step towards<br /><em>better health.</em></h2>
-            <p>Find your test, choose a convenient time, and book directly with {lab.name}.</p>
-            <div className="lb-hero-actions"><a href="#tests" className="btn btn-primary" onClick={() => setSearchMode("tests")}>{copy.quickTests}</a>{lab.homeCollection && <button type="button" className="lb-home-cta" onClick={() => openHelp("home_collection")}>{lang === "te" ? "హోమ్ కలెక్షన్ కోరండి" : "Request home collection"}</button>}</div>
-            <p className="lb-hero-note">{data.tests.length} tests to explore · Book online, speak to your lab</p>
-          </div>
-          <div className="lb-hero-photo"><img src="/images/home-collection-ai.png" alt="AI illustration of a healthcare professional preparing a home sample collection" width="1200" height="800" fetchpriority="high" /><div className="lb-photo-note"><strong>Care that fits your day.</strong><span>Choose a test. We’ll take it from there.</span></div></div>
-        </section>
+        {view === "home" && <ServiceHome lab={lab} tests={data.tests} categories={browseCategories} picked={picked.tests} onToggle={toggleTest} onBook={(code) => bookItem("tests", code)} onHelp={openHelp} />}
+        {view !== "home" && <div className="lb-browse-top"><Link to={`/${slug}`}>← Back to home</Link><p className="lb-eyebrow">{lab.name}</p><h2>{view === "packages" ? "Health checkups" : category === "All" ? "Find your lab test" : `${category} tests`}</h2><p>Choose what you need. See the details and price before you book.</p><div className="lb-route-tabs"><Link to={`/${slug}/tests`} aria-current={view === "tests" ? "page" : undefined}>Individual tests</Link><Link to={`/${slug}/checkups`} aria-current={view === "packages" ? "page" : undefined}>Health checkups</Link></div></div>}
+        {lab.isDemo && data.tests.some((test) => test.priceIsSample) && <p className="lb-sample-note">Demo catalogue: missing prices use illustrative sample amounts. Your lab sets its own prices.</p>}
+        {view !== "home" && <div className="cols">
 
-        <section className="lb-quick-start" aria-label={copy.quickTitle}><a href="#tests" onClick={() => setSearchMode("tests")}><strong>{copy.quickTests}</strong><span>{t.searchPlaceholder}</span></a>{data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}><strong>{copy.quickPackages}</strong><span>{t.packagesSub}</span></a>}<Link to={`/${slug}/check`}><strong>{copy.quickTrack}</strong><span>{lang === "te" ? "స్థితి, విడుదలైన రిపోర్టులు" : "Status and released reports"}</span></Link><button type="button" onClick={() => openHelp()}><strong>{copy.quickHelp}</strong><span>{lang === "te" ? "ల్యాబ్ బృందంతో మాట్లాడండి" : "Get help from your lab team"}</span></button></section>
-
-        <DoctorCarousel lab={lab} onCount={setDoctorCount} onRequest={(doctor) => openHelp("consultation", doctor)} />
-
-        <CareBenefits lab={lab} />
-
-        <div className="lb-benefits"><div><strong>Book directly</strong><span>Your local lab, one simple booking</span></div><div><strong>Clear preparation details</strong><span>Sample type and fasting information</span></div><div><strong>Follow your booking</strong><span>Check status and released reports online</span></div></div>
-
-        {browseCategories.length > 0 && <section className="lb-discover" aria-labelledby="lb-category-title"><div className="lb-section-heading"><div><p className="lb-eyebrow">START WITH WHAT MATTERS TO YOU</p><h2 id="lb-category-title">Explore by health category</h2></div><a href="#tests" onClick={() => { setCategory("All"); setQuery(""); setSearchMode("tests"); }}>{copy.available}</a></div><div className="lb-category-grid">{browseCategories.map((name) => <a key={name} href="#tests" className="lb-category" aria-label={`Browse ${name} tests`} onClick={() => { setCategory(name); setQuery(""); setSearchMode("tests"); }}><img {...catalogImage(name)} loading="lazy" width="240" height="220" /><span>{name}</span></a>)}</div></section>}
-
-        <div className="cols">
           <main>
             <section className="lb-catalog-section" id="tests">
-              <p className="lb-eyebrow">FIND THE TEST YOU’RE LOOKING FOR</p>
-              <h2>{t.findTitle}</h2>
+              <p className="lb-eyebrow">{view === "packages" ? "A CHECKUP FOR YOUR NEXT STEP" : "FIND THE TEST YOU’RE LOOKING FOR"}</p>
+              <h2>{view === "packages" ? "Choose a checkup" : t.findTitle}</h2>
               <p className="muted small">Search by test name, abbreviation, or health category.</p>
               <div className="lb-search-box">
               <input
@@ -441,11 +435,11 @@ function BookingPageInner() {
               {query && <button type="button" onClick={() => { setQuery(""); document.getElementById("catalog-search")?.focus(); }} aria-label="Clear search">Clear</button>}
               </div>
               <div className="lb-search-tools">
-                <div className="lb-search-tabs" role="group" aria-label={t.searchAria}>{["all", "tests", "packages"].filter((mode) => mode !== "packages" || data.packages.length > 0).map((mode) => <button type="button" key={mode} aria-pressed={searchMode === mode} onClick={() => setSearchMode(mode)}>{copy[mode]}</button>)}</div>
+
                 <label className="lb-sort-label">{copy.sort}<select value={sort} onChange={(event) => setSort(event.target.value)}><option value="catalog">{copy.standard}</option><option value="price">{copy.low}</option><option value="name">{copy.nameSort}</option></select></label>
                 {lab.homeCollection && <label className="lb-home-filter"><input type="checkbox" checked={homeOnly} onChange={(event) => setHomeOnly(event.target.checked)} />{copy.collectionOnly}</label>}
               </div>
-              {!query && <div className="lb-popular"><span>Try:</span>{["CBC", "Thyroid", "Sugar", "Vitamin"].map((term) => <button type="button" key={term} onClick={() => { setQuery(term); setCategory("All"); }}>{term}</button>)}</div>}
+              {view === "tests" && !query && <div className="lb-popular"><span>Try:</span>{["CBC", "Thyroid", "Sugar", "Vitamin"].map((term) => <button type="button" key={term} onClick={() => { setQuery(term); setCategory("All"); }}>{term}</button>)}</div>}
               <div id="catalog-results">
               {searchMode !== "packages" && <TestList
                 tests={catalogTests}
@@ -453,22 +447,19 @@ function BookingPageInner() {
                 lab={lab}
                 query={query}
                 category={category}
-                onCategory={setCategory}
+                onCategory={(name) => navigate(`/${slug}/tests${name === "All" ? "" : `?category=${encodeURIComponent(name)}`}`)}
                 picked={picked.tests}
                 onToggle={toggleTest}
                 onBook={(code) => bookItem("tests", code)}
                 resetKey={`${homeOnly}:${sort}`}
                 onAddQueryToNotes={addQueryToNotes}
               />}
-              {searchMode !== "tests" && <div id="packages" className="lb-search-packages"><h3>{query.trim() ? (lang === "te" ? "సరిపోలిన చెకప్‌లు" : "Matching checkups") : t.packagesTitle}</h3>{visiblePackages.length ? <Packages packages={visiblePackages} lab={lab} byCode={byCode} picked={picked.packages} onToggle={togglePackage} onBook={(code) => bookItem("packages", code)} /> : <div className="empty" role="status"><h3>{copy.emptyPackages}</h3><p>{copy.tryAgain}</p><button type="button" className="btn btn-ghost" onClick={() => { setQuery(""); setHomeOnly(false); setSearchMode("all"); }}>{copy.available}</button></div>}</div>}
+              {searchMode !== "tests" && <div id="packages" className="lb-search-packages"><h3>{query.trim() ? (lang === "te" ? "సరిపోలిన చెకప్‌లు" : "Matching checkups") : t.packagesTitle}</h3>{visiblePackages.length ? <Packages packages={visiblePackages} lab={lab} byCode={byCode} picked={picked.packages} onToggle={togglePackage} onBook={(code) => bookItem("packages", code)} /> : <div className="empty" role="status"><h3>{copy.emptyPackages}</h3><p>{copy.tryAgain}</p><button type="button" className="btn btn-ghost" onClick={() => { setQuery(""); setHomeOnly(false); }}>{copy.available}</button></div>}</div>}
               </div>
             </section>
 
-            {!query.trim() && <section className="lb-catalog-section"><h2>{t.audienceTitle}</h2><AudienceTiles slug={slug} /></section>}
+            {view === "packages" && !query.trim() && <section className="lb-catalog-section"><h2>{t.audienceTitle}</h2><AudienceTiles slug={slug} /></section>}
 
-            <BookingFAQ lab={lab} onHelp={() => openHelp()} />
-
-            <section className="lb-how"><p className="lb-eyebrow">FROM BOOKING TO REPORT</p><h2>Your next checkup, in three steps</h2><ol><li><strong>Choose your tests</strong><p>Add individual tests or a health package to your booking.</p></li><li><strong>Pick a time that works</strong><p>Enter your details and choose an available collection slot.</p></li><li><strong>Stay up to date</strong><p>Use your booking reference to follow progress and access released reports.</p></li></ol></section>
             {lab.about && <section className="card"><h2>{t.aboutHeading(lab.name)}</h2><p className="muted">{lab.about}</p></section>}
           </main>
 
@@ -492,7 +483,7 @@ function BookingPageInner() {
               {lab.homeCollection && <button type="button" className="lb-browse-link" onClick={() => openHelp("home_collection")}>{lang === "te" ? "హోమ్ కలెక్షన్‌లో సహాయం" : "Need help with home collection?"}</button>}
             </section>
           </aside>
-        </div>
+        </div>}
       </div>
 
       {pickedCount > 0 && !confirmed && (
