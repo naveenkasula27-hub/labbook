@@ -11,13 +11,15 @@ import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
 import { Booking } from "../models/Booking.js";
 import { Enquiry } from "../models/Enquiry.js";
+import { Doctor } from "../models/Doctor.js";
+import { SAMPLE_DOCTORS } from "../lib/doctor-profiles.js";
 import { makeReference } from "../lib/reference.js";
 import { createBookingHoldingSlot } from "../lib/seats.js";
 import { normalisePhone, looksLikeMobile } from "../lib/phone.js";
 import { CATEGORY_ORDER } from "../seed/catalog.js";
 import { config } from "../config.js";
 import { notifyLabOfBooking, confirmToPatient } from "../services/whatsapp.js";
-import { todayInZone, isValidDateStr } from "../lib/dates.js";
+import { todayInZone, isValidDateStr, addDays } from "../lib/dates.js";
 
 export const publicRouter = createRouter();
 
@@ -75,19 +77,47 @@ publicRouter.get("/:slug", loadLab, async (req, res) => {
   res.json({ lab: publicLab(req.lab), tests, packages, categories });
 });
 
-/* A callback is an enquiry, never an appointment or a confirmed time slot. */
+publicRouter.get("/:slug/doctors", loadLab, async (req, res) => {
+  const doctors = await Doctor.find({ lab: req.lab._id, active: true }).select("code name specialty qualifications description fee portrait photoUrl").sort({ name: 1 }).lean();
+  res.json({ doctors: doctors.length ? doctors : (req.lab.isDemo ? SAMPLE_DOCTORS : []) });
+});
+
+/* Preferred dates on requests never reserve a collection or consultation slot. */
 const enquiryLimiter = sharedLimit("enquiry", 5, 15 * 60 * 1000, "You have sent several requests. Please call the lab for help.");
 const enquirySchema = z.object({
   name: z.string().trim().min(2, "Enter your name.").max(80),
   phone: z.string().trim().min(6).max(30),
   message: z.string().trim().max(300).default(""),
+  kind: z.enum(["callback", "home_collection", "consultation"]).default("callback"),
+  email: z.string().trim().max(160).email().or(z.literal("")).default(""),
+  preferredDate: z.string().max(10).default(""),
+  preferredTime: z.enum(["", "morning", "afternoon", "evening"]).default(""),
+  doctorCode: z.string().max(50).default(""),
 });
 publicRouter.post("/:slug/enquiries", loadLab, enquiryLimiter, async (req, res) => {
   const parsed = enquirySchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
   const phone = normalisePhone(parsed.data.phone, req.lab.country);
   if (!looksLikeMobile(phone, req.lab.country)) return res.status(400).json({ error: "Enter a valid mobile number." });
-  const enquiry = await Enquiry.create({ lab: req.lab._id, name: parsed.data.name, phone, message: parsed.data.message });
+  const details = parsed.data;
+  if (details.kind !== "callback") {
+    const today = todayInZone(req.lab.timezone);
+    if (!isValidDateStr(details.preferredDate) || details.preferredDate < today || details.preferredDate > addDays(today, 90) || !details.preferredTime) {
+      return res.status(400).json({ error: "Choose a preferred date in the next 90 days and a time period." });
+    }
+  }
+  if (details.kind === "home_collection") {
+    if (!req.lab.homeCollection) return res.status(400).json({ error: "This lab does not offer home collection." });
+    const weekday = new Date(`${details.preferredDate}T12:00:00Z`).getUTCDay();
+    if (!req.lab.openDays.includes(weekday)) return res.status(400).json({ error: "The lab is closed on that day. Choose another date." });
+  }
+  let doctor = null;
+  if (details.kind === "consultation") {
+    doctor = await Doctor.findOne({ lab: req.lab._id, code: details.doctorCode, active: true }).lean();
+    if (!doctor && req.lab.isDemo) doctor = SAMPLE_DOCTORS.find((item) => item.code === details.doctorCode);
+    if (!doctor) return res.status(400).json({ error: "This doctor is not available at this lab. Choose another profile." });
+  }
+  const enquiry = await Enquiry.create({ lab: req.lab._id, name: details.name, phone, message: details.message, kind: details.kind, email: details.email, preferredDate: details.preferredDate, preferredTime: details.preferredTime, doctorCode: doctor?.code || "", doctorName: doctor?.name || "" });
   res.status(201).json({ reference: enquiry.reference, isDemo: Boolean(req.lab.isDemo) });
 });
 

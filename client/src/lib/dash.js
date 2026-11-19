@@ -86,6 +86,8 @@ export const getSummary = () => request("/dashboard/bookings/summary");
 
 export const getEnquiries = (status = "new", page = 1) =>
   request(`/dashboard/enquiries?${new URLSearchParams({ status, page })}`);
+export const getDoctors = () => request("/dashboard/doctors");
+export const saveDoctor = (code, body) => request(`/dashboard/doctors${code ? `/${encodeURIComponent(code)}` : ""}`, { method: code ? "PATCH" : "POST", body });
 export const updateEnquiry = (id, status) =>
   request(`/dashboard/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: { status } });
 

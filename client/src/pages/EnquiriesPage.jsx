@@ -25,7 +25,7 @@ export default function EnquiriesPage({ lab }) {
     finally { setWorking(""); }
   }
   return <section className="callback-inbox">
-    <h2>Callback requests</h2><p className="muted">People asking {lab.name} for help choosing or booking a test. A callback request does not reserve an appointment.</p>
+    <h2>Appointment & callback requests</h2><p className="muted">People asking {lab.name} for a consultation, home collection, or booking help. Contact the patient to confirm appointment details.</p>
     <div className="chips" role="group" aria-label="Callback status">{["new", "contacted", "closed", "all"].map((value) => <button type="button" className="chip" key={value} aria-pressed={status === value} onClick={() => { setStatus(value); setPage(1); }}>{value === "new" ? "Needs a call" : value[0].toUpperCase() + value.slice(1)}</button>)}</div>
     {error && <p className="err" role="alert">{error} <button type="button" className="link-btn" onClick={load}>Try again</button></p>}
     {loading ? <p role="status">Loading requests…</p> : data && <>
@@ -33,6 +33,9 @@ export default function EnquiriesPage({ lab }) {
       {!data.rows.length && <div className="card"><h3>No requests here yet</h3><p>New callback requests will appear here when someone submits the help form on your booking page.</p></div>}
       {data.rows.map((row) => <article className="card" key={row._id}>
         <h3>{row.name}</h3><p><a href={`tel:+${row.phone}`}>+{row.phone}</a></p>
+        <p><strong>{row.kind === "consultation" ? "Doctor consultation" : row.kind === "home_collection" ? "Home collection" : "Callback"}</strong>{row.doctorName ? ` · ${row.doctorName}` : ""}</p>
+        {row.preferredDate && <p>Preferred: {row.preferredDate} · {row.preferredTime}</p>}
+        {row.email && <p><a href={`mailto:${row.email}`}>{row.email}</a></p>}
         <p className="muted small">{row.reference} · {new Intl.DateTimeFormat(lab.locale || "en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: lab.timezone || "Asia/Kolkata" }).format(new Date(row.createdAt))}</p>
         {row.message && <p>{row.message}</p>}
         <label className="field-label" htmlFor={`callback-${row._id}`}>Request status</label>

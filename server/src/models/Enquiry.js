@@ -8,6 +8,12 @@ const schema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 80 },
   phone: { type: String, required: true },
   message: { type: String, default: "", maxlength: 300 },
+  kind: { type: String, enum: ["callback", "home_collection", "consultation"], default: "callback" },
+  email: { type: String, default: "", maxlength: 160 },
+  preferredDate: { type: String, default: "" },
+  preferredTime: { type: String, enum: ["", "morning", "afternoon", "evening"], default: "" },
+  doctorCode: { type: String, default: "" },
+  doctorName: { type: String, default: "" },
   status: { type: String, enum: ENQUIRY_STATUSES, default: "new" },
 }, { timestamps: true });
 schema.index({ lab: 1, status: 1, createdAt: -1 });

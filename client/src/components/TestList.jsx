@@ -1,13 +1,14 @@
 import { useLang } from "../lib/i18n.jsx";
 import { useMemo, useState, useEffect } from "react";
 import { money } from "../lib/api.js";
-import { catalogImage, matchesTest } from "../lib/catalog.js";
+import { testImage, matchesTest } from "../lib/catalog.js";
+import "../supplied-images.css";
 
-export default function TestList({ tests, categories, lab, query, category, onCategory, picked, onToggle, onAddQueryToNotes }) {
-  const { t } = useLang();
+export default function TestList({ tests, categories, lab, query, category, onCategory, picked, onToggle, onBook, onAddQueryToNotes, resetKey }) {
+  const { t, lang } = useLang();
   const PAGE_SIZE = 12;
   const [page, setPage] = useState(1);
-  useEffect(() => setPage(1), [query, category]);
+  useEffect(() => setPage(1), [query, category, resetKey]);
   const shown = useMemo(() => tests.filter((test) =>
     (category === "All" || test.category === category) && matchesTest(test, query)
   ), [tests, query, category]);
@@ -29,7 +30,7 @@ export default function TestList({ tests, categories, lab, query, category, onCa
         {pageItems.map((test) => {
           const on = picked.has(test.code);
           return <li className="catalog-card" data-selected={on} key={test.code}>
-            <div className="catalog-photo"><img {...catalogImage(test.category)} loading="lazy" width="480" height="280" /><span className="catalog-label">{test.category}</span></div>
+            <div className="catalog-photo"><img {...testImage(test)} loading="lazy" width="480" height="280" /><span className="catalog-label">{test.category}</span></div>
             <div className="catalog-body">
               <h3>{test.name}</h3>
               {test.alias && <p className="test-alias">{test.alias}</p>}
@@ -37,7 +38,7 @@ export default function TestList({ tests, categories, lab, query, category, onCa
               {test.reportTime && <p className="catalog-meta">Reports: <strong>{test.reportTime}</strong></p>}
               <details className="catalog-details"><summary>Preparation details</summary><p>{test.fasting || "No fasting instruction listed. Confirm any preparation with the lab."}</p></details>
               <div className="catalog-bottom"><div><span className="catalog-price">{typeof test.price === "number" ? money(test.price, lab) : "Ask the lab"}</span><small>{typeof test.price === "number" ? "Test price" : "Price on request"}</small></div>
-                <button type="button" className="add" data-on={on} aria-pressed={on} aria-label={`${on ? t.remove : t.add} ${test.name}`} onClick={() => onToggle(test.code)}>{on ? t.added : t.add}</button>
+                <div className="catalog-actions"><button type="button" className="add" data-on={on} aria-pressed={on} aria-label={`${on ? t.remove : t.add} ${test.name}`} onClick={() => onToggle(test.code)}>{on ? t.added : t.add}</button>{onBook && <button type="button" className="book-now" onClick={() => onBook(test.code)}>{lang === "te" ? "బుక్ చేయండి" : "Book now"}</button>}</div>
               </div>
             </div>
           </li>;

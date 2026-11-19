@@ -1,0 +1,19 @@
+/* Supplied transparent illustrations need containment rather than photo cropping. */
+.lb-store .lb-category img[data-visual="cutout"] {
+  object-fit: contain;
+  padding: 10px;
+  background: #f0f6fc;
+  border: 1px solid #e1ebf5;
+}
+.lb-store .catalog-photo img[data-visual="cutout"] {
+  object-fit: contain;
+  padding: 14px 18px;
+  background: #f1f6fc;
+}
+.lb-store .catalog-photo img[data-visual="scene"] { object-fit: cover; object-position: center 36%; }
+.lb-store .package-grid .catalog-photo:has(img[data-visual="scene"]) { height: 175px; }
+.lb-store .catalog-photo:has(img[data-visual="cutout"]) .catalog-label { background: #fff; box-shadow: 0 1px 5px #183a5712; }
+@media (max-width: 650px) {
+  .lb-store .lb-category img[data-visual="cutout"] { padding: 8px; }
+  .lb-store .catalog-photo img[data-visual="cutout"] { padding: 16px; }
+}

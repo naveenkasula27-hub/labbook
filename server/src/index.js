@@ -8,6 +8,7 @@ import { authRouter } from "./routes/auth.js";
 import { dashboardBookingsRouter } from "./routes/dashboard-bookings.js";
 import { dashboardCatalogRouter } from "./routes/dashboard-catalog.js";
 import { dashboardEnquiriesRouter } from "./routes/dashboard-enquiries.js";
+import { dashboardDoctorsRouter } from "./routes/dashboard-doctors.js";
 import { reportsRouter } from "./routes/reports.js";
 import { adminRouter } from "./routes/admin.js";
 import { cronRouter } from "./routes/cron.js";
@@ -65,6 +66,7 @@ export function createApp() {
   app.use("/api/dashboard/bookings", dashboardBookingsRouter);
   app.use("/api/dashboard/catalog", dashboardCatalogRouter);
   app.use("/api/dashboard/enquiries", dashboardEnquiriesRouter);
+  app.use("/api/dashboard/doctors", dashboardDoctorsRouter);
   app.use("/api/cron", cronRouter);
   app.use("/api/reports", reportsRouter);
   app.use("/api/admin", adminRouter);

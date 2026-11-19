@@ -24,6 +24,9 @@ import CareBenefits from "../components/CareBenefits.jsx";
 import BookingFAQ from "../components/BookingFAQ.jsx";
 import { EXPERIENCE } from "../lib/experience.js";
 import "../experience.css";
+import DoctorCarousel from "../components/DoctorCarousel.jsx";
+import BookingDialog from "../components/BookingDialog.jsx";
+import "../appointments.css";
 
 export default function BookingPage() {
   return (
@@ -49,6 +52,14 @@ function BookingPageInner() {
   const [homeOnly, setHomeOnly] = useState(false);
   const [sort, setSort] = useState("catalog");
   const [helpOpen, setHelpOpen] = useState(false);
+  const [requestKind, setRequestKind] = useState("callback");
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [doctorCount, setDoctorCount] = useState(0);
+
+  function openHelp(kind = "callback", doctor = null) {
+    setRequestKind(kind); setSelectedDoctor(doctor); setHelpOpen(true);
+  }
 
   useEffect(() => {
     setHelpOpen(false);
@@ -59,6 +70,7 @@ function BookingPageInner() {
       sessionStorage.setItem(key, "shown");
       if (sessionStorage.getItem(`labbook-pending-tests:${slug}`)) return;
     } catch { /* Help remains available without browser storage. */ }
+    setRequestKind(data.lab.homeCollection ? "home_collection" : "callback");
     setHelpOpen(true);
   }, [data, slug]);
 
@@ -283,7 +295,14 @@ function BookingPageInner() {
 
   function addQueryToNotes(text) {
     setQuery("");
-    formRef.current?.appendNote(text);
+    setBookingOpen(true);
+    requestAnimationFrame(() => formRef.current?.appendNote(text));
+  }
+
+  function bookItem(kind, code) {
+    startNewIfConfirmed();
+    setPicked((current) => ({ ...current, [kind]: new Set([...current[kind], code]) }));
+    setBookingOpen(true);
   }
 
   async function submit(fields) {
@@ -296,6 +315,7 @@ function BookingPageInner() {
     };
     const result = await createBooking(slug, body);
     setConfirmed(result);
+    setBookingOpen(false);
     setPicked({ tests: new Set(), packages: new Set() });
     setDate("");
     setSlot("");
@@ -330,12 +350,16 @@ function BookingPageInner() {
   const visiblePackages = data.packages.filter((pack) => (!homeOnly || (lab.homeCollection && pack.testCodes.length > 0 && pack.testCodes.every((code) => byCode[code]?.homeCollectable))) && (!normalize(query) ||
     matchesTest({ name: pack.name, alias: pack.description, category: "checkup package" }, query) ||
     pack.testCodes.some((code) => byCode[code] && matchesTest(byCode[code], query)))).sort(compare);
-  const browseCategories = data.categories.filter((name) => data.tests.some((test) => test.category === name)).slice(0, 8);
+  const browseCategories = data.categories.filter((name) => data.tests.some((test) => test.category === name));
 
   return (
     <div className="lb-store">
       {lab.isDemo && <DemoStrip labName={lab.name} />}
-      <CallbackDialog key={slug} lab={lab} open={helpOpen} onClose={() => setHelpOpen(false)} onExplore={exploreTests} />
+      <CallbackDialog key={slug} lab={lab} kind={requestKind} doctor={selectedDoctor} open={helpOpen} onClose={() => setHelpOpen(false)} onExplore={exploreTests} />
+      <BookingDialog open={bookingOpen} onClose={() => setBookingOpen(false)}>
+        <SelectedPanel basket={basket} lab={lab} fastingNotes={fastingNotes} onRemove={(item) => item.kind === "package" ? togglePackage(item.code) : toggleTest(item.code)} />
+        <BookingForm ref={formRef} lab={lab} basket={basket} labOnly={labOnly} date={date} slot={slot} availability={availability} minDate={todayForLab(lab)} onDate={(value) => { setDate(value); setSlot(""); }} onSlot={setSlot} onSubmit={submit} />
+      </BookingDialog>
 
       <header className="site-head">
         <div className="wrap">
@@ -355,6 +379,7 @@ function BookingPageInner() {
               gives first-time visitors a way to jump straight to a section. */}
           <nav className="head-nav" aria-label={t.findTitle}>
             <a href="#tests">{t.findTitle}</a>
+            {doctorCount > 0 && <a href="#doctors">{lang === "te" ? "డాక్టర్లు" : "Doctors"}</a>}
             {data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}>{t.packagesTitle}</a>}
             <Link to={`/${slug}/check`}>{t.heroCheckBooking}</Link>
             {lab.mapsUrl && (
@@ -367,7 +392,7 @@ function BookingPageInner() {
             <a href={`tel:${lab.phone.replace(/\s/g, "")}`}>{t.heroCallUs}</a>
             {lab.whatsapp && <a href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(`Hello ${lab.name}, I have a question.`)}`} target="_blank" rel="noopener noreferrer">{t.whatsapp}</a>}
             <LangToggle />
-            <button type="button" className="lb-header-help" onClick={() => setHelpOpen(true)}>{copy.help}</button>
+            <button type="button" className="lb-header-help" onClick={() => openHelp()}>{copy.help}</button>
           </div>
         </div>
       </header>
@@ -380,13 +405,15 @@ function BookingPageInner() {
             <p className="lb-eyebrow">YOUR HEALTH, A LITTLE SIMPLER</p>
             <h2 id="lb-hero-title">A small check.<br />A step towards<br /><em>better health.</em></h2>
             <p>Find your test, choose a convenient time, and book directly with {lab.name}.</p>
-            <div className="lb-hero-actions"><a href="#tests" className="btn btn-primary" onClick={() => setSearchMode("tests")}>{copy.quickTests}</a>{data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}>{copy.quickPackages}</a>}</div>
+            <div className="lb-hero-actions"><a href="#tests" className="btn btn-primary" onClick={() => setSearchMode("tests")}>{copy.quickTests}</a>{lab.homeCollection && <button type="button" className="lb-home-cta" onClick={() => openHelp("home_collection")}>{lang === "te" ? "హోమ్ కలెక్షన్ కోరండి" : "Request home collection"}</button>}</div>
             <p className="lb-hero-note">{data.tests.length} tests to explore · Book online, speak to your lab</p>
           </div>
-          <div className="lb-hero-photo"><img src="/images/care.jpg" alt="A healthcare professional reviewing a mobile device" width="1000" height="750" fetchpriority="high" /><div className="lb-photo-note"><strong>Care that fits your day.</strong><span>Choose a test. We’ll take it from there.</span></div></div>
+          <div className="lb-hero-photo"><img src="/images/home-collection-ai.png" alt="AI illustration of a healthcare professional preparing a home sample collection" width="1200" height="800" fetchpriority="high" /><div className="lb-photo-note"><strong>Care that fits your day.</strong><span>Choose a test. We’ll take it from there.</span></div></div>
         </section>
 
-        <section className="lb-quick-start" aria-label={copy.quickTitle}><a href="#tests" onClick={() => setSearchMode("tests")}><strong>{copy.quickTests}</strong><span>{t.searchPlaceholder}</span></a>{data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}><strong>{copy.quickPackages}</strong><span>{t.packagesSub}</span></a>}<Link to={`/${slug}/check`}><strong>{copy.quickTrack}</strong><span>{lang === "te" ? "స్థితి, విడుదలైన రిపోర్టులు" : "Status and released reports"}</span></Link><button type="button" onClick={() => setHelpOpen(true)}><strong>{copy.quickHelp}</strong><span>{lang === "te" ? "ల్యాబ్ బృందంతో మాట్లాడండి" : "Get help from your lab team"}</span></button></section>
+        <section className="lb-quick-start" aria-label={copy.quickTitle}><a href="#tests" onClick={() => setSearchMode("tests")}><strong>{copy.quickTests}</strong><span>{t.searchPlaceholder}</span></a>{data.packages.length > 0 && <a href="#tests" onClick={() => setSearchMode("packages")}><strong>{copy.quickPackages}</strong><span>{t.packagesSub}</span></a>}<Link to={`/${slug}/check`}><strong>{copy.quickTrack}</strong><span>{lang === "te" ? "స్థితి, విడుదలైన రిపోర్టులు" : "Status and released reports"}</span></Link><button type="button" onClick={() => openHelp()}><strong>{copy.quickHelp}</strong><span>{lang === "te" ? "ల్యాబ్ బృందంతో మాట్లాడండి" : "Get help from your lab team"}</span></button></section>
+
+        <DoctorCarousel lab={lab} onCount={setDoctorCount} onRequest={(doctor) => openHelp("consultation", doctor)} />
 
         <CareBenefits lab={lab} />
 
@@ -429,15 +456,17 @@ function BookingPageInner() {
                 onCategory={setCategory}
                 picked={picked.tests}
                 onToggle={toggleTest}
+                onBook={(code) => bookItem("tests", code)}
+                resetKey={`${homeOnly}:${sort}`}
                 onAddQueryToNotes={addQueryToNotes}
               />}
-              {searchMode !== "tests" && <div id="packages" className="lb-search-packages"><h3>{query.trim() ? (lang === "te" ? "సరిపోలిన చెకప్‌లు" : "Matching checkups") : t.packagesTitle}</h3>{visiblePackages.length ? <Packages packages={visiblePackages} lab={lab} byCode={byCode} picked={picked.packages} onToggle={togglePackage} /> : <div className="empty" role="status"><h3>{copy.emptyPackages}</h3><p>{copy.tryAgain}</p><button type="button" className="btn btn-ghost" onClick={() => { setQuery(""); setHomeOnly(false); setSearchMode("all"); }}>{copy.available}</button></div>}</div>}
+              {searchMode !== "tests" && <div id="packages" className="lb-search-packages"><h3>{query.trim() ? (lang === "te" ? "సరిపోలిన చెకప్‌లు" : "Matching checkups") : t.packagesTitle}</h3>{visiblePackages.length ? <Packages packages={visiblePackages} lab={lab} byCode={byCode} picked={picked.packages} onToggle={togglePackage} onBook={(code) => bookItem("packages", code)} /> : <div className="empty" role="status"><h3>{copy.emptyPackages}</h3><p>{copy.tryAgain}</p><button type="button" className="btn btn-ghost" onClick={() => { setQuery(""); setHomeOnly(false); setSearchMode("all"); }}>{copy.available}</button></div>}</div>}
               </div>
             </section>
 
             {!query.trim() && <section className="lb-catalog-section"><h2>{t.audienceTitle}</h2><AudienceTiles slug={slug} /></section>}
 
-            <BookingFAQ lab={lab} onHelp={() => setHelpOpen(true)} />
+            <BookingFAQ lab={lab} onHelp={() => openHelp()} />
 
             <section className="lb-how"><p className="lb-eyebrow">FROM BOOKING TO REPORT</p><h2>Your next checkup, in three steps</h2><ol><li><strong>Choose your tests</strong><p>Add individual tests or a health package to your booking.</p></li><li><strong>Pick a time that works</strong><p>Enter your details and choose an available collection slot.</p></li><li><strong>Stay up to date</strong><p>Use your booking reference to follow progress and access released reports.</p></li></ol></section>
             {lab.about && <section className="card"><h2>{t.aboutHeading(lab.name)}</h2><p className="muted">{lab.about}</p></section>}
@@ -456,24 +485,11 @@ function BookingPageInner() {
               />
             </section>
 
-            <section className="card" id="book">
-              <h2>{t.yourDetails}</h2>
-              <BookingForm
-                ref={formRef}
-                lab={lab}
-                basket={basket}
-                labOnly={labOnly}
-                date={date}
-                slot={slot}
-                availability={availability}
-                minDate={todayForLab(lab)}
-                onDate={(d) => {
-                  setDate(d);
-                  setSlot("");
-                }}
-                onSlot={setSlot}
-                onSubmit={submit}
-              />
+            <section className="card lb-booking-help" id="book">
+              <h2>{lang === "te" ? "మీ సందర్శనకు సిద్ధమా?" : "Ready to plan your visit?"}</h2>
+              <p className="muted small">{lang === "te" ? "టెస్టులు ఎంచుకుని మీకు అనుకూలమైన సమయాన్ని ఎంచుకోండి." : "Choose your tests, then select collection and an available time."}</p>
+              <button type="button" className="btn btn-primary" onClick={() => setBookingOpen(true)}>{lang === "te" ? "బుకింగ్‌కు కొనసాగండి" : "Continue to booking"}</button>
+              {lab.homeCollection && <button type="button" className="lb-browse-link" onClick={() => openHelp("home_collection")}>{lang === "te" ? "హోమ్ కలెక్షన్‌లో సహాయం" : "Need help with home collection?"}</button>}
             </section>
           </aside>
         </div>
@@ -500,7 +516,7 @@ function BookingPageInner() {
               {date && <div className="tiny muted">{prettyDate(date, lab)}{slot ? `, ${slot}` : ""}</div>}
             </div>
 
-            <a className="btn btn-primary bar-go" href="#book">{t.continue}</a>
+            <button type="button" className="btn btn-primary bar-go" onClick={() => setBookingOpen(true)}>{t.continue}</button>
           </div>
         </div>
       )}

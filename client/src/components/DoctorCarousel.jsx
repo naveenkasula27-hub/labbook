@@ -1,0 +1,18 @@
+import { useEffect, useRef, useState } from "react";
+import { getPublicDoctors, money } from "../lib/api.js";
+import { useLang } from "../lib/i18n.jsx";
+
+export default function DoctorCarousel({ lab, onRequest, onCount }) {
+  const { lang } = useLang(); const te = lang === "te";
+  const [doctors, setDoctors] = useState([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [query, setQuery] = useState("");
+  const lane = useRef(null);
+  useEffect(() => { let alive = true; setLoading(true); setError(""); onCount?.(0); getPublicDoctors(lab.slug).then((data) => { if (alive) { setDoctors(data.doctors); onCount?.(data.doctors.length); } }).catch((err) => { if (alive) setError(err.message); }).finally(() => { if (alive) setLoading(false); }); return () => { alive = false; }; }, [lab.slug, onCount]);
+  const shown = doctors.filter((doctor) => `${doctor.name} ${doctor.specialty}`.toLowerCase().includes(query.toLowerCase()));
+  function scroll(direction) { lane.current?.scrollBy({ left: direction * lane.current.clientWidth * .8, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+  if (!loading && !doctors.length && !error) return null;
+  return <section id="doctors" className="lb-doctors" aria-labelledby="doctors-title"><div className="lb-doctors-heading"><div><p className="lb-eyebrow">{te ? "క్లినిక్ సంప్రదింపులు" : "A CONVERSATION THAT HELPS"}</p><h2 id="doctors-title">{te ? "డాక్టర్ అపాయింట్‌మెంట్ కోరండి" : "Find a doctor. Plan your visit."}</h2><p>{te ? "ప్రొఫైల్ ఎంచుకుని మీకు అనుకూలమైన సమయం తెలపండి. క్లినిక్ నిర్ధారిస్తుంది." : "Choose a profile and share your preferred time. The clinic will confirm your appointment."}</p></div><div className="lb-scroll-controls"><button type="button" onClick={() => scroll(-1)} aria-label="Previous doctor cards">{te ? "మునుపటి" : "Previous"}</button><button type="button" onClick={() => scroll(1)} aria-label="Next doctor cards">{te ? "తదుపరి" : "Next"}</button></div></div>
+    {loading ? <p role="status">{te ? "ప్రొఫైళ్లు లోడ్ అవుతున్నాయి…" : "Loading profiles…"}</p> : error ? <p className="err" role="alert">{error}</p> : <><label className="lb-doctor-search">{te ? "పేరు లేదా స్పెషాలిటీతో వెతకండి" : "Search by name or specialty"}<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} /></label><div className="lb-doctor-lane" ref={lane} tabIndex={0} aria-label={te ? "డాక్టర్ ప్రొఫైళ్లు" : "Doctor profiles"}>
+      {shown.map((doctor) => <article className="lb-doctor-card" key={doctor.code}><div className="lb-doctor-photo"><img src={doctor.photoUrl || `/images/doctors/${doctor.portrait || "general"}.png`} alt={doctor.photoUrl ? doctor.name : "AI-generated illustrative clinician portrait"} loading="lazy" width="600" height="600" />{!doctor.photoUrl && <span>{te ? "AI నమూనా చిత్రం" : "AI illustration"}</span>}</div><div className="lb-doctor-info">{doctor.isDemo && <p className="lb-sample-label">{te ? "నమూనా ప్రొఫైల్" : "SAMPLE PROFILE"}</p>}<h3>{doctor.name}</h3><p className="lb-doctor-specialty">{doctor.specialty}</p>{doctor.qualifications && <p>{doctor.qualifications}</p>}{doctor.description && <p className="lb-doctor-description">{doctor.description}</p>}<div className="lb-doctor-bottom"><span>{typeof doctor.fee === "number" ? money(doctor.fee, lab) : (te ? "రుసుము కోసం క్లినిక్‌ను అడగండి" : "Confirm fee with clinic")}</span><button type="button" onClick={() => onRequest(doctor)}>{te ? "అపాయింట్‌మెంట్ కోరండి" : "Request appointment"}</button></div></div></article>)}
+    </div>{!shown.length && <p role="status">{te ? "సరిపోలిన ప్రొఫైళ్లు లేవు." : "No matching profiles. Try another name or specialty."}</p>}</>}
+  </section>;
+}

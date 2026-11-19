@@ -8,10 +8,12 @@ import AdminPage from "./AdminPage.jsx";
 import PasswordForm from "../components/PasswordForm.jsx";
 import LoginPage from "./LoginPage.jsx";
 import EnquiriesPage from "./EnquiriesPage.jsx";
+import DoctorsPage from "./DoctorsPage.jsx";
 
 const TABS = [
   { key: "bookings", label: "Bookings" },
-  { key: "enquiries", label: "Callback requests" },
+  { key: "enquiries", label: "Appointment & callback requests" },
+  { key: "doctors", label: "Doctors" },
   { key: "prices", label: "Prices" },
   { key: "settings", label: "Settings" },
 ];
@@ -120,6 +122,7 @@ export default function DashboardPage() {
           </div>
         )}
         {isAdmin && <AdminPage />}
+        {!isAdmin && tab === "doctors" && <div className="tab-panel"><DoctorsPage /></div>}
         {!isAdmin && tab === "enquiries" && <div className="tab-panel"><EnquiriesPage lab={lab} /></div>}
         {!isAdmin && tab === "bookings" && <div className="tab-panel"><BookingsPage lab={lab} /></div>}
         {!isAdmin && tab === "prices" && <div className="tab-panel"><PricesPage lab={lab} /></div>}
