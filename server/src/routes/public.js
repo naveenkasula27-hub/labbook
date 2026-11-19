@@ -10,6 +10,7 @@ import { Lab } from "../models/Lab.js";
 import { Test } from "../models/Test.js";
 import { Package } from "../models/Package.js";
 import { Booking } from "../models/Booking.js";
+import { Enquiry } from "../models/Enquiry.js";
 import { makeReference } from "../lib/reference.js";
 import { createBookingHoldingSlot } from "../lib/seats.js";
 import { normalisePhone, looksLikeMobile } from "../lib/phone.js";
@@ -72,6 +73,22 @@ publicRouter.get("/:slug", loadLab, async (req, res) => {
   for (const c of present) if (!categories.includes(c)) categories.push(c);
 
   res.json({ lab: publicLab(req.lab), tests, packages, categories });
+});
+
+/* A callback is an enquiry, never an appointment or a confirmed time slot. */
+const enquiryLimiter = sharedLimit("enquiry", 5, 15 * 60 * 1000, "You have sent several requests. Please call the lab for help.");
+const enquirySchema = z.object({
+  name: z.string().trim().min(2, "Enter your name.").max(80),
+  phone: z.string().trim().min(6).max(30),
+  message: z.string().trim().max(300).default(""),
+});
+publicRouter.post("/:slug/enquiries", loadLab, enquiryLimiter, async (req, res) => {
+  const parsed = enquirySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  const phone = normalisePhone(parsed.data.phone, req.lab.country);
+  if (!looksLikeMobile(phone, req.lab.country)) return res.status(400).json({ error: "Enter a valid mobile number." });
+  const enquiry = await Enquiry.create({ lab: req.lab._id, name: parsed.data.name, phone, message: parsed.data.message });
+  res.status(201).json({ reference: enquiry.reference, isDemo: Boolean(req.lab.isDemo) });
 });
 
 /* ---------- Which slots are still open on a date ---------- */

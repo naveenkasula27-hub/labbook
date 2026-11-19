@@ -7,9 +7,11 @@ import SettingsPage from "./SettingsPage.jsx";
 import AdminPage from "./AdminPage.jsx";
 import PasswordForm from "../components/PasswordForm.jsx";
 import LoginPage from "./LoginPage.jsx";
+import EnquiriesPage from "./EnquiriesPage.jsx";
 
 const TABS = [
   { key: "bookings", label: "Bookings" },
+  { key: "enquiries", label: "Callback requests" },
   { key: "prices", label: "Prices" },
   { key: "settings", label: "Settings" },
 ];
@@ -118,6 +120,7 @@ export default function DashboardPage() {
           </div>
         )}
         {isAdmin && <AdminPage />}
+        {!isAdmin && tab === "enquiries" && <div className="tab-panel"><EnquiriesPage lab={lab} /></div>}
         {!isAdmin && tab === "bookings" && <div className="tab-panel"><BookingsPage lab={lab} /></div>}
         {!isAdmin && tab === "prices" && <div className="tab-panel"><PricesPage lab={lab} /></div>}
         {!isAdmin && tab === "settings" && <div className="tab-panel"><SettingsPage lab={lab} onSaved={(l) => setSession((s) => ({ ...s, lab: { ...s.lab, ...l } }))} /><PasswordForm /></div>}

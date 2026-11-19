@@ -84,6 +84,11 @@ export const me = () => request("/auth/me");
 
 export const getSummary = () => request("/dashboard/bookings/summary");
 
+export const getEnquiries = (status = "new", page = 1) =>
+  request(`/dashboard/enquiries?${new URLSearchParams({ status, page })}`);
+export const updateEnquiry = (id, status) =>
+  request(`/dashboard/enquiries/${encodeURIComponent(id)}`, { method: "PATCH", body: { status } });
+
 export function getBookings(params = {}) {
   const q = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v !== "" && v !== undefined && v !== null)

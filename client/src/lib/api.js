@@ -29,6 +29,9 @@ export const getAvailability = (slug, date) =>
 export const createBooking = (slug, body) =>
   request(`/public/${slug}/bookings`, { method: "POST", body: JSON.stringify(body) });
 
+export const requestCallback = (slug, body) =>
+  request(`/public/${encodeURIComponent(slug)}/enquiries`, { method: "POST", body: JSON.stringify(body) });
+
 export const findBooking = (slug, reference, phone) =>
   request(`/public/${slug}/bookings/${encodeURIComponent(reference)}?phone=${encodeURIComponent(phone)}`);
 
