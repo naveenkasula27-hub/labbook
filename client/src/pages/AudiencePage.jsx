@@ -183,7 +183,6 @@ function AudiencePageInner() {
         </div>
       </header>
 
-      <div className="wrap lb-guide-navigation"><Link className="guide-back" to={`/${slug}/tests`}>← {lang === "te" ? "బుకింగ్‌లకు తిరిగి వెళ్లండి" : "Back to bookings"}</Link></div>
       <div className="guide-hero">
         <div className="wrap guide-hero-inner">
           <span className="guide-hero-photo">
@@ -192,6 +191,10 @@ function AudiencePageInner() {
           <div>
             <h1>{t.guideHeading(labelFor)}</h1>
             <p>{guide.ageNote}</p>
+          </div>
+          <div className="lb-guide-hero-actions">
+            <Link className="lb-guide-return" to={`/${slug}/tests#book`}>← {lang === "te" ? "బుకింగ్‌లకు తిరిగి వెళ్లండి" : "Back to bookings"}{added.size > 0 ? ` (${added.size})` : ""}</Link>
+            {lab.whatsapp && <a className="lb-guide-whatsapp" href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(`Hello ${lab.name}, I have a question about the ${labelFor} checkup.`)}`} target="_blank" rel="noopener noreferrer">{t.aboutChat} ↗</a>}
           </div>
         </div>
       </div>
@@ -294,25 +297,7 @@ function AudiencePageInner() {
           })
         )}
 
-        {groups.length > 0 && (
-          <div className="guide-actions">
-            <Link className="btn btn-primary" to={`/${slug}/tests#book`}>
-              {added.size > 0 ? t.guideGoToBookingWithCount(added.size) : t.guideGoToBooking}
-            </Link>
-            {lab.whatsapp && (
-              <a
-                className="btn btn-ghost"
-                href={`https://wa.me/${lab.whatsapp}?text=${encodeURIComponent(
-                  `Hello ${lab.name}, I have a question about the ${labelFor} checkup.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t.aboutChat}
-              </a>
-            )}
-          </div>
-        )}
+
       </div>
     </>
   );

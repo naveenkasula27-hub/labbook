@@ -77,3 +77,15 @@ body:has(dialog[open]) { overflow: hidden; }
 @media(max-width:360px) { .lb-service-grid { grid-template-columns: 1fr; } .lb-fever-lane { grid-auto-columns: 96%; } }
 @media(max-width:650px) { .lb-service-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 82%; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 12px; scrollbar-width: thin; } .lb-service-grid > * { scroll-snap-align: start; } .lb-services .lb-how ol { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 88%; overflow-x: auto; scroll-snap-type: x proximity; gap: 20px; padding-bottom: 14px; } .lb-services .lb-how li { scroll-snap-align: start; } }
 @media(prefers-reduced-motion:reduce) { .lb-services *, .lb-appointment-request, .lb-test-booking-dialog { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+
+/* Slow, continuous movement; controls, hover and focus pause the lane. */
+.lb-fever-lane { scroll-snap-type: none; scroll-behavior: auto; }
+.lb-fever { border: 1px solid #dbe7eb; box-shadow: 0 12px 36px #163d4b06; }
+.lb-fever-card { box-shadow: 0 5px 18px #163d4b05; }
+.lb-guide-hero-actions { margin-left: auto; display: flex; flex-direction: column; align-items: stretch; gap: 10px; min-width: 210px; }
+.lb-guide-hero-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: .875rem; text-decoration: none; text-align: center; }
+.lb-guide-return { background: #fff; color: #34435a; border: 1px solid #fff; box-shadow: 0 3px 12px #17213c12; }
+.lb-guide-whatsapp { background: #ffffff14; color: #fff; border: 1px solid #ffffff80; }
+.lb-guide-hero-actions a:hover { box-shadow: 0 4px 16px #10193228; }
+.lb-guide-hero-actions a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+@media(max-width:650px) { .lb-guide-hero-actions { width: 100%; margin-left: 0; flex-direction: row; flex-wrap: wrap; min-width: 0; } .lb-guide-hero-actions a { flex: 1 1 180px; } }

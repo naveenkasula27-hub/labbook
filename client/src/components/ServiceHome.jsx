@@ -14,13 +14,29 @@ function FeverTests({ tests, lab, picked, onToggle, onBook }) {
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (paused || interacting || fever.length < 2 || motion.matches) return;
-    const timer = setInterval(() => {
-      const el = lane.current;
-      if (!el || document.hidden || motion.matches) return;
-      const end = el.scrollLeft >= el.scrollWidth - el.clientWidth - 3;
-      el.scrollTo({ left: end ? 0 : el.scrollLeft + (el.firstElementChild?.getBoundingClientRect().width || 300) + 18, behavior: 'smooth' });
-    }, 7000);
-    return () => clearInterval(timer);
+    const el = lane.current;
+    if (!el) return;
+    let frame, previous, position = el.scrollLeft, atEnd = 0, visible = true;
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
+    observer.observe(el);
+    const tick = (time) => {
+      const delta = previous === undefined ? 0 : Math.min(time - previous, 50);
+      previous = time;
+      if (visible && !document.hidden && !motion.matches) {
+        const maximum = el.scrollWidth - el.clientWidth;
+        if (maximum > 1) {
+          position = Math.min(maximum, position + delta * 0.016);
+          if (position >= maximum) {
+            atEnd += delta;
+            if (atEnd >= 1800) { position = 0; atEnd = 0; }
+          }
+          el.scrollLeft = position;
+        }
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
   }, [paused, interacting, fever.length]);
   if (!fever.length) return null;
   const move = (direction) => { setPaused(true); lane.current?.scrollBy({left: direction * (lane.current.clientWidth * .85), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); };
