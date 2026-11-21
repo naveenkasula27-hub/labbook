@@ -21,7 +21,22 @@ async function request(path, options = {}) {
   return data;
 }
 
-export const getLab = (slug) => request(`/public/${slug}`);
+// Start this public catalogue request alongside the route chunk, then consume
+// it once. Later visits always request fresh data; patient requests are excluded.
+let startupLab;
+export function warmPublicLab(pathname) {
+  const match=pathname.match(/^\/([a-z0-9-]+)(?:\/(?:tests|checkups|check|for\/(?:men|women|kids|seniors)))?\/?$/i);
+  if(!match||['dashboard','signup','privacy','terms'].includes(match[1].toLowerCase()))return;
+  const slug=match[1];
+  const promise=request(`/public/${slug}`);
+  promise.catch(()=>{});
+  startupLab={slug,promise,started:Date.now()};
+}
+export const getLab = (slug) => {
+  if(startupLab?.slug===slug&&Date.now()-startupLab.started<10000){const pending=startupLab.promise;startupLab=undefined;return pending;}
+  startupLab=undefined;
+  return request(`/public/${slug}`);
+};
 
 export const getAvailability = (slug, date) =>
   request(`/public/${slug}/availability?date=${encodeURIComponent(date)}`);

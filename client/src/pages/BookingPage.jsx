@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   getLab,
@@ -14,7 +14,7 @@ import NotFoundPage from "./NotFoundPage.jsx";
 import TestList from "../components/TestList.jsx";
 import Packages from "../components/Packages.jsx";
 import SelectedPanel from "../components/SelectedPanel.jsx";
-import BookingForm from "../components/BookingForm.jsx";
+const BookingForm = lazy(() => import("../components/BookingForm.jsx"));
 import Confirmation from "../components/Confirmation.jsx";
 import DemoStrip from "../components/DemoStrip.jsx";
 import LangToggle from "../components/LangToggle.jsx";
@@ -72,6 +72,8 @@ function BookingPageInner() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [requestKind, setRequestKind] = useState("callback");
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingSeen, setBookingSeen] = useState(false);
+  useEffect(() => { if (bookingOpen) setBookingSeen(true); }, [bookingOpen]);
 
 
   function openHelp(kind = "callback") {
@@ -376,8 +378,10 @@ function BookingPageInner() {
       {lab.isDemo && <DemoStrip labName={lab.name} />}
       <CallbackDialog key={slug} lab={lab} kind={requestKind} open={helpOpen} onClose={() => setHelpOpen(false)} onExplore={exploreTests} />
       <BookingDialog open={bookingOpen} onClose={() => setBookingOpen(false)}>
+        {(bookingOpen || bookingSeen) && <Suspense fallback={<p role="status">Loading your booking form…</p>}>
         <SelectedPanel basket={basket} lab={lab} fastingNotes={fastingNotes} onRemove={(item) => item.kind === "package" ? togglePackage(item.code) : toggleTest(item.code)} />
         <BookingForm ref={formRef} lab={lab} basket={basket} labOnly={labOnly} date={date} slot={slot} availability={availability} minDate={todayForLab(lab)} onDate={(value) => { setDate(value); setSlot(""); }} onSlot={setSlot} onSubmit={submit} />
+        </Suspense>}
       </BookingDialog>
 
       <header className="site-head">

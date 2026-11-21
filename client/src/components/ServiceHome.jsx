@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { catalogImage, sceneImage } from "../lib/catalog.js";
+import { startSlowCarousel } from "../lib/slowCarousel.js";
 import { money } from "../lib/api.js";
 import CareBenefits from "./CareBenefits.jsx";
 import BookingFAQ from "./BookingFAQ.jsx";
@@ -13,31 +14,8 @@ function FeverTests({ tests, lab, picked, onToggle, onBook }) {
   const [interacting, setInteracting] = useState(false);
   const fever = tests.filter((test) => test.category === 'Fever' || /\b(cbc|dengue|malaria|typhoid|widal)\b/i.test(`${test.code} ${test.name}`));
   useEffect(() => {
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (paused || interacting || fever.length < 2 || motion.matches) return;
-    const el = lane.current;
-    if (!el) return;
-    let frame, previous, position = el.scrollLeft, atEnd = 0, visible = true;
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
-    observer.observe(el);
-    const tick = (time) => {
-      const delta = previous === undefined ? 0 : Math.min(time - previous, 50);
-      previous = time;
-      if (visible && !document.hidden && !motion.matches) {
-        const maximum = el.scrollWidth - el.clientWidth;
-        if (maximum > 1) {
-          position = Math.min(maximum, position + delta * 0.016);
-          if (position >= maximum) {
-            atEnd += delta;
-            if (atEnd >= 1800) { position = 0; atEnd = 0; }
-          }
-          el.scrollLeft = position;
-        }
-      }
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+    if (paused || interacting || fever.length < 2 || !lane.current) return;
+    return startSlowCarousel(lane.current);
   }, [paused, interacting, fever.length]);
   if (!fever.length) return null;
   const move = (direction) => { setPaused(true); lane.current?.scrollBy({left: direction * (lane.current.clientWidth * .85), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); };

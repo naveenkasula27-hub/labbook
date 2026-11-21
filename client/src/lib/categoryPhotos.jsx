@@ -6,22 +6,22 @@
  * still uses the plain line icon from categoryIcons.jsx, since a photo
  * repeated 100+ times at 20px would be heavy and hard to read.
  */
-import thyroid from "../assets/categories/thyroid.jpg";
-import heart from "../assets/categories/heart.jpg";
-import liver from "../assets/categories/liver.jpg";
-import hormones from "../assets/categories/hormones.jpg";
-import vitamins from "../assets/categories/vitamins.jpg";
-import infection from "../assets/categories/infection.jpg";
-import urine from "../assets/categories/urine.jpg";
-import allergy from "../assets/categories/allergy.jpg";
-import fever from "../assets/categories/fever.jpg";
-import routine from "../assets/categories/routine.jpg";
-import diabetes from "../assets/categories/diabetes.jpg";
-import kidney from "../assets/categories/kidney.jpg";
-import clotting from "../assets/categories/clotting.jpg";
-import markers from "../assets/categories/markers.jpg";
-import stool from "../assets/categories/stool.jpg";
-import scans from "../assets/categories/scans.jpg";
+const thyroid = "/images/categories/thyroid-384.webp";
+const heart = "/images/categories/heart-384.webp";
+const liver = "/images/categories/liver-384.webp";
+const hormones = "/images/categories/hormones-384.webp";
+const vitamins = "/images/categories/vitamins-384.webp";
+const infection = "/images/categories/infection-384.webp";
+const urine = "/images/categories/urine-384.webp";
+const allergy = "/images/categories/allergy-384.webp";
+const fever = "/images/categories/fever-384.webp";
+const routine = "/images/categories/routine-384.webp";
+const diabetes = "/images/categories/diabetes-384.webp";
+const kidney = "/images/categories/kidney-384.webp";
+const clotting = "/images/categories/clotting-384.webp";
+const markers = "/images/categories/markers-384.webp";
+const stool = "/images/categories/stool-384.webp";
+const scans = "/images/categories/scans-384.webp";
 
 const CATEGORY_PHOTOS = {
   Thyroid: thyroid,

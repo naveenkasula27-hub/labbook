@@ -9,9 +9,13 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage.jsx"));
 const SignupPage = lazy(() => import("./pages/SignupPage.jsx"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
 const Terms = lazy(() => import("./pages/Terms.jsx"));
+import "./fonts.css";
 import "./styles.css";
 import RouteMetadata from "./components/RouteMetadata.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import { warmPublicLab } from "./lib/api.js";
+
+warmPublicLab(window.location.pathname);
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
