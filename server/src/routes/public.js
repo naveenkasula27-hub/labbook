@@ -179,7 +179,7 @@ const bookingSchema = z.object({
   date: z.string().trim().optional().or(z.literal("")),
   slot: z.string().trim().optional().or(z.literal("")),
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
-  consent: z.literal(true, { errorMap: () => ({ message: "Tick the consent box so the lab can contact you." }) }),
+  consent: z.literal(true, { error: "Tick the consent box so the lab can contact you." }),
 });
 
 publicRouter.post("/:slug/bookings", bookingLimiter, loadLab, async (req, res) => {

@@ -1,20 +1,23 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage.jsx";
-import BookingPage from "./pages/BookingPage.jsx";
-import AudiencePage from "./pages/AudiencePage.jsx";
-import CheckBookingPage from "./pages/CheckBookingPage.jsx";
-import DashboardPage from "./pages/DashboardPage.jsx";
-import SignupPage from "./pages/SignupPage.jsx";
-import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
-import Terms from "./pages/Terms.jsx";
+const LandingPage = lazy(() => import("./pages/LandingPage.jsx"));
+const BookingPage = lazy(() => import("./pages/BookingPage.jsx"));
+const AudiencePage = lazy(() => import("./pages/AudiencePage.jsx"));
+const CheckBookingPage = lazy(() => import("./pages/CheckBookingPage.jsx"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage.jsx"));
+const SignupPage = lazy(() => import("./pages/SignupPage.jsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
+const Terms = lazy(() => import("./pages/Terms.jsx"));
 import "./styles.css";
-import "./dashboard.css";
+import RouteMetadata from "./components/RouteMetadata.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
+      <RouteMetadata />
+      <Suspense fallback={<main className="center" role="status">Loading LabBook…</main>}>
       <Routes>
         {/* The front door. Used to redirect to /nandu, which meant anyone
             opening the bare address landed on a real lab's booking page. */}
@@ -31,11 +34,16 @@ createRoot(document.getElementById("root")).render(
         <Route path="/terms" element={<Terms />} />
 
         {/* Each lab gets its own address: /nandu */}
-        <Route path="/:slug/*" element={<BookingPage />} />
+        <Route path="/:slug" element={<BookingPage />}>
+          <Route index />
+          <Route path="tests" />
+          <Route path="checkups" />
+        </Route>
         <Route path="/:slug/check" element={<CheckBookingPage />} />
         <Route path="/:slug/for/:audience" element={<AudiencePage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   </React.StrictMode>
 );

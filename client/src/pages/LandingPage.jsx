@@ -122,9 +122,9 @@ export default function LandingPage() {
               </p>
 
               <div className="lp-actions">
-                <Link className="lp-btn lp-btn-main" to="/maheera" onClick={() => track("OpenedDemo")}>
+                <a className="lp-btn lp-btn-main" href="/maheera" onClick={() => track("OpenedDemo")}>
                   Open the live demo
-                </Link>
+                </a>
                 <a
                   className="lp-btn lp-btn-quiet"
                   href={waLink("Hello Naveen, I run a diagnostic lab and I want a booking page like the demo.")}
@@ -205,9 +205,9 @@ export default function LandingPage() {
           <h2>A better way to discover lab tests</h2>
           <p>Give patients a clear place to start: search for a test, browse by health category, or explore a checkup package.</p>
           <div className="lp-photo-grid">
-            <Link to="/maheera#tests"><img src="/images/supplied/blood-testing.webp" alt="Illustration of a clinician preparing blood sample tubes" loading="lazy" width="600" height="360" /><div><span>INDIVIDUAL TESTS</span><h3>Find the right test</h3><p>Search names and abbreviations. See sample and preparation details.</p><strong>Explore the demo →</strong></div></Link>
-            <Link to="/maheera#tests"><img src="/images/supplied/diabetes-care.webp" alt="Illustration of a glucose-testing checkup" loading="lazy" width="600" height="360" /><div><span>HEALTH CATEGORIES</span><h3>Start with your health</h3><p>Browse diabetes, thyroid, heart health, vitamins, and more.</p><strong>Browse categories →</strong></div></Link>
-            <Link to="/maheera#packages"><img src="/images/supplied/full-body-care.webp" alt="Illustration of a general health checkup consultation" loading="lazy" width="600" height="360" /><div><span>CHECKUP PACKAGES</span><h3>See the bigger picture</h3><p>Explore included tests and add a package to your booking.</p><strong>Discover checkups →</strong></div></Link>
+            <a href="/maheera/tests"><img src="/images/supplied/blood-testing-960.webp" srcSet="/images/supplied/blood-testing-480.webp 480w, /images/supplied/blood-testing-960.webp 960w" sizes="(max-width: 680px) 100vw, 33vw" alt="Illustration of a clinician preparing blood sample tubes" loading="lazy" decoding="async" width="960" height="720" /><div><span>INDIVIDUAL TESTS</span><h3>Find the right test</h3><p>Search names and abbreviations. See sample and preparation details.</p><strong>Explore the demo →</strong></div></a>
+            <a href="/maheera/tests?category=Diabetes"><img src="/images/supplied/diabetes-care-960.webp" srcSet="/images/supplied/diabetes-care-480.webp 480w, /images/supplied/diabetes-care-960.webp 960w" sizes="(max-width: 680px) 100vw, 33vw" alt="Illustration of a glucose-testing checkup" loading="lazy" decoding="async" width="960" height="720" /><div><span>HEALTH CATEGORIES</span><h3>Start with your health</h3><p>Browse diabetes, thyroid, heart health, vitamins, and more.</p><strong>Browse categories →</strong></div></a>
+            <a href="/maheera/checkups"><img src="/images/supplied/full-body-care-960.webp" srcSet="/images/supplied/full-body-care-480.webp 480w, /images/supplied/full-body-care-960.webp 960w" sizes="(max-width: 680px) 100vw, 33vw" alt="Illustration of a general health checkup consultation" loading="lazy" decoding="async" width="960" height="720" /><div><span>CHECKUP PACKAGES</span><h3>See the bigger picture</h3><p>Explore included tests and add a package to your booking.</p><strong>Discover checkups →</strong></div></a>
           </div>
         </div>
       </section>
@@ -252,9 +252,9 @@ export default function LandingPage() {
           </p>
 
           <div className="lp-actions" style={{ marginTop: 22 }}>
-            <Link className="lp-btn lp-btn-main" to="/maheera" onClick={() => track("OpenedDemo")}>
+            <a className="lp-btn lp-btn-main" href="/maheera" onClick={() => track("OpenedDemo")}>
               Try booking a test — patient's view
-            </Link>
+            </a>
             <Link
               className="lp-btn"
               to="/dashboard"

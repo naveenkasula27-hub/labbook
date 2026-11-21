@@ -24,9 +24,9 @@ export default function AudienceTiles({ slug }) {
   return (
     <div className="audience-tiles" role="group" aria-label={t.audienceTitle}>
       {TAGS.map((tag) => (
-        <Link key={tag} to={`/${slug}/for/${tag}`} className="audience-tile">
+        <Link key={tag} to={`/${slug}/for/${tag}`} className="audience-tile" data-audience={tag}>
           <span className="audience-tile-photo">
-            <img src={PHOTOS[tag]} alt="" loading="lazy" />
+            <img src={PHOTOS[tag]} alt="" loading="lazy" decoding="async" width="144" height="144" />
           </span>
           <span className="audience-tile-label">{labelFor[tag]}</span>
         </Link>

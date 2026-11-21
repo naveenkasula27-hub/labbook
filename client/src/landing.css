@@ -244,3 +244,6 @@
 .lp-photo-grid p { font-size: .9rem; color: #525f72; }
 .lp-photo-grid strong { font-size: .85rem; color: #145b4c; }
 @media (max-width: 680px) { .lp-photo-grid { grid-template-columns: 1fr; } .lp-photo-grid img { height: 200px; } }
+
+/* Preserve complete clinician portraits across desktop and mobile cards. */
+.lp-photo-grid img { height: auto; aspect-ratio: 4 / 3; object-fit: contain; object-position: center top; background: #eef5f8; }

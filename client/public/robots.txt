@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /signup
+Disallow: /maheera
+
+Sitemap: https://labbook-d5sm.vercel.app/sitemap.xml

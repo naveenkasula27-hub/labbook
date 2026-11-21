@@ -8,6 +8,7 @@ import {
   prettyDate,
   todayForLab,
 } from "../lib/api.js";
+import NotFoundPage from "./NotFoundPage.jsx";
 import TestList from "../components/TestList.jsx";
 import Packages from "../components/Packages.jsx";
 import SelectedPanel from "../components/SelectedPanel.jsx";
@@ -51,6 +52,7 @@ function BookingPageInner() {
 
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState("");
+  const [missingLab, setMissingLab] = useState(false);
 
   // What the patient has picked
   const [picked, setPicked] = useState(() => {
@@ -145,7 +147,7 @@ function BookingPageInner() {
         }
         setData({ lab: d.lab, tests: d.tests || [], packages: d.packages || [], categories: d.categories || [] });
       })
-      .catch((err) => alive && setLoadError(err.message));
+      .catch((err) => { if (alive) { setLoadError(err.message); setMissingLab(err.status === 404); } });
     return () => {
       alive = false;
     };
@@ -153,14 +155,16 @@ function BookingPageInner() {
 
   useEffect(() => {
     if (!data) return;
-    document.title = `Book a test — ${data.lab.name}`;
+    document.title = `${view === "packages" ? "Health checkups" : view === "tests" ? "Lab tests" : "Book a test"} — ${data.lab.name}`;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', `Explore tests and health checkups, view preparation details, and book directly with ${data.lab.name}.`);
+    if (data.lab.isDemo) document.querySelector('meta[name="robots"]')?.setAttribute('content', 'noindex,follow');
     const root = document.documentElement;
     if (data.lab.theme?.primary) root.style.setProperty("--primary", data.lab.theme.primary);
     if (data.lab.theme?.accent) root.style.setProperty("--accent", data.lab.theme.accent);
     // Falls back to the header colour, which is what labs without a cta set
     // have always used.
     root.style.setProperty("--cta", data.lab.theme?.cta || data.lab.theme?.primary || "");
-  }, [data]);
+  }, [data, view]);
 
   /* ---------- Load slots when the date changes ---------- */
   useEffect(() => {
@@ -336,6 +340,7 @@ function BookingPageInner() {
   }
 
   /* ---------- Loading and error states ---------- */
+  if (missingLab) return <NotFoundPage />;
   if (loadError) {
     return (
       <main className="center">

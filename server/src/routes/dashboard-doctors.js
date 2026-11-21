@@ -25,7 +25,8 @@ dashboardDoctorsRouter.post("/", async (req, res) => {
 dashboardDoctorsRouter.patch("/:code", async (req, res) => {
   const parsed = schema.partial().safeParse(req.body);
   if (!parsed.success || !/^[a-z0-9-]{4,50}$/.test(req.params.code)) return res.status(400).json({ error: "Enter valid doctor details." });
-  const doctor = await Doctor.findOneAndUpdate({ lab: req.labId, code: req.params.code }, { $set: parsed.data }, { new: true, runValidators: true }).lean();
+  const changes = Object.fromEntries(Object.entries(parsed.data).filter(([key]) => Object.hasOwn(req.body, key)));
+  const doctor = await Doctor.findOneAndUpdate({ lab: req.labId, code: req.params.code }, { $set: changes }, { new: true, runValidators: true }).lean();
   if (!doctor) return res.status(404).json({ error: "Doctor profile not found." });
   res.json({ doctor });
 });

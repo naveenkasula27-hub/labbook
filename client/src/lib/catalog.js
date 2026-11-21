@@ -24,7 +24,8 @@ const suppliedCategories = {
   Fever: "fever", Infection: "infection",
 };
 
-const scene = (name, alt) => ({ src: `${supplied}${name}.webp`, alt, "data-visual": "scene" });
+export const sceneImage = (name, alt) => ({ src: `${supplied}${name}-960.webp`, srcSet: `${supplied}${name}-480.webp 480w, ${supplied}${name}-960.webp 960w`, sizes: "(max-width: 650px) calc(100vw - 48px), (max-width: 1000px) 45vw, 420px", alt, "data-visual": "scene" });
+const scene = sceneImage;
 
 export function catalogImage(category) {
   if (suppliedCategories[category]) return { src: `${supplied}${suppliedCategories[category]}.webp`, alt: `${category} health category illustration`, "data-visual": "cutout" };
@@ -46,7 +47,7 @@ export function packageImage(name) {
   if (/diabet|sugar/i.test(name)) return scene("diabetes-care", "Illustration of a diabetes checkup and glucose testing equipment");
   if (/heart|cardiac/i.test(name)) return scene("heart-care", "Illustration of a heart health checkup");
   if (/thyroid/i.test(name)) return catalogImage("Thyroid");
-  if (/fever/i.test(name)) return catalogImage("Fever");
+  if (/fever/i.test(name)) return scene("fever-care", "AI illustration of a clinician helping a patient with fever");
   if (/vitamin|nutrition/i.test(name)) return catalogImage("Vitamins");
   if (/full\s*body|comprehensive|\bmen\b|\bmale\b/i.test(name)) return scene("full-body-care", "Illustration of a general health checkup consultation");
   return scene("routine-care", "Illustration of a clinician preparing for a routine health checkup");

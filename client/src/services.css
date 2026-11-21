@@ -89,3 +89,18 @@ body:has(dialog[open]) { overflow: hidden; }
 .lb-guide-hero-actions a:hover { box-shadow: 0 4px 16px #10193228; }
 .lb-guide-hero-actions a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 @media(max-width:650px) { .lb-guide-hero-actions { width: 100%; margin-left: 0; flex-direction: row; flex-wrap: wrap; min-width: 0; } .lb-guide-hero-actions a { flex: 1 1 180px; } }
+
+/* Larger portraits and individual stage colours, without face cropping. */
+.lb-services .audience-tiles { gap: 18px; margin-top: 26px; }
+.lb-services .audience-tile { padding: 26px 14px 22px; border-radius: 22px; border: 1px solid #d5e6df; background: #eef7f1; text-decoration: none; gap: 16px; }
+.lb-services .audience-tile[data-audience=women] { background: #f4effb; border-color: #e4d8f3; }
+.lb-services .audience-tile[data-audience=kids] { background: #fff3e9; border-color: #f3dfcb; }
+.lb-services .audience-tile[data-audience=seniors] { background: #ecf4fc; border-color: #d5e4f4; }
+.lb-services .audience-tile-photo { width: 144px; height: 144px; border: 5px solid #fff; box-shadow: 0 5px 18px #203c4b10; }
+.lb-services .audience-tile-photo img { object-position: center top; }
+.lb-services .audience-tile-label { color: #294b55; font-size: 1rem; font-weight: 700; }
+.lb-services .audience-tile:hover { border-color: #73989c; box-shadow: 0 8px 24px #183b4b0c; }
+.lb-fever-intro .lb-fever-care-photo { display: block; float: none; width: 100%; height: auto; aspect-ratio: 4/3; object-fit: contain; background: #f5f9fb; border-radius: 16px; margin-bottom: 24px; }
+@media(max-width:800px) { .lb-services .audience-tiles { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; } .lb-services .audience-tile-photo { width: 124px; height: 124px; } }
+@media(max-width:400px) { .lb-services .audience-tile-photo { width: 100px; height: 100px; } .lb-services .audience-tile { padding: 20px 8px; } }
+@media(max-width:650px) { .lb-fever-intro .lb-fever-care-photo { max-width: 280px; margin: 0 0 22px; } }

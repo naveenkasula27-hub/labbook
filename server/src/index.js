@@ -47,9 +47,10 @@ function allowedOrigin(origin, callback) {
 
 export function createApp() {
   const app = express();
+  app.disable("x-powered-by");
 
   app.set("trust proxy", 1);           // behind Vercel / nginx, so rate limiting sees the real IP
-  app.use((req, res, next) => { res.set("Cache-Control", "no-store"); next(); });
+  app.use((req, res, next) => { res.set("Cache-Control", "no-store"); res.set("X-Content-Type-Options", "nosniff"); next(); });
   app.use(express.json({ limit: "100kb" }));
   app.use(cors({ origin: allowedOrigin, credentials: true }));
 

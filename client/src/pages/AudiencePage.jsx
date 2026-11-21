@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { getLab, money } from "../lib/api.js";
 import { LangProvider, useLang } from "../lib/i18n.jsx";
+import NotFoundPage from "./NotFoundPage.jsx";
 import CategoryIcon from "../lib/categoryIcons.jsx";
 import CATEGORY_PHOTOS from "../lib/categoryPhotos.jsx";
 import { AUDIENCE_GUIDE } from "../lib/audienceGuide.js";
@@ -138,7 +139,7 @@ function AudiencePageInner() {
       .filter((group) => group.items.length > 0);
   }, [guide, byCode]);
 
-  if (!guide) return <Navigate to={`/${slug}`} replace />;
+  if (!guide) return <NotFoundPage />;
 
   if (loadError) {
     return (
