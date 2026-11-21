@@ -10,6 +10,15 @@
     {
       "path": "/api/cron/reset-demo-lab",
       "schedule": "30 21 * * *"
+    },
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "30 4 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300
+    }
+  }
 }

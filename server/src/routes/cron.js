@@ -1,8 +1,17 @@
 import { createRouter } from "../lib/router.js";
 import { config } from "../config.js";
 import { resetDemoLab } from "../lib/demo-lab-reset.js";
+import { runDayBeforeReminders } from "../lib/reminders.js";
 
 export const cronRouter = createRouter();
+
+cronRouter.get('/reminders', requireCronSecret, async (req,res) => {
+  const result=await runDayBeforeReminders({dryRun:req.query.dryRun==='1'});
+  if(result.disabled)return res.status(503).json({error:'WhatsApp is not configured. No reminders were sent.'});
+  console.log('[cron] reminder summary:',result);
+  const ok=result.failed===0&&result.uncertain===0&&!result.limited;
+  res.status(ok?200:503).json({ok,...result});
+});
 
 function requireCronSecret(req, res, next) {
   const expected = config.cronSecret;

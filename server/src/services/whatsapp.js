@@ -39,7 +39,9 @@ async function post(body) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const msg = data?.error?.message || res.statusText;
-    throw new Error(`WhatsApp send failed (${res.status}): ${msg}`);
+    const error = new Error(`WhatsApp send failed (${res.status}): ${msg}`);
+    error.status = res.status;
+    throw error;
   }
   return data;
 }

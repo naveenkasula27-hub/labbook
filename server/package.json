@@ -17,7 +17,7 @@
     "remind": "node src/jobs/send-reminders.js",
     "remind:dry": "node src/jobs/send-reminders.js --dry-run",
     "remind:test": "node src/jobs/send-test-reminder.js",
-    "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs test/seats.mjs test/enquiries.mjs test/doctors.mjs test/demo-prices.mjs test/launch-audit.mjs",
+    "test": "node --test test/unit.mjs test/isolation.mjs test/deploy.mjs test/seats.mjs test/enquiries.mjs test/doctors.mjs test/demo-prices.mjs test/launch-audit.mjs test/reminders.mjs",
     "test:api": "node --test test/api.mjs test/dashboard.mjs test/ratelimit.mjs test/slots.mjs test/improvements.mjs",
     "admin:create": "node src/scripts/create-admin.js"
   },

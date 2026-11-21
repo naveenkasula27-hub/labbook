@@ -30,7 +30,7 @@ export default function TestList({ tests, categories, lab, query, category, onCa
         {pageItems.map((test) => {
           const on = picked.has(test.code);
           return <li className="catalog-card" data-selected={on} key={test.code}>
-            <div className="catalog-photo"><img {...catalogImage(test.category)} loading="lazy" width="480" height="280" /><span className="catalog-label">{test.category}</span></div>
+            <div className="lb-test-visual"><img {...catalogImage(test.category)} loading="lazy" decoding="async" width="180" height="144" /><span>{test.category}</span></div>
             <div className="catalog-body">
               <h3>{test.name}</h3>
               {test.alias && <p className="test-alias">{test.alias}</p>}

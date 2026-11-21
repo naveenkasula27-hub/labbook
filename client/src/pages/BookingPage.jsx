@@ -8,6 +8,8 @@ import {
   prettyDate,
   todayForLab,
 } from "../lib/api.js";
+import LabFooter from "../components/LabFooter.jsx";
+import "../brand.css";
 import NotFoundPage from "./NotFoundPage.jsx";
 import TestList from "../components/TestList.jsx";
 import Packages from "../components/Packages.jsx";
@@ -124,11 +126,11 @@ function BookingPageInner() {
   const formRef = useRef(null);
 
   useEffect(() => {
-    if (!data || !["#tests", "#packages", "#book"].includes(window.location.hash)) return;
+    if (!data || !["#tests", "#packages", "#book", "#about", "#contact", "#how-to-book"].includes(window.location.hash)) return;
     if (window.location.hash === "#book") setBookingOpen(true);
     const frame = requestAnimationFrame(() => document.querySelector(window.location.hash)?.scrollIntoView());
     return () => cancelAnimationFrame(frame);
-  }, [data]);
+  }, [data, location.hash]);
 
   /* ---------- Load the lab ---------- */
   useEffect(() => {
@@ -398,6 +400,7 @@ function BookingPageInner() {
             <Link to={`/${slug}`}>Home</Link><Link to={`/${slug}/tests`} aria-current={view === "tests" ? "page" : undefined}>{t.findTitle}</Link>
             {data.packages.length > 0 && <Link to={`/${slug}/checkups`} aria-current={view === "packages" ? "page" : undefined}>{t.packagesTitle}</Link>}
             <Link to={`/${slug}/check`}>{t.heroCheckBooking}</Link>
+            <Link to={`/${slug}#about`}>About</Link><Link to={`/${slug}#contact`}>Contact</Link>
             {lab.mapsUrl && (
               <a href={lab.mapsUrl} target="_blank" rel="noopener noreferrer">
                 {t.directions}
@@ -555,12 +558,7 @@ function BookingPageInner() {
         </div>
       )}
 
-      <footer className="site-foot">
-        <div className="wrap">
-          {lab.address && <p style={{ margin: 0 }}>{lab.address}</p>}
-          <p style={{ margin: "4px 0 0" }}>{lab.name} · {lab.phone}</p>
-        </div>
-      </footer>
+      <LabFooter lab={lab} />
     </div>
   );
 }

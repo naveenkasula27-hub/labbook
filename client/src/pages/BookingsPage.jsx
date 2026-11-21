@@ -288,6 +288,9 @@ function BookingRow({ booking: b, lab, busy, expanded, onToggle, onMove, onSaved
             <dt>Reference</dt>
             <dd className="mono">{b.reference}</dd>
 
+            <dt>Day-before reminder</dt>
+            <dd>{b.messages?.reminderSent ? "Accepted by WhatsApp" : b.messages?.reminderState === "uncertain" ? "Delivery uncertain — review WhatsApp before retrying" : b.messages?.reminderState === "sending" ? "Processing — review if this status persists" : b.messages?.reminderState === "failed" ? "Failed — check WhatsApp settings and the reminder logs" : lab.isDemo ? "Not sent for demo bookings" : lab.notify?.reminderDayBefore === false ? "Switched off for this lab" : "Not sent yet"}</dd>
+
             <dt>Tests</dt>
             <dd>{b.items.map((i) => i.name).join(", ") || "As per notes"}</dd>
 

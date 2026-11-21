@@ -28,7 +28,7 @@ export const sceneImage = (name, alt) => ({ src: `${supplied}${name}-960.webp`, 
 const scene = sceneImage;
 
 export function catalogImage(category) {
-  if (suppliedCategories[category]) return { src: `${supplied}${suppliedCategories[category]}.webp`, alt: `${category} health category illustration`, "data-visual": "cutout" };
+  if (suppliedCategories[category]) return { src: `${supplied}${suppliedCategories[category]}-384.webp`, alt: `${category} health category illustration`, "data-visual": "cutout" };
   if (CATEGORY_PHOTOS[category]) return { src: CATEGORY_PHOTOS[category], alt: `${category} test category illustration` };
   const [file, alt] = photos[category] || ["lab", "Laboratory equipment used for diagnostic testing"];
   return { src: `/images/${file}.jpg`, alt };
